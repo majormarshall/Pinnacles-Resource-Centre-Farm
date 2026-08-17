@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Pinnacles Resource Centre Farm</title>
+  <link rel="icon" type="image/svg+xml" href="../images/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <img src="../images/logo.svg" alt="Pinnacles Logo" class="login-logo" />
+      <h1>Pinnacles Farm</h1>
+      <p class="login-sub">Admin Dashboard</p>
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="login-username" placeholder="admin" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+        <div id="login-error" class="error-msg" style="display:none"></div>
+        <button type="submit" class="btn-primary full-width" id="login-btn">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="dashboard" style="display:none">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="../images/logo.svg" alt="Logo" class="sidebar-logo" />
+        <div class="sidebar-brand">
+          <span class="brand-name">Pinnacles Farm</span>
+          <span class="brand-sub">Admin Panel</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" onclick="showTab('overview', this)">📊 Overview</a>
+        <a href="#" class="nav-item" onclick="showTab('orders', this)">🛒 Orders <span class="nav-badge" id="pending-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('products', this)">🌿 Products</a>
+        <a href="#" class="nav-item" onclick="showTab('messages', this)">💬 Messages <span class="nav-badge" id="msg-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('settings', this)">⚙️ Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="admin-name-display">admin</span>
+        <button onclick="logout()" class="logout-btn">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard Overview</div>
+        <div class="topbar-right">
+          <a href="/" target="_blank" class="view-site-btn">🌐 View Site</a>
+          <div class="admin-avatar">A</div>
+        </div>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <section id="tab-overview" class="tab-content active">
+        <div class="stats-grid">
+          <div class="stat-card green">
+            <div class="stat-icon">🛒</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-total-orders">0</span>
+              <span class="stat-label">Total Orders</span>
+            </div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-pending">0</span>
+              <span class="stat-label">Pending Orders</span>
+            </div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-revenue">₦0</span>
+              <span class="stat-label">Total Revenue</span>
+            </div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-icon">💬</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-msgs">0</span>
+              <span class="stat-label">Unread Messages</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="overview-grid">
+          <div class="card">
+            <div class="card-header"><h3>Recent Orders</h3><button class="link-btn" onclick="showTab('orders', document.querySelector('[onclick*=orders]'))">View All →</button></div>
+            <div id="recent-orders-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Recent Messages</h3><button class="link-btn" onclick="showTab('messages', document.querySelector('[onclick*=messages]'))">View All →</button></div>
+            <div id="recent-messages-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS TAB -->
+      <section id="tab-orders" class="tab-content">
+        <div class="tab-toolbar">
+          <div class="filter-group">
+            <select id="order-status-filter" onchange="loadOrders()" class="select-input">
+              <option value="">All Orders</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="processing">Processing</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="loadOrders()">🔄 Refresh</button>
+        </div>
+        <div id="orders-list" class="list-container"></div>
+      </section>
+
+      <!-- PRODUCTS TAB -->
+      <section id="tab-products" class="tab-content">
+        <div class="tab-toolbar">
+          <button class="btn-primary" onclick="openProductModal()">+ Add Product</button>
+          <button class="btn-outline" onclick="loadProducts()">🔄 Refresh</button>
+        </div>
+        <div id="products-admin-grid" class="admin-products-grid"></div>
+      </section>
+
+      <!-- MESSAGES TAB -->
+      <section id="tab-messages" class="tab-content">
+        <div class="tab-toolbar">
+          <button class="btn-outline" onclick="loadMessages()">🔄 Refresh</button>
+        </div>
+        <div id="messages-list" class="list-container"></div>
+      </section>
+
+      <!-- SETTINGS TAB -->
+      <section id="tab-settings" class="tab-content">
+        <div class="settings-grid">
+          <div class="card">
+            <div class="card-header"><h3>⚙️ Farm Info</h3></div>
+            <div class="settings-info">
+              <div class="info-row"><span>WhatsApp</span><strong>+234 707 821 0834</strong></div>
+              <div class="info-row"><span>Email</span><strong>agribusiness@pinnaclescentre.com</strong></div>
+            </div>
+            <a href="https://wa.me/2347078210834" target="_blank" class="btn-primary mt-12">💬 Open WhatsApp</a>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>🔐 Change Password</h3></div>
+            <form onsubmit="changePassword(event)">
+              <div class="form-group"><label>Current Password</label><input type="password" id="cp-current" required /></div>
+              <div class="form-group"><label>New Password</label><input type="password" id="cp-new" required /></div>
+              <div id="cp-msg" class="success-msg" style="display:none"></div>
+              <button type="submit" class="btn-primary">Update Password</button>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>📢 Generate WhatsApp Advert</h3></div>
+            <p class="card-desc">Generate a promotional message to share on WhatsApp.</p>
+            <button class="btn-primary" onclick="generateAdvert()">📢 Generate Advert</button>
+            <div id="advert-output" class="advert-box" style="display:none"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- PRODUCT MODAL -->
+  <div class="modal-overlay" id="prod-modal-overlay" onclick="closeProductModal()"></div>
+  <div class="modal" id="prod-modal">
+    <div class="modal-header">
+      <h3 id="prod-modal-title">Add Product</h3>
+      <button onclick="closeProductModal()" class="modal-close">✕</button>
+    </div>
+    <form id="product-form" onsubmit="saveProduct(event)">
+      <input type="hidden" id="prod-id" />
+      <div class="form-row">
+        <div class="form-group"><label>Product Name *</label><input type="text" id="prod-name" required /></div>
+        <div class="form-group"><label>Emoji</label><input type="text" id="prod-emoji" placeholder="🌿" maxlength="4" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Price (₦) *</label><input type="number" id="prod-price" required min="0" /></div>
+        <div class="form-group"><label>Unit</label><input type="text" id="prod-unit" placeholder="per kg" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Category</label>
+          <select id="prod-category" class="select-input">
+            <option value="vegetables">Vegetables</option>
+            <option value="fruits">Fruits</option>
+            <option value="grains">Grains</option>
+            <option value="proteins">Proteins</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Tag</label><input type="text" id="prod-tag" placeholder="Fresh" /></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="prod-desc" rows="3"></textarea></div>
+      <div class="form-group"><label>Stock Qty</label><input type="number" id="prod-stock" value="999" min="0" /></div>
+      <div class="form-group checkbox-group">
+        <label><input type="checkbox" id="prod-active" checked /> Product is Active (visible on site)</label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" onclick="closeProductModal()" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-primary">Save Product</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ORDER DETAIL MODAL -->
+  <div class="modal-overlay" id="order-modal-overlay" onclick="closeOrderModal()"></div>
+  <div class="modal" id="order-modal">
+    <div class="modal-header"><h3>Order Details</h3><button onclick="closeOrderModal()" class="modal-close">✕</button></div>
+    <div id="order-modal-content"></div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

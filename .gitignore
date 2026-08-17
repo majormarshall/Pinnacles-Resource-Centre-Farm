@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Environment variables (keep secret)
+backend/.env
+
+# SQLite database (generated at runtime)
+backend/*.db
+backend/*.db-wal
+backend/*.db-shm
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
