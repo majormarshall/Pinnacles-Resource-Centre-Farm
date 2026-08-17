@@ -5,7 +5,10 @@ const sqlite3 = require('sqlite3').verbose();
 const path    = require('path');
 const bcrypt  = require('bcryptjs');
 
-const DB_PATH = path.join(__dirname, 'pinnacles_farm.db');
+// On Vercel serverless, only /tmp is writable. Use it there; use local path otherwise.
+const DB_PATH = process.env.VERCEL
+  ? '/tmp/pinnacles_farm.db'
+  : path.join(__dirname, 'pinnacles_farm.db');
 const db = new sqlite3.Database(DB_PATH);
 
 // ── Promisify helpers ─────────────────────────────────────────

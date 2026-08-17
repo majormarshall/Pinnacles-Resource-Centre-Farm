@@ -45,10 +45,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// ── Start Server ──────────────────────────────────────────────
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`\n🌿 Pinnacles Farm Server running on http://localhost:${PORT}`);
-  console.log(`📊 Admin Dashboard: http://localhost:${PORT}/admin`);
-  console.log(`📡 API Base: http://localhost:${PORT}/api\n`);
-});
+// ── Start Server (local only) ─────────────────────────────────
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`\n🌿 Pinnacles Farm Server running on http://localhost:${PORT}`);
+    console.log(`📊 Admin Dashboard: http://localhost:${PORT}/admin`);
+    console.log(`📡 API Base: http://localhost:${PORT}/api\n`);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;
