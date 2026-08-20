@@ -4,9 +4,49 @@
     {
       "src": "backend/server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "css/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "js/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "images/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "admin/css/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "admin/js/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/css/(.*)",
+      "dest": "/css/$1"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "/js/$1"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "/images/$1"
+    },
+    {
+      "src": "/admin/css/(.*)",
+      "dest": "/admin/css/$1"
+    },
+    {
+      "src": "/admin/js/(.*)",
+      "dest": "/admin/js/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "backend/server.js"
