@@ -191,15 +191,103 @@ function openWhatsApp(message) {
   return false;
 }
 
-async function sendOrderToWhatsApp() {
+// ── Order Checkout Modal ──────────────────────────────────────
+function sendOrderToWhatsApp() {
   if (cart.length === 0) return;
+  showOrderModal();
+}
+
+function showOrderModal() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const itemsSummary = cart.map(i => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><span>${i.emoji} ${i.name} ×${i.qty}</span><strong style="color:var(--green-light)">₦${(i.price*i.qty).toLocaleString()}</strong></div>`).join('');
 
-  // Show name/phone prompt
-  const name = prompt('Your name (optional):') || 'Customer';
-  const phone = prompt('Your phone/WhatsApp number (optional):') || '';
+  // Inject modal HTML
+  let modal = document.getElementById('order-checkout-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'order-checkout-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);padding:16px;';
+    document.body.appendChild(modal);
+  }
 
-  // Save order to backend
+  modal.innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;width:100%;max-width:480px;overflow:hidden;animation:slideIn .3s ease;">
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,#1b4332,#2d6a4f);padding:24px 28px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <h3 style="color:#fff;margin:0;font-size:1.2rem;">📦 Confirm Your Order</h3>
+          <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:.85rem;">Review items &amp; enter your details</p>
+        </div>
+        <button onclick="closeOrderModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <!-- Body -->
+      <div style="padding:24px 28px;">
+        <!-- Order Summary -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:.8rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;">Order Summary</div>
+          ${itemsSummary}
+          <div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:4px;">
+            <strong style="color:#fff;">Total</strong>
+            <strong style="color:var(--green-light);font-size:1.15rem;">₦${total.toLocaleString()}</strong>
+          </div>
+        </div>
+
+        <!-- Customer Details -->
+        <div style="font-size:.8rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Your Details</div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:.85rem;font-weight:600;color:var(--text-light);margin-bottom:6px;">Full Name</label>
+          <input id="oc-name" type="text" placeholder="Enter your name" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;" />
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:.85rem;font-weight:600;color:var(--text-light);margin-bottom:6px;">WhatsApp / Phone Number <span style="color:var(--green-light)">*</span></label>
+          <input id="oc-phone" type="tel" placeholder="e.g. 08012345678" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;" />
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:.85rem;font-weight:600;color:var(--text-light);margin-bottom:6px;">Delivery Notes (optional)</label>
+          <textarea id="oc-notes" rows="2" placeholder="e.g. deliver to Lekki Phase 1, gate 5..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;resize:none;"></textarea>
+        </div>
+
+        <div id="oc-error" style="display:none;background:rgba(231,111,81,.15);border:1px solid rgba(231,111,81,.4);color:#f87171;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.88rem;"></div>
+
+        <button id="oc-submit-btn" onclick="submitOrder()" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:16px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,255,255,0.2)"/><path d="M23.5 8.5A10.45 10.45 0 0 0 16 5.5C10.2 5.5 5.5 10.2 5.5 16c0 1.85.48 3.65 1.4 5.24L5.5 26.5l5.4-1.38A10.43 10.43 0 0 0 16 26.5c5.8 0 10.5-4.7 10.5-10.5 0-2.8-1.09-5.43-3-7.5z" fill="white"/></svg>
+          Send Order via WhatsApp
+        </button>
+        <p style="text-align:center;font-size:.78rem;color:var(--text-muted);margin-top:10px;">Your order will be saved &amp; sent directly to our WhatsApp for confirmation.</p>
+      </div>
+    </div>`;
+
+  modal.style.display = 'flex';
+  setTimeout(() => { const inp = document.getElementById('oc-name'); if(inp) inp.focus(); }, 100);
+}
+
+function closeOrderModal() {
+  const modal = document.getElementById('order-checkout-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function submitOrder() {
+  const name  = (document.getElementById('oc-name').value  || '').trim() || 'Customer';
+  const phone = (document.getElementById('oc-phone').value || '').trim();
+  const notes = (document.getElementById('oc-notes').value || '').trim();
+  const errEl = document.getElementById('oc-error');
+  const btn   = document.getElementById('oc-submit-btn');
+
+  if (!phone) {
+    errEl.textContent = '⚠️ Please enter your WhatsApp/phone number so we can confirm your order.';
+    errEl.style.display = 'block';
+    document.getElementById('oc-phone').focus();
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  btn.disabled = true;
+  btn.style.opacity = '.6';
+  btn.innerHTML = '⏳ Sending...';
+
+  // 1 ── Save to backend (and trigger admin email)
   if (USE_BACKEND) {
     try {
       await fetch(API_BASE + '/orders', {
@@ -208,22 +296,46 @@ async function sendOrderToWhatsApp() {
         body: JSON.stringify({
           customer_name: name,
           customer_phone: phone,
-          items: cart.map(i => ({ id:i.id, name:i.name, emoji:i.emoji, price:i.price, qty:i.qty })),
-          total
+          items: cart.map(i => ({ id: i.id, name: i.name, emoji: i.emoji, price: i.price, qty: i.qty })),
+          total,
+          notes
         })
       });
-    } catch { /* backend offline — still send WhatsApp */ }
+    } catch { /* backend offline — still open WhatsApp */ }
   }
 
-  let msg = `Hello Pinnacles Resource Centre Farm! 🌿\n\nI would like to place the following order:\n\n`;
+  // 2 ── Build WhatsApp message to farm
+  let msg = `Hello Pinnacles Resource Centre Farm! 🌿\n\n*NEW ORDER*\n\n`;
   cart.forEach(item => {
-    msg += `${item.emoji} *${item.name}* x${item.qty} — ₦${(item.price * item.qty).toLocaleString()}\n`;
+    msg += `${item.emoji} *${item.name}* ×${item.qty} — ₦${(item.price * item.qty).toLocaleString()}\n`;
   });
   msg += `\n*Total: ₦${total.toLocaleString()}*`;
-  if (name !== 'Customer') msg += `\n*Name:* ${name}`;
-  if (phone) msg += `\n*Phone:* ${phone}`;
-  msg += `\n\nPlease confirm availability and delivery. Thank you!`;
-  openWhatsApp(msg);
+  msg += `\n\n*Customer:* ${name}`;
+  msg += `\n*Phone:* ${phone}`;
+  if (notes) msg += `\n*Notes:* ${notes}`;
+  msg += `\n\nPlease confirm availability and delivery. Thank you! 🙏`;
+
+  // 3 ── Show success then open WhatsApp
+  showOrderSuccess(name);
+  setTimeout(() => { openWhatsApp(msg); }, 400);
+
+  // 4 ── Clear cart
+  cart = [];
+  updateCartBadge();
+  renderCartItems();
+  toggleCart();
+}
+
+function showOrderSuccess(name) {
+  const modal = document.getElementById('order-checkout-modal');
+  if (!modal) return;
+  modal.innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;width:100%;max-width:400px;padding:48px 32px;text-align:center;animation:slideIn .3s ease;">
+      <div style="font-size:4rem;margin-bottom:16px;">✅</div>
+      <h3 style="color:#fff;font-size:1.3rem;margin-bottom:8px;">Order Sent!</h3>
+      <p style="color:var(--text-muted);font-size:.95rem;margin-bottom:24px;">Hi ${name}! Your order has been recorded and sent to our WhatsApp. We'll confirm shortly. 🌿</p>
+      <button onclick="closeOrderModal()" style="background:linear-gradient(135deg,var(--green-light),var(--green));color:#fff;border:none;padding:14px 32px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;">Done</button>
+    </div>`;
 }
 
 function directOrder(id) {
