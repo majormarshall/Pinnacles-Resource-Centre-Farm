@@ -6,26 +6,58 @@ const multer     = require('multer');
 const path       = require('path');
 const fs         = require('fs');
 
-// ── Multer setup: save uploaded product images to backend/uploads ──
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// ── Multer setup ──────────────────────────────────────────────
+// On Vercel the project root is read-only; only /tmp is writable.
+// We use memoryStorage on Vercel and store the image as a base64
+// data URL in the DB.  Locally we use disk storage under /uploads.
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase() || '.jpg';
-    const safe = Date.now() + '-' + Math.round(Math.random() * 1e6);
-    cb(null, safe + ext);
+let upload;
+
+if (process.env.VERCEL) {
+  // ── Vercel: store file in memory, save as data URL ──
+  upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith('image/')) cb(null, true);
+      else cb(new Error('Only image files are allowed'));
+    }
+  });
+} else {
+  // ── Local: save files to backend/uploads ──
+  const uploadDir = path.join(__dirname, '..', 'uploads');
+  try { if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true }); } catch (_) {}
+
+  upload = multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => cb(null, uploadDir),
+      filename: (req, file, cb) => {
+        const ext  = path.extname(file.originalname).toLowerCase() || '.jpg';
+        const safe = Date.now() + '-' + Math.round(Math.random() * 1e6);
+        cb(null, safe + ext);
+      }
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith('image/')) cb(null, true);
+      else cb(new Error('Only image files are allowed'));
+    }
+  });
+}
+
+// Helper: turn an uploaded file into a storable URL/data string
+function resolveImageUrl(req) {
+  if (!req.file) return null;
+  if (process.env.VERCEL) {
+    // memoryStorage → convert to base64 data URL
+    const b64 = req.file.buffer.toString('base64');
+    return `data:${req.file.mimetype};base64,${b64}`;
   }
-});
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(new Error('Only image files are allowed'));
-  }
-});
+  // disk storage → public path
+  return `/uploads/${req.file.filename}`;
+}
+
+// ─────────────────────────────────────────────────────────────
 
 router.get('/', async (req, res) => {
   try {
@@ -39,14 +71,13 @@ router.get('/all', requireAuth, async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── POST /products — create (accepts multipart OR json) ──
+// ── POST /products — create ──
 router.post('/', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { name, emoji, img, price, unit, description, category, tag, stock } = req.body;
     if (!name || !price) return res.status(400).json({ error: 'Name and price required.' });
 
-    // If a file was uploaded use /uploads/<filename>, else use the img URL from body
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : (img || null);
+    const imageUrl = resolveImageUrl(req) || img || null;
 
     const r = await db.runAsync(
       'INSERT INTO products (name,emoji,img,price,unit,description,category,tag,stock) VALUES (?,?,?,?,?,?,?,?,?)',
@@ -61,14 +92,16 @@ router.put('/:id', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { name, emoji, img, price, unit, description, category, tag, active, stock } = req.body;
 
-    // Determine new image: uploaded file > explicit img field > keep existing
-    let imageUrl = img || null;
-    if (req.file) imageUrl = `/uploads/${req.file.filename}`;
+    let imageUrl = resolveImageUrl(req);
 
-    // If no new image provided, keep the existing one
-    if (!req.file && !img) {
-      const existing = await db.getAsync('SELECT img FROM products WHERE id = ?', [req.params.id]);
-      imageUrl = existing ? existing.img : null;
+    if (!imageUrl) {
+      if (img) {
+        imageUrl = img;
+      } else {
+        // keep existing image
+        const existing = await db.getAsync('SELECT img FROM products WHERE id = ?', [req.params.id]);
+        imageUrl = existing ? existing.img : null;
+      }
     }
 
     await db.runAsync(
@@ -85,5 +118,6 @@ router.delete('/:id', requireAuth, async (req, res) => {
     res.json({ message: 'Product deleted.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
+
 
 module.exports = router;
