@@ -79,12 +79,12 @@ function sendAdminOrderEmail({ orderId, customer_name, customer_phone, items, to
 // ── POST /api/orders — place a new order ──────────────────────
 router.post('/', async (req, res) => {
   try {
-    const { customer_name, customer_phone, items, total, notes } = req.body;
+    const { customer_name, customer_phone, items, total, notes, whatsapp_msg } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Order must contain items.' });
     if (!total || total <= 0) return res.status(400).json({ error: 'Invalid order total.' });
     const r = await db.runAsync(
-      'INSERT INTO orders (customer_name, customer_phone, items_json, total, notes) VALUES (?,?,?,?,?)',
-      [customer_name||'Walk-in Customer', customer_phone||'', JSON.stringify(items), total, notes||'']
+      'INSERT INTO orders (customer_name, customer_phone, items_json, total, notes, whatsapp_msg) VALUES (?,?,?,?,?,?)',
+      [customer_name||'Walk-in Customer', customer_phone||'', JSON.stringify(items), total, notes||'', whatsapp_msg||'']
     );
     // Fire-and-forget admin email notification
     sendAdminOrderEmail({ orderId: r.lastID, customer_name, customer_phone, items, total, notes });

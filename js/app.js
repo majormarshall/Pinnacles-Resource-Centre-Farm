@@ -287,6 +287,17 @@ async function submitOrder() {
   btn.style.opacity = '.6';
   btn.innerHTML = '⏳ Sending...';
 
+  // 2 ── Build WhatsApp message to farm
+  let msg = `Hello Pinnacles Resource Centre Farm! 🌿\n\n*NEW ORDER*\n\n`;
+  cart.forEach(item => {
+    msg += `${item.emoji} *${item.name}* ×${item.qty} — ₦${(item.price * item.qty).toLocaleString()}\n`;
+  });
+  msg += `\n*Total: ₦${total.toLocaleString()}*`;
+  msg += `\n\n*Customer:* ${name}`;
+  msg += `\n*Phone:* ${phone}`;
+  if (notes) msg += `\n*Notes:* ${notes}`;
+  msg += `\n\nPlease confirm availability and delivery. Thank you! 🙏`;
+
   // 1 ── Save to backend (and trigger admin email)
   if (USE_BACKEND) {
     try {
@@ -298,22 +309,12 @@ async function submitOrder() {
           customer_phone: phone,
           items: cart.map(i => ({ id: i.id, name: i.name, emoji: i.emoji, price: i.price, qty: i.qty })),
           total,
-          notes
+          notes,
+          whatsapp_msg: msg
         })
       });
     } catch { /* backend offline — still open WhatsApp */ }
   }
-
-  // 2 ── Build WhatsApp message to farm
-  let msg = `Hello Pinnacles Resource Centre Farm! 🌿\n\n*NEW ORDER*\n\n`;
-  cart.forEach(item => {
-    msg += `${item.emoji} *${item.name}* ×${item.qty} — ₦${(item.price * item.qty).toLocaleString()}\n`;
-  });
-  msg += `\n*Total: ₦${total.toLocaleString()}*`;
-  msg += `\n\n*Customer:* ${name}`;
-  msg += `\n*Phone:* ${phone}`;
-  if (notes) msg += `\n*Notes:* ${notes}`;
-  msg += `\n\nPlease confirm availability and delivery. Thank you! 🙏`;
 
   // 3 ── Show success then open WhatsApp
   showOrderSuccess(name);

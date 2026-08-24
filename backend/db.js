@@ -49,8 +49,12 @@ async function initDB() {
     total          REAL NOT NULL,
     status         TEXT DEFAULT 'pending',
     notes          TEXT,
+    whatsapp_msg   TEXT,
     created_at     DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
+
+  // Add whatsapp_msg to existing DBs that don't have it yet (safe migration)
+  try { await run(`ALTER TABLE orders ADD COLUMN whatsapp_msg TEXT`); } catch (_) {}
 
   await run(`CREATE TABLE IF NOT EXISTS messages (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -204,8 +204,29 @@ async function openOrderModal(id) {
     </div>
     ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">📝 ${order.notes}</div>` : ''}
     <span class="status-badge status-${order.status}" style="margin-bottom:16px;display:inline-block">${order.status}</span>
+
+    ${order.whatsapp_msg ? `
+    <div style="margin-bottom:16px">
+      <button id="wa-toggle-${order.id}"
+        onclick="toggleWaMsg('${order.id}')"
+        style="background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.35);color:#25D366;padding:9px 16px;border-radius:50px;font-size:.82rem;font-weight:700;cursor:pointer;width:100%;text-align:left;">
+        📲 Show WhatsApp Message Sent
+      </button>
+      <div id="wa-box-${order.id}" style="display:none;margin-top:10px;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:.72rem;font-weight:700;color:#25D366;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">Message sent to WhatsApp</div>
+        <pre id="wa-pre-${order.id}" style="font-family:'Outfit',sans-serif;font-size:.83rem;color:var(--text-light);white-space:pre-wrap;word-break:break-word;margin:0;line-height:1.6"></pre>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('wa-pre-${order.id}').textContent).then(()=>showToast('Copied to clipboard!'))"
+          style="margin-top:10px;background:none;border:1px solid rgba(37,211,102,.4);color:#25D366;padding:6px 14px;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;">📋 Copy Message</button>
+      </div>
+    </div>` : ''}
+
     ${order.customer_phone ? `<a href="https://wa.me/${order.customer_phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+order.customer_name+'! Your Pinnacles Farm order #'+order.id+' has been received. We will confirm shortly. 🌿')}" target="_blank" class="btn-primary wa-order-btn">💬 Message Customer on WhatsApp</a>` : ''}
   `;
+  // Safely inject whatsapp_msg as text (avoids XSS)
+  if (order.whatsapp_msg) {
+    const pre = document.getElementById(`wa-pre-${order.id}`);
+    if (pre) pre.textContent = order.whatsapp_msg;
+  }
   document.getElementById('order-modal-overlay').classList.add('open');
   document.getElementById('order-modal').classList.add('open');
 }
@@ -461,4 +482,13 @@ function showToast(msg) {
   t.textContent = '✅ ' + msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2800);
+}
+
+function toggleWaMsg(orderId) {
+  const box = document.getElementById('wa-box-' + orderId);
+  const btn = document.getElementById('wa-toggle-' + orderId);
+  if (!box) return;
+  const isOpen = box.style.display === 'block';
+  box.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '📲 Show WhatsApp Message Sent' : '📲 Hide WhatsApp Message';
 }
