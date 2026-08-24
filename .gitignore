@@ -4,10 +4,13 @@ node_modules/
 # Environment variables (keep secret)
 backend/.env
 
-# SQLite database (generated at runtime)
+# SQLite legacy files (no longer used — project migrated to Supabase)
 backend/*.db
 backend/*.db-wal
 backend/*.db-shm
+
+# Uploaded product images (stored as base64 in Supabase, not on disk)
+backend/uploads/
 
 # Logs
 *.log
