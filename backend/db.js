@@ -1,13 +1,14 @@
 // ============================================================
 // Pinnacles Resource Centre Farm — Database
-// PostgreSQL (Supabase) when DATABASE_URL is set (Vercel)
-// SQLite otherwise (local development)
+// PostgreSQL (Supabase) when DATABASE_URL is set → persistent
+// SQLite otherwise (local dev / Vercel fallback)
 // ============================================================
 const bcrypt = require('bcryptjs');
 
 const DATABASE_URL = process.env.DATABASE_URL;
+const IS_VERCEL    = !!process.env.VERCEL;
 
-// ── Default seed data (shared) ───────────────────────────────
+// ── Shared seed data ──────────────────────────────────────────
 const DEFAULT_PRODUCTS = [
   ['Fresh Tomatoes','🍅','images/tomatoes.png',1500,'per basket','Sun-ripened juicy tomatoes. Perfect for stews and salads.','vegetables','Bestseller'],
   ['Peppers','🫑','images/pepper.png',1200,'per pack','Fresh bell and chili peppers. Vibrant and full of flavour.','vegetables','Fresh'],
@@ -23,49 +24,52 @@ const DEFAULT_PRODUCTS = [
   ['Farm Honey','🍯',null,4500,'per jar','Pure raw natural honey from our farm bees.','fruits','Natural'],
 ];
 
-// ─────────────────────────────────────────────────────────────
-// ── A) PostgreSQL via Supabase ────────────────────────────────
-// ─────────────────────────────────────────────────────────────
+// ── Helper: convert SQLite ? → PostgreSQL $1 $2 … ─────────────
+function toPg(sql) {
+  let n = 0;
+  return sql.replace(/\?/g, () => `$${++n}`);
+}
+
+// =============================================================
+// ── A) PostgreSQL (Supabase) — persistent, used on Vercel ────
+// =============================================================
 if (DATABASE_URL) {
-  const { Pool } = require('pg');
-
-  const pool = new Pool({
-    connectionString: DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-    max: 3,              // small pool — serverless friendly
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 5000,
-  });
-
-  // Convert SQLite ? placeholders → PostgreSQL $1, $2 …
-  function toPg(sql) {
-    let n = 0;
-    return sql.replace(/\?/g, () => `$${++n}`);
+  let pool;
+  try {
+    const { Pool } = require('pg');
+    pool = new Pool({
+      connectionString: DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 3,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 8000,
+    });
+  } catch (e) {
+    console.error('pg module error:', e.message);
   }
 
   const db = {
     runAsync: async (sql, params = []) => {
+      if (!pool) throw new Error('PostgreSQL pool not initialised');
       const pgSql = toPg(sql);
-      // Auto-append RETURNING id for INSERT so callers get lastID
       const final = /^\s*INSERT/i.test(pgSql) && !/RETURNING/i.test(pgSql)
-        ? `${pgSql} RETURNING id`
-        : pgSql;
+        ? `${pgSql} RETURNING id` : pgSql;
       const r = await pool.query(final, params);
       return { lastID: r.rows[0]?.id ?? null, rowCount: r.rowCount };
     },
     getAsync: async (sql, params = []) => {
+      if (!pool) throw new Error('PostgreSQL pool not initialised');
       const r = await pool.query(toPg(sql), params);
       return r.rows[0] ?? null;
     },
     allAsync: async (sql, params = []) => {
+      if (!pool) throw new Error('PostgreSQL pool not initialised');
       const r = await pool.query(toPg(sql), params);
       return r.rows;
     },
   };
 
-  // ── PostgreSQL Schema ──────────────────────────────────────
   async function initDB() {
-    // Products
     await pool.query(`
       CREATE TABLE IF NOT EXISTS products (
         id          SERIAL PRIMARY KEY,
@@ -82,7 +86,6 @@ if (DATABASE_URL) {
         created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`);
 
-    // Orders
     await pool.query(`
       CREATE TABLE IF NOT EXISTS orders (
         id             SERIAL PRIMARY KEY,
@@ -95,10 +98,8 @@ if (DATABASE_URL) {
         whatsapp_msg   TEXT,
         created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`);
-    // Safe migration in case table existed without whatsapp_msg
     await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS whatsapp_msg TEXT`).catch(() => {});
 
-    // Messages
     await pool.query(`
       CREATE TABLE IF NOT EXISTS messages (
         id         SERIAL PRIMARY KEY,
@@ -109,7 +110,6 @@ if (DATABASE_URL) {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`);
 
-    // Admins
     await pool.query(`
       CREATE TABLE IF NOT EXISTS admins (
         id            SERIAL PRIMARY KEY,
@@ -139,25 +139,28 @@ if (DATABASE_URL) {
       }
       console.log('✅ [PG] Default products seeded.');
     }
+    console.log('✅ [PG] Database ready (Supabase).');
   }
 
-  initDB().catch(e => console.error('DB init error:', e.message));
-
+  initDB().catch(e => console.error('❌ DB init error:', e.message));
   module.exports = db;
 
-// ─────────────────────────────────────────────────────────────
-// ── B) SQLite (local development fallback) ───────────────────
-// ─────────────────────────────────────────────────────────────
+// =============================================================
+// ── B) SQLite — local dev or Vercel without DATABASE_URL ──────
+// =============================================================
 } else {
   const sqlite3 = require('sqlite3').verbose();
   const path    = require('path');
 
-  const DB_PATH = path.join(__dirname, 'pinnacles_farm.db');
-  const sqliteDb = new sqlite3.Database(DB_PATH);
+  // On Vercel /tmp is the only writable path. Locally use the backend folder.
+  const DB_PATH = IS_VERCEL
+    ? '/tmp/pinnacles_farm.db'
+    : path.join(__dirname, 'pinnacles_farm.db');
 
-  const run  = (sql, p=[]) => new Promise((res,rej) => sqliteDb.run(sql, p, function(e){ if(e) rej(e); else res(this); }));
-  const get  = (sql, p=[]) => new Promise((res,rej) => sqliteDb.get(sql, p, (e,r)=>{ if(e) rej(e); else res(r); }));
-  const all  = (sql, p=[]) => new Promise((res,rej) => sqliteDb.all(sql, p, (e,r)=>{ if(e) rej(e); else res(r); }));
+  const sqliteDb = new sqlite3.Database(DB_PATH);
+  const run = (sql, p=[]) => new Promise((res,rej) => sqliteDb.run(sql, p, function(e){ if(e) rej(e); else res(this); }));
+  const get = (sql, p=[]) => new Promise((res,rej) => sqliteDb.get(sql, p, (e,r)=>{ if(e) rej(e); else res(r); }));
+  const all = (sql, p=[]) => new Promise((res,rej) => sqliteDb.all(sql, p, (e,r)=>{ if(e) rej(e); else res(r); }));
 
   const db = { runAsync: run, getAsync: get, allAsync: all };
 
@@ -221,7 +224,7 @@ if (DATABASE_URL) {
 
     // Seed default products
     const count = await get('SELECT COUNT(*) as c FROM products');
-    if (count.c === 0) {
+    if (Number(count?.c) === 0) {
       for (const [name,emoji,img,price,unit,description,category,tag] of DEFAULT_PRODUCTS) {
         await run(
           'INSERT INTO products (name,emoji,img,price,unit,description,category,tag) VALUES (?,?,?,?,?,?,?,?)',
@@ -230,9 +233,9 @@ if (DATABASE_URL) {
       }
       console.log('✅ [SQLite] Default products seeded.');
     }
+    if (IS_VERCEL) console.warn('⚠️  Running with temporary SQLite — add DATABASE_URL to Vercel for persistence!');
   }
 
   initDB().catch(console.error);
-
   module.exports = db;
 }
