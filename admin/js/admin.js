@@ -5,6 +5,13 @@ const API = '/api';
 let authToken = localStorage.getItem('pinnacles_admin_token');
 let currentTab = 'overview';
 
+// Ensure image paths resolve from root (handles relative paths like "images/foo.png")
+function imgSrc(url) {
+  if (!url) return '';
+  if (url.startsWith('http') || url.startsWith('/')) return url;
+  return '/' + url;
+}
+
 // ── Boot ─────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   if (authToken) showDashboard();
@@ -217,7 +224,12 @@ async function loadProducts() {
   const products = await api('GET', '/products/all');
   document.getElementById('products-admin-grid').innerHTML = (Array.isArray(products) ? products : []).map(p => `
     <div class="admin-product-card ${p.active ? '' : 'inactive'}">
-      <div class="apc-img">${p.emoji || '🌿'}</div>
+      <div class="apc-img">
+        ${p.img
+          ? `<img src="${imgSrc(p.img)}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.outerHTML='<div style=\'font-size:2.5rem;line-height:1\'>${p.emoji||'🌿'}</div>'" />`
+          : `<div style="font-size:2.5rem;line-height:1">${p.emoji||'🌿'}</div>`
+        }
+      </div>
       <div class="apc-body">
         <div class="apc-name">${p.name}</div>
         <div class="apc-price">₦${Number(p.price).toLocaleString()} <small style="color:var(--text-muted);font-weight:400">${p.unit}</small></div>
@@ -228,6 +240,26 @@ async function loadProducts() {
         </div>
       </div>
     </div>`).join('');
+}
+
+function previewImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('img-preview').src = e.target.result;
+    document.getElementById('img-preview-wrap').style.display = 'block';
+    document.getElementById('img-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage() {
+  document.getElementById('prod-img-file').value = '';
+  document.getElementById('img-preview').src = '';
+  document.getElementById('img-preview-wrap').style.display = 'none';
+  document.getElementById('img-placeholder').style.display = 'block';
+  document.getElementById('prod-existing-img').value = '';
 }
 
 function openProductModal(product = null) {
@@ -243,6 +275,21 @@ function openProductModal(product = null) {
   document.getElementById('prod-desc').value = product?.description || '';
   document.getElementById('prod-stock').value = product?.stock || 999;
   document.getElementById('prod-active').checked = product ? Boolean(product.active) : true;
+
+  // Handle image preview for edit
+  const existingImg = product?.img || '';
+  document.getElementById('prod-existing-img').value = existingImg;
+  // Reset file input
+  document.getElementById('prod-img-file').value = '';
+  if (existingImg) {
+    document.getElementById('img-preview').src = imgSrc(existingImg);
+    document.getElementById('img-preview-wrap').style.display = 'block';
+    document.getElementById('img-placeholder').style.display = 'none';
+  } else {
+    document.getElementById('img-preview-wrap').style.display = 'none';
+    document.getElementById('img-placeholder').style.display = 'block';
+  }
+
   document.getElementById('prod-modal-overlay').classList.add('open');
   document.getElementById('prod-modal').classList.add('open');
 }
@@ -260,26 +307,55 @@ function closeProductModal() {
 
 async function saveProduct(e) {
   e.preventDefault();
-  const data = {
-    name: document.getElementById('prod-name').value,
-    emoji: document.getElementById('prod-emoji').value,
-    price: Number(document.getElementById('prod-price').value),
-    unit: document.getElementById('prod-unit').value,
-    category: document.getElementById('prod-category').value,
-    tag: document.getElementById('prod-tag').value,
-    description: document.getElementById('prod-desc').value,
-    stock: Number(document.getElementById('prod-stock').value),
-    active: document.getElementById('prod-active').checked ? 1 : 0
-  };
-  if (editingProductId) {
-    await api('PUT', `/products/${editingProductId}`, data);
-    showToast('Product updated!');
-  } else {
-    await api('POST', '/products', data);
-    showToast('Product added!');
+  const btn = document.getElementById('prod-save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    // Build FormData so multer can receive the image file
+    const fd = new FormData();
+    fd.append('name',        document.getElementById('prod-name').value);
+    fd.append('emoji',       document.getElementById('prod-emoji').value);
+    fd.append('price',       document.getElementById('prod-price').value);
+    fd.append('unit',        document.getElementById('prod-unit').value);
+    fd.append('category',    document.getElementById('prod-category').value);
+    fd.append('tag',         document.getElementById('prod-tag').value);
+    fd.append('description', document.getElementById('prod-desc').value);
+    fd.append('stock',       document.getElementById('prod-stock').value);
+    fd.append('active',      document.getElementById('prod-active').checked ? '1' : '0');
+
+    const fileInput = document.getElementById('prod-img-file');
+    if (fileInput.files[0]) {
+      fd.append('image', fileInput.files[0]);
+    } else {
+      // Pass existing image URL so backend keeps it
+      const existingImg = document.getElementById('prod-existing-img').value;
+      if (existingImg) fd.append('img', existingImg);
+    }
+
+    const headers = {};
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
+    let res;
+    if (editingProductId) {
+      res = await fetch(`${API}/products/${editingProductId}`, { method: 'PUT', headers, body: fd });
+    } else {
+      res = await fetch(`${API}/products`, { method: 'POST', headers, body: fd });
+    }
+
+    if (res.status === 401 || res.status === 403) { logout(); return; }
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    showToast(editingProductId ? 'Product updated!' : 'Product added!');
+    closeProductModal();
+    loadProducts();
+  } catch (err) {
+    showToast('❌ Error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Product';
   }
-  closeProductModal();
-  loadProducts();
 }
 
 async function deleteProduct(id) {

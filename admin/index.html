@@ -190,9 +190,26 @@
     </div>
     <form id="product-form" onsubmit="saveProduct(event)">
       <input type="hidden" id="prod-id" />
+      <input type="hidden" id="prod-existing-img" />
       <div class="form-row">
         <div class="form-group"><label>Product Name *</label><input type="text" id="prod-name" required /></div>
-        <div class="form-group"><label>Emoji</label><input type="text" id="prod-emoji" placeholder="🌿" maxlength="4" /></div>
+        <div class="form-group"><label>Emoji (fallback)</label><input type="text" id="prod-emoji" placeholder="🌿" maxlength="4" /></div>
+      </div>
+      <!-- Product Image Upload -->
+      <div class="form-group">
+        <label>Product Photo</label>
+        <div id="img-upload-area" onclick="document.getElementById('prod-img-file').click()" style="border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;" onmouseenter="this.style.borderColor='var(--green-light)'" onmouseleave="this.style.borderColor='var(--border)'">
+          <div id="img-preview-wrap" style="display:none;position:relative;">
+            <img id="img-preview" src="" alt="Preview" style="max-height:140px;border-radius:8px;object-fit:cover;width:100%;" />
+            <button type="button" onclick="event.stopPropagation();clearImage()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+          </div>
+          <div id="img-placeholder" style="color:var(--text-muted);font-size:.9rem;">
+            <div style="font-size:2rem;margin-bottom:6px;">📷</div>
+            <div>Click to upload a photo</div>
+            <div style="font-size:.78rem;margin-top:4px;">JPG, PNG, WEBP — max 5 MB</div>
+          </div>
+        </div>
+        <input type="file" id="prod-img-file" accept="image/*" style="display:none" onchange="previewImage(this)" />
       </div>
       <div class="form-row">
         <div class="form-group"><label>Price (₦) *</label><input type="number" id="prod-price" required min="0" /></div>
@@ -216,7 +233,7 @@
       </div>
       <div class="modal-actions">
         <button type="button" onclick="closeProductModal()" class="btn-outline">Cancel</button>
-        <button type="submit" class="btn-primary">Save Product</button>
+        <button type="submit" class="btn-primary" id="prod-save-btn">Save Product</button>
       </div>
     </form>
   </div>
