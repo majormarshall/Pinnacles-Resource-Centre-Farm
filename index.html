@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
 </head>
 <body>
 
@@ -299,6 +300,44 @@
     <div class="advert-modal-content" id="advert-modal-content"></div>
   </div>
 
+  <!-- ── CHATBOT WIDGET ─────────────────────────────────────── -->
+
+  <!-- Launcher bubble -->
+  <button id="chat-launcher" aria-label="Chat with Harvest, our farm assistant" title="Chat with us!">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <span id="chat-unread-badge"></span>
+  </button>
+
+  <!-- Chat window -->
+  <div id="chat-window" role="dialog" aria-label="Farm Assistant Chat">
+
+    <!-- Header -->
+    <div id="chat-header">
+      <div class="chat-avatar">🌾</div>
+      <div class="chat-header-info">
+        <span class="chat-header-name">Harvest — Farm Assistant</span>
+        <span class="chat-header-status">Online &amp; ready to help</span>
+      </div>
+      <button id="chat-close-btn" aria-label="Close chat">✕</button>
+    </div>
+
+    <!-- Messages -->
+    <div id="chat-messages" role="log" aria-live="polite"></div>
+
+    <!-- Input bar -->
+    <div id="chat-input-bar">
+      <input id="chat-input" type="text" placeholder="Ask about products, prices, delivery…" autocomplete="off" maxlength="200" />
+      <button id="chat-send-btn" aria-label="Send message">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <script src="js/app.js"></script>
+  <script src="js/chatbot.js"></script>
 </body>
 </html>
