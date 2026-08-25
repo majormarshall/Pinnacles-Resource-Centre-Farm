@@ -21,8 +21,16 @@ const DEFAULT_PRODUCTS = [
 ];
 
 // ── Connection pool ────────────────────────────────────────────
+// Append pgbouncer=true if not already present (disables prepared statements
+// which are not supported in Supabase transaction pooler / PgBouncer)
+const dbUrl = process.env.DATABASE_URL
+  ? (process.env.DATABASE_URL.includes('pgbouncer')
+      ? process.env.DATABASE_URL
+      : process.env.DATABASE_URL + '?pgbouncer=true')
+  : undefined;
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: dbUrl,
   ssl: { rejectUnauthorized: false },
   max: 3,
   idleTimeoutMillis: 10000,
