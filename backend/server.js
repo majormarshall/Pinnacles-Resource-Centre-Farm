@@ -2,6 +2,14 @@
 // Pinnacles Resource Centre Farm — Express Server
 // ============================================================
 require('dotenv').config();
+
+// Warn loudly if critical env vars are missing
+if (!process.env.DATABASE_URL) {
+  console.error('❌ FATAL: DATABASE_URL is not set! Set it in Vercel → Settings → Environment Variables');
+}
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET not set — using insecure default');
+}
 const express = require('express');
 const cors    = require('cors');
 const path    = require('path');
@@ -35,6 +43,34 @@ app.get('/api/info', (req, res) => {
     wa: process.env.WA_NUMBER,
     version: '1.0.0'
   });
+});
+
+// ── Health / diagnostics endpoint ─────────────────────────────
+// Visit /api/health to instantly see what's wrong
+app.get('/api/health', async (req, res) => {
+  const status = {
+    ok: true,
+    timestamp: new Date().toISOString(),
+    database_url_set: !!process.env.DATABASE_URL,
+    jwt_secret_set: !!process.env.JWT_SECRET,
+    admin_username: process.env.ADMIN_USERNAME || '(not set)',
+    db: 'not tested',
+    admin_exists: false,
+    products_count: 0,
+  };
+  try {
+    const db = require('./db');
+    const count = await db.getAsync('SELECT COUNT(*)::int AS c FROM products');
+    const admin = await db.getAsync('SELECT id, username FROM admins LIMIT 1');
+    status.db = 'connected ✅';
+    status.products_count = Number(count?.c || 0);
+    status.admin_exists = !!admin;
+    status.admin_username_in_db = admin?.username || 'none';
+  } catch (e) {
+    status.ok = false;
+    status.db = 'ERROR: ' + e.message;
+  }
+  res.status(status.ok ? 200 : 500).json(status);
 });
 
 // ── SPA Fallback ──────────────────────────────────────────────
