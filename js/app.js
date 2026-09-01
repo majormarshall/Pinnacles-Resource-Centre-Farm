@@ -307,16 +307,16 @@ async function submitOrder() {
   btn.style.opacity = '.6';
   btn.innerHTML = '⏳ Sending...';
 
-  // 2 ── Build WhatsApp message to farm
-  let msg = `Hello Pinnacles Resource Centre Farm! 🌿\n\n*NEW ORDER*\n\n`;
+  // 2 ── Build WhatsApp message to farm (plain text — no emoji to avoid diamond symbols)
+  let msg = `Hello Pinnacles Resource Centre Farm!\n\n*NEW ORDER*\n\n`;
   cart.forEach(item => {
-    msg += `${item.emoji} *${item.name}* ×${item.qty} — ₦${(item.price * item.qty).toLocaleString()}\n`;
+    msg += `- *${item.name}* x${item.qty} -- N${(item.price * item.qty).toLocaleString()}\n`;
   });
-  msg += `\n*Total: ₦${total.toLocaleString()}*`;
+  msg += `\n*Total: N${total.toLocaleString()}*`;
   msg += `\n\n*Customer:* ${name}`;
   msg += `\n*Phone:* ${phone}`;
   if (notes) msg += `\n*Notes:* ${notes}`;
-  msg += `\n\nPlease confirm availability and delivery. Thank you! 🙏`;
+  msg += `\n\nPlease confirm availability and delivery. Thank you!`;
 
   // 1 ── Save to backend (and trigger admin email)
   if (USE_BACKEND) {
