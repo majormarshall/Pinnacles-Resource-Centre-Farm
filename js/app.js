@@ -1,5 +1,6 @@
 // ===== CONFIG =====
-const WA_NUMBER = '2349037505632'; // +234 903 750 5632 — Pinnacles Resource Centre Farm
+const WA_NUMBER  = '2349037505632'; // +234 903 750 5632 — primary
+const WA_NUMBER2 = '2347078210834'; // +234 707 821 0834 — secondary
 const API_BASE = '/api'; // Backend API base URL
 const USE_BACKEND = true; // Set false to run without backend
 
@@ -319,9 +320,10 @@ async function submitOrder() {
     } catch { /* backend offline — still open WhatsApp */ }
   }
 
-  // 3 ── Show success then open WhatsApp
+  // 3 ── Show success then open WhatsApp on BOTH numbers
   showOrderSuccess(name);
   setTimeout(() => { openWhatsApp(msg); }, 400);
+  setTimeout(() => { window.open(`https://wa.me/${WA_NUMBER2}?text=${encodeURIComponent(msg)}`, '_blank'); }, 1800);
 
   // 4 ── Clear cart
   cart = [];
