@@ -371,7 +371,7 @@ function showOrderSuccess(name, msg) {
 function directOrder(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
-  const msg = `Hello Pinnacles Farm! 🌿\n\nI would like to order:\n${p.emoji} *${p.name}* — ₦${p.price.toLocaleString()} ${p.unit}\n\nPlease confirm availability. Thank you!`;
+  const msg = `Hello Pinnacles Resource Centre Farm!\n\nI would like to order:\n- *${p.name}* -- N${p.price.toLocaleString()} ${p.unit}\n\nPlease confirm availability. Thank you!`;
   openWhatsApp(msg);
   closeModal();
 }
@@ -445,7 +445,7 @@ async function sendContactMessage(e) {
     } catch { /* offline fallback */ }
   }
 
-  const waMsg = `Hello Pinnacles Farm! 🌿\n\n*Name:* ${name}\n*Phone:* ${phone || 'Not provided'}\n\n*Message:*\n${msg}`;
+  const waMsg = `Hello Pinnacles Resource Centre Farm!\n\n*Name:* ${name}\n*Phone:* ${phone || 'Not provided'}\n\n*Message:*\n${msg}`;
   openWhatsApp(waMsg);
 }
 
