@@ -211,21 +211,21 @@ function showOrderModal() {
   }
 
   modal.innerHTML = `
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;width:100%;max-width:480px;overflow:hidden;animation:slideIn .3s ease;">
-      <!-- Header -->
-      <div style="background:linear-gradient(135deg,#1b4332,#2d6a4f);padding:24px 28px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;animation:slideIn .3s ease;overflow:hidden;">
+      <!-- Header (always visible) -->
+      <div style="background:linear-gradient(135deg,#1b4332,#2d6a4f);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
         <div>
-          <h3 style="color:#fff;margin:0;font-size:1.2rem;">📦 Confirm Your Order</h3>
-          <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:.85rem;">Review items &amp; enter your details</p>
+          <h3 style="color:#fff;margin:0;font-size:1.1rem;">📦 Confirm Your Order</h3>
+          <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:.82rem;">Review items &amp; enter your details</p>
         </div>
-        <button onclick="closeOrderModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+        <button onclick="closeOrderModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
       </div>
 
-      <!-- Body -->
-      <div style="padding:24px 28px;">
+      <!-- Scrollable Body -->
+      <div style="padding:20px 24px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;">
         <!-- Order Summary -->
-        <div style="margin-bottom:20px;">
-          <div style="font-size:.8rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;">Order Summary</div>
+        <div style="margin-bottom:18px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;">Order Summary</div>
           ${itemsSummary}
           <div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:4px;">
             <strong style="color:#fff;">Total</strong>
@@ -234,7 +234,7 @@ function showOrderModal() {
         </div>
 
         <!-- Customer Details -->
-        <div style="font-size:.8rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Your Details</div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Your Details</div>
         <div style="margin-bottom:14px;">
           <label style="display:block;font-size:.85rem;font-weight:600;color:var(--text-light);margin-bottom:6px;">Full Name</label>
           <input id="oc-name" type="text" placeholder="Enter your name" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;" />
@@ -243,18 +243,21 @@ function showOrderModal() {
           <label style="display:block;font-size:.85rem;font-weight:600;color:var(--text-light);margin-bottom:6px;">WhatsApp / Phone Number <span style="color:var(--green-light)">*</span></label>
           <input id="oc-phone" type="tel" placeholder="e.g. 08012345678" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;" />
         </div>
-        <div style="margin-bottom:20px;">
+        <div style="margin-bottom:8px;">
           <label style="display:block;font-size:.85rem;font-weight:600;color:var(--text-light);margin-bottom:6px;">Delivery Notes (optional)</label>
           <textarea id="oc-notes" rows="2" placeholder="e.g. deliver to Lekki Phase 1, gate 5..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;resize:none;"></textarea>
         </div>
 
-        <div id="oc-error" style="display:none;background:rgba(231,111,81,.15);border:1px solid rgba(231,111,81,.4);color:#f87171;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.88rem;"></div>
+        <div id="oc-error" style="display:none;background:rgba(231,111,81,.15);border:1px solid rgba(231,111,81,.4);color:#f87171;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:.88rem;"></div>
+      </div>
 
-        <button id="oc-submit-btn" onclick="submitOrder()" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:16px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
+      <!-- Submit Button (always visible at bottom) -->
+      <div style="padding:16px 24px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;">
+        <button id="oc-submit-btn" onclick="submitOrder()" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:15px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
           <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,255,255,0.2)"/><path d="M23.5 8.5A10.45 10.45 0 0 0 16 5.5C10.2 5.5 5.5 10.2 5.5 16c0 1.85.48 3.65 1.4 5.24L5.5 26.5l5.4-1.38A10.43 10.43 0 0 0 16 26.5c5.8 0 10.5-4.7 10.5-10.5 0-2.8-1.09-5.43-3-7.5z" fill="white"/></svg>
           Send Order via WhatsApp
         </button>
-        <p style="text-align:center;font-size:.78rem;color:var(--text-muted);margin-top:10px;">Your order will be saved &amp; sent directly to our WhatsApp for confirmation.</p>
+        <p style="text-align:center;font-size:.75rem;color:var(--text-muted);margin-top:8px;">Your order will be saved &amp; sent directly to our WhatsApp for confirmation.</p>
       </div>
     </div>`;
 
