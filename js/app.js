@@ -154,7 +154,11 @@ function renderCartItems() {
   }
   container.innerHTML = cart.map(item => `
     <div class="cart-item">
-      <div class="cart-item-emoji">${item.emoji}</div>
+      <div class="cart-item-emoji">
+        ${item.img
+          ? `<img src="${item.img}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.outerHTML='${item.emoji}'" />`
+          : item.emoji}
+      </div>
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-price">₦${(item.price * item.qty).toLocaleString()}</div>
@@ -200,7 +204,16 @@ function sendOrderToWhatsApp() {
 
 function showOrderModal() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const itemsSummary = cart.map(i => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><span>${i.emoji} ${i.name} ×${i.qty}</span><strong style="color:var(--green-light)">₦${(i.price*i.qty).toLocaleString()}</strong></div>`).join('');
+  const itemsSummary = cart.map(i => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:12px;">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+        <div style="width:36px;height:36px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
+          ${i.img ? `<img src="${i.img}" alt="${i.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />` : i.emoji}
+        </div>
+        <span style="font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.name} ×${i.qty}</span>
+      </div>
+      <strong style="color:var(--green-light);flex-shrink:0;">₦${(i.price*i.qty).toLocaleString()}</strong>
+    </div>`).join('');
 
   // Inject modal HTML
   let modal = document.getElementById('order-checkout-modal');
