@@ -320,10 +320,8 @@ async function submitOrder() {
     } catch { /* backend offline — still open WhatsApp */ }
   }
 
-  // 3 ── Show success then open WhatsApp on BOTH numbers
-  showOrderSuccess(name);
-  setTimeout(() => { openWhatsApp(msg); }, 400);
-  setTimeout(() => { window.open(`https://wa.me/${WA_NUMBER2}?text=${encodeURIComponent(msg)}`, '_blank'); }, 1800);
+  // 3 ── Show success with two send buttons
+  showOrderSuccess(name, msg);
 
   // 4 ── Clear cart
   cart = [];
@@ -332,15 +330,25 @@ async function submitOrder() {
   toggleCart();
 }
 
-function showOrderSuccess(name) {
+function showOrderSuccess(name, msg) {
   const modal = document.getElementById('order-checkout-modal');
   if (!modal) return;
+  const wa1 = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  const wa2 = `https://wa.me/${WA_NUMBER2}?text=${encodeURIComponent(msg)}`;
   modal.innerHTML = `
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;width:100%;max-width:400px;padding:48px 32px;text-align:center;animation:slideIn .3s ease;">
-      <div style="font-size:4rem;margin-bottom:16px;">✅</div>
-      <h3 style="color:#fff;font-size:1.3rem;margin-bottom:8px;">Order Sent!</h3>
-      <p style="color:var(--text-muted);font-size:.95rem;margin-bottom:24px;">Hi ${name}! Your order has been recorded and sent to our WhatsApp. We'll confirm shortly. 🌿</p>
-      <button onclick="closeOrderModal()" style="background:linear-gradient(135deg,var(--green-light),var(--green));color:#fff;border:none;padding:14px 32px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;">Done</button>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;width:100%;max-width:420px;padding:40px 28px;text-align:center;animation:slideIn .3s ease;">
+      <div style="font-size:3.5rem;margin-bottom:12px;">✅</div>
+      <h3 style="color:#fff;font-size:1.2rem;margin-bottom:8px;">Order Recorded!</h3>
+      <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:24px;line-height:1.6;">Hi ${name}! Tap the buttons below to send your order to us on WhatsApp.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+        <a href="${wa1}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:14px 20px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;">
+          📲 Send to +234 903 750 5632
+        </a>
+        <a href="${wa2}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:14px 20px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;opacity:.85;">
+          📲 Send to +234 707 821 0834
+        </a>
+      </div>
+      <button onclick="closeOrderModal()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text-muted);padding:10px 28px;border-radius:50px;font-size:.88rem;font-weight:600;cursor:pointer;">Done</button>
     </div>`;
 }
 
