@@ -245,6 +245,9 @@ function showOrderModal() {
             <strong style="color:#fff;">Total</strong>
             <strong style="color:var(--green-light);font-size:1.15rem;">₦${total.toLocaleString()}</strong>
           </div>
+          <p style="font-size:.75rem;color:var(--text-muted);margin:4px 0 0;line-height:1.6;">
+            📌 Farm gate prices — delivery cost not included. Final delivery charge will be confirmed via WhatsApp.
+          </p>
         </div>
 
         <!-- Customer Details -->
