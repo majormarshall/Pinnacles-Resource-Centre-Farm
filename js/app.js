@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const WA_NUMBER = '2347078210834'; // +234 707 821 0834 — Pinnacles Resource Centre Farm
+const WA_NUMBER = '2349037505632'; // +234 903 750 5632 — Pinnacles Resource Centre Farm
 const API_BASE = '/api'; // Backend API base URL
 const USE_BACKEND = true; // Set false to run without backend
 

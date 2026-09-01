@@ -2,7 +2,7 @@
 // Pinnacles Farm — Chatbot Engine
 // ============================================================
 
-const FARM_WA = '2347078210834';
+const FARM_WA = '2349037505632';
 
 // ── State ─────────────────────────────────────────────────────
 const ChatBot = (() => {
@@ -80,7 +80,7 @@ const ChatBot = (() => {
     },
     {
       tags: ['contact','phone','number','call','whatsapp','reach','email'],
-      reply: () => `Here\'s how to reach us:\n\n📱 **WhatsApp:** +234 707 821 0834\n📧 **Email:** agribusiness@pinnaclescentre.com\n\nThe quickest way is WhatsApp — we respond within minutes! 💬`,
+      reply: () => `Here\'s how to reach us:\n\n📱 **WhatsApp:** +234 903 750 5632\n📧 **Email:** agribusiness@pinnaclescentre.com\n\nThe quickest way is WhatsApp — we respond within minutes! 💬`,
       chips: ['💬 Open WhatsApp','🛒 Shop Now']
     },
     {

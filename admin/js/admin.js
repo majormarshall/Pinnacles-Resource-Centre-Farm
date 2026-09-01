@@ -6,9 +6,10 @@ let authToken = localStorage.getItem('pinnacles_admin_token');
 let currentTab = 'overview';
 
 // Ensure image paths resolve from root (handles relative paths like "images/foo.png")
+// Also passes data: URLs (base64) through unchanged.
 function imgSrc(url) {
   if (!url) return '';
-  if (url.startsWith('http') || url.startsWith('/')) return url;
+  if (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:')) return url;
   return '/' + url;
 }
 
@@ -454,7 +455,7 @@ function generateAdvert() {
 🚚 Fast Delivery Available
 💰 Fair & Affordable Prices
 
-📲 Order via WhatsApp: +234 707 821 0834
+📲 Order via WhatsApp: +234 903 750 5632
 📧 agribusiness@pinnaclescentre.com
 
 #PinnaclesFarm #FreshProduce #FarmToTable`;
