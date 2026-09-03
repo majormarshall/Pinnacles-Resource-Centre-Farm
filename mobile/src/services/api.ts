@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // 🔑 Set EXPO_PUBLIC_API_URL in your .env file to your Vercel deployment URL
 export const BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ||
-  'https://pinnacles-resource-centre-farm-centre.vercel.app';
+  'https://pinnacles-resource-centre-farm.vercel.app';
 
 const api = axios.create({
   baseURL: `${BASE_URL}/api`,
