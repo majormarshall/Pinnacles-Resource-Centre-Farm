@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
-  Alert, ActivityIndicator, KeyboardAvoidingView, Platform,
+  Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -37,7 +37,10 @@ export default function AdminLoginScreen() {
         {/* Logo area */}
         <View style={styles.logoArea}>
           <View style={styles.logoCircle}>
-            <Text style={{ fontSize: 44 }}>⛰️</Text>
+            <Image
+              source={require('../../assets/logo.png')}
+              style={{ width: 70, height: 70, resizeMode: 'contain' }}
+            />
           </View>
           <Text style={styles.appName}>Pinnacles Farm</Text>
           <Text style={styles.appSub}>Admin Portal</Text>

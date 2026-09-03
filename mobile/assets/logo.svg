@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160" width="220" height="160">
+  <!-- Left yellow triangle -->
+  <polygon points="45,145 95,55 145,145" fill="#F5C518" opacity="0.95"/>
+  <!-- Right light green triangle -->
+  <polygon points="85,145 140,60 195,145" fill="#8CC63F" opacity="0.95"/>
+  <!-- Center dark green triangle (front/main) -->
+  <polygon points="30,145 110,18 190,145" fill="#1E6B3A"/>
+</svg>

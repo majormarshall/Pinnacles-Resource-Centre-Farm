@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { View, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { CartProvider, useCart } from './src/context/CartContext';
@@ -35,6 +35,7 @@ function HomeStack() {
 }
 
 // ── Cart Tab Icon with badge ──────────────────────────────────────────────
+
 function CartTabIcon({ color, size }: { color: string; size: number }) {
   const { state } = useCart();
   return (
@@ -42,15 +43,15 @@ function CartTabIcon({ color, size }: { color: string; size: number }) {
       <Ionicons name="cart-outline" size={size} color={color} />
       {state.count > 0 && (
         <View style={{
-          position: 'absolute', top: -4, right: -6,
+          position: 'absolute', top: -5, right: -8,
           backgroundColor: COLORS.gold, borderRadius: 10,
           minWidth: 18, height: 18,
           justifyContent: 'center', alignItems: 'center',
           paddingHorizontal: 3,
         }}>
-          <View style={{ alignItems: 'center' }}>
-            <Ionicons name="ellipse" size={0} />
-          </View>
+          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800', lineHeight: 13 }}>
+            {state.count > 99 ? '99+' : state.count}
+          </Text>
         </View>
       )}
     </View>

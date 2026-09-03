@@ -57,7 +57,7 @@ Edit **`.env`** in the `mobile/` folder:
 EXPO_PUBLIC_API_URL=https://your-vercel-url.vercel.app
 
 # Farm WhatsApp in international format (no + or spaces)
-EXPO_PUBLIC_FARM_WHATSAPP=2348012345678
+EXPO_PUBLIC_FARM_WHATSAPP=2349037505632
 ```
 
 ---

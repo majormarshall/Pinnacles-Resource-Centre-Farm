@@ -65,6 +65,10 @@ export default function HomeScreen({ navigation }: any) {
   if (loading) {
     return (
       <View style={styles.loadingCenter}>
+        <Image
+          source={require('../../assets/logo.png')}
+          style={{ width: 80, height: 80, resizeMode: 'contain', marginBottom: 4 }}
+        />
         <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={styles.loadingText}>Loading fresh produce...</Text>
       </View>
@@ -80,12 +84,17 @@ export default function HomeScreen({ navigation }: any) {
       {/* ── Hero ── */}
       <Animated.View style={[styles.hero, { paddingTop: insets.top + 16, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         <View style={styles.heroHeader}>
-          <View>
-            <Text style={styles.heroGreeting}>Welcome to 🌿</Text>
-            <TouchableOpacity onPress={handleAdminTap} activeOpacity={1}>
-              <Text style={styles.heroTitle}>Pinnacles Farm</Text>
-            </TouchableOpacity>
-            <Text style={styles.heroSub}>Fresh from the earth, straight to you</Text>
+          <View style={styles.heroLeft}>
+            <Image
+              source={require('../../assets/logo.png')}
+              style={styles.heroLogo}
+            />
+            <View>
+              <TouchableOpacity onPress={handleAdminTap} activeOpacity={1}>
+                <Text style={styles.heroTitle}>Pinnacles Farm</Text>
+              </TouchableOpacity>
+              <Text style={styles.heroSub}>Fresh from the earth, straight to you</Text>
+            </View>
           </View>
           <TouchableOpacity style={styles.cartButton} onPress={() => navigation.navigate('Cart')}>
             <Ionicons name="cart-outline" size={26} color={COLORS.white} />
@@ -213,7 +222,7 @@ export default function HomeScreen({ navigation }: any) {
           We are a family-run resource centre farm committed to growing fresh, sustainable produce. 
           All our products are harvested daily and delivered with care directly to your doorstep.
         </Text>
-        <TouchableOpacity style={styles.contactBtn} onPress={() => navigation.navigate('Chat')}>
+        <TouchableOpacity style={styles.contactBtn} onPress={() => navigation.navigate('ChatTab')}>
           <Ionicons name="chatbubble-ellipses-outline" size={18} color={COLORS.white} />
           <Text style={styles.contactBtnText}>Chat with Us</Text>
         </TouchableOpacity>
@@ -236,10 +245,11 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
   },
-  heroHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 },
-  heroGreeting: { color: COLORS.accentLight, fontSize: 13, fontWeight: '500' },
-  heroTitle: { color: COLORS.white, fontSize: 26, fontWeight: '800', marginTop: 2 },
-  heroSub: { color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 4 },
+  heroHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  heroLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
+  heroLogo: { width: 52, height: 52, resizeMode: 'contain', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: 4 },
+  heroTitle: { color: COLORS.white, fontSize: 22, fontWeight: '800' },
+  heroSub: { color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 2 },
   cartButton: {
     width: 48, height: 48, borderRadius: 24,
     backgroundColor: 'rgba(255,255,255,0.15)',

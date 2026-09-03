@@ -10,7 +10,7 @@ import { COLORS, RADIUS, SHADOW } from '../theme/tokens';
 import { useCart } from '../context/CartContext';
 import { placeOrder } from '../services/api';
 
-const FARM_WHATSAPP = '2348012345678'; // ← Update with real number
+const FARM_WHATSAPP = '2349037505632'; // Pinnacles Resource Centre Farm
 
 export default function CartScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
