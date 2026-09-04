@@ -110,6 +110,18 @@ async function initDB() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
 
+  // Gallery
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS gallery (
+      id          SERIAL PRIMARY KEY,
+      img         TEXT NOT NULL,
+      alt         TEXT DEFAULT '',
+      caption     TEXT DEFAULT '',
+      wide        INTEGER DEFAULT 0,
+      sort_order  INTEGER DEFAULT 0,
+      created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+
   // Admins
   await pool.query(`
     CREATE TABLE IF NOT EXISTS admins (
@@ -139,6 +151,26 @@ async function initDB() {
       );
     }
     console.log('✅ Default products seeded.');
+  }
+
+  // ── Seed default gallery images ────────────────────────────
+  const galCount = await db.getAsync('SELECT COUNT(*)::int AS c FROM gallery');
+  if (Number(galCount?.c) === 0) {
+    const defaultGallery = [
+      ['images/farm_hero.png',   'Pinnacles Farm Fields', '', 1, 0],
+      ['images/tomatoes.png',    'Fresh Tomatoes',        '', 0, 1],
+      ['images/strawberry.png',  'Strawberries',          '', 0, 2],
+      ['images/pepper.png',      'Peppers',               '', 0, 3],
+      ['images/maize.png',       'Sweet Maize',           '', 0, 4],
+      ['images/carrots.png',     'Carrots',               '', 0, 5],
+    ];
+    for (const [img, alt, caption, wide, sort_order] of defaultGallery) {
+      await db.runAsync(
+        'INSERT INTO gallery (img, alt, caption, wide, sort_order) VALUES (?,?,?,?,?)',
+        [img, alt, caption, wide, sort_order]
+      );
+    }
+    console.log('✅ Default gallery seeded.');
   }
 
   console.log('✅ Supabase database ready.');

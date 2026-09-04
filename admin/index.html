@@ -48,6 +48,7 @@
         <a href="#" class="nav-item active" onclick="showTab('overview', this)">📊 Overview</a>
         <a href="#" class="nav-item" onclick="showTab('orders', this)">🛒 Orders <span class="nav-badge" id="pending-badge">0</span></a>
         <a href="#" class="nav-item" onclick="showTab('products', this)">🌿 Products</a>
+        <a href="#" class="nav-item" onclick="showTab('gallery', this)">🖼️ Gallery</a>
         <a href="#" class="nav-item" onclick="showTab('messages', this)">💬 Messages <span class="nav-badge" id="msg-badge">0</span></a>
         <a href="#" class="nav-item" onclick="showTab('settings', this)">⚙️ Settings</a>
       </nav>
@@ -149,6 +150,19 @@
         <div id="messages-list" class="list-container"></div>
       </section>
 
+      <!-- GALLERY TAB -->
+      <section id="tab-gallery" class="tab-content">
+        <div class="tab-toolbar">
+          <button class="btn-primary" onclick="openGalleryModal()">+ Add Photo</button>
+          <button class="btn-outline" onclick="loadGallery()">🔄 Refresh</button>
+        </div>
+        <p style="color:var(--text-muted);font-size:.84rem;margin-bottom:20px;">
+          Upload photos that appear in the <strong>Farm Gallery</strong> section of the website.
+          The first image set as <em>Wide</em> will span the full width.
+        </p>
+        <div id="gallery-admin-grid" class="admin-gallery-grid"></div>
+      </section>
+
       <!-- SETTINGS TAB -->
       <section id="tab-settings" class="tab-content">
         <div class="settings-grid">
@@ -243,6 +257,61 @@
   <div class="modal" id="order-modal">
     <div class="modal-header"><h3>Order Details</h3><button onclick="closeOrderModal()" class="modal-close">✕</button></div>
     <div id="order-modal-content"></div>
+  </div>
+
+  <!-- GALLERY MODAL -->
+  <div class="modal-overlay" id="gallery-modal-overlay" onclick="closeGalleryModal()"></div>
+  <div class="modal" id="gallery-modal">
+    <div class="modal-header">
+      <h3 id="gallery-modal-title">Add Gallery Photo</h3>
+      <button onclick="closeGalleryModal()" class="modal-close">✕</button>
+    </div>
+    <form id="gallery-form" onsubmit="saveGalleryItem(event)">
+      <input type="hidden" id="gallery-item-id" />
+
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label>Photo <span style="color:var(--green-light)">*</span></label>
+        <div id="gal-upload-area" onclick="document.getElementById('gal-img-file').click()"
+             style="border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;"
+             onmouseenter="this.style.borderColor='var(--green-light)'"
+             onmouseleave="this.style.borderColor='var(--border)'">
+          <div id="gal-preview-wrap" style="display:none;position:relative;">
+            <img id="gal-preview" src="" alt="Preview"
+                 style="max-height:160px;border-radius:8px;object-fit:cover;width:100%;" />
+            <button type="button" onclick="event.stopPropagation();clearGalleryImage()"
+                    style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:.9rem;cursor:pointer;">✕</button>
+          </div>
+          <div id="gal-placeholder" style="color:var(--text-muted);font-size:.9rem;">
+            <div style="font-size:2rem;margin-bottom:6px;">🖼️</div>
+            <div>Click to upload a farm photo</div>
+            <div style="font-size:.78rem;margin-top:4px;">JPG, PNG, WEBP — max 5 MB</div>
+          </div>
+        </div>
+        <input type="file" id="gal-img-file" accept="image/*" style="display:none"
+               onchange="previewGalleryImage(this)" />
+      </div>
+
+      <div class="form-group">
+        <label>Alt Text (describes the photo)</label>
+        <input type="text" id="gal-alt" placeholder="e.g. Fresh tomatoes on the vine" />
+      </div>
+      <div class="form-group">
+        <label>Caption (optional, shown on hover)</label>
+        <input type="text" id="gal-caption" placeholder="e.g. Harvested this morning!" />
+      </div>
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" id="gal-wide" />
+          Wide image (spans full gallery width — best for landscape/hero shots)
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" onclick="closeGalleryModal()" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-primary" id="gal-save-btn">Save Photo</button>
+      </div>
+    </form>
   </div>
 
   <script src="js/admin.js"></script>

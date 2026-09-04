@@ -89,11 +89,12 @@ function showTab(tab, el) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (el) el.classList.add('active');
   currentTab = tab;
-  const titles = { overview:'Dashboard Overview', orders:'Orders', products:'Products', messages:'Messages', settings:'Settings' };
+  const titles = { overview:'Dashboard Overview', orders:'Orders', products:'Products', gallery:'Farm Gallery', messages:'Messages', settings:'Settings' };
   document.getElementById('topbar-title').textContent = titles[tab] || tab;
   if (tab === 'overview') loadOverview();
   if (tab === 'orders')   loadOrders();
   if (tab === 'products') loadProducts();
+  if (tab === 'gallery')  loadGallery();
   if (tab === 'messages') loadMessages();
 }
 
@@ -492,4 +493,148 @@ function toggleWaMsg(orderId) {
   const isOpen = box.style.display === 'block';
   box.style.display = isOpen ? 'none' : 'block';
   btn.textContent = isOpen ? '📲 Show WhatsApp Message Sent' : '📲 Hide WhatsApp Message';
+}
+
+// ── Gallery ───────────────────────────────────────────────────
+let editingGalleryId = null;
+
+async function loadGallery() {
+  const items = await api('GET', '/gallery');
+  const grid = document.getElementById('gallery-admin-grid');
+  if (!Array.isArray(items) || items.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted)">No gallery photos yet. Click "+ Add Photo" to add your first image.</div>';
+    return;
+  }
+  grid.innerHTML = items.map((item, idx) => `
+    <div class="gallery-admin-card" data-id="${item.id}">
+      <div class="gac-img">
+        <img src="${imgSrc(item.img)}" alt="${item.alt || 'Farm photo'}"
+             style="width:100%;height:100%;object-fit:cover;border-radius:12px;"
+             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>🖼️</div>'" />
+        ${item.wide ? '<span class="gac-wide-badge">WIDE</span>' : ''}
+      </div>
+      <div class="gac-body">
+        <div class="gac-alt">${item.alt || '<em style="color:var(--text-muted)">No alt text</em>'}</div>
+        ${item.caption ? `<div class="gac-caption">"${item.caption}"</div>` : ''}
+        <div class="gac-order">Order: #${item.sort_order ?? idx}</div>
+        <div class="gac-actions">
+          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">✏️ Edit</button>
+          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) - 1})" ${idx === 0 ? 'disabled' : ''}>↑</button>
+          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) + 1})" ${idx === items.length - 1 ? 'disabled' : ''}>↓</button>
+          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openGalleryModal(item = null) {
+  editingGalleryId = item ? item.id : null;
+  document.getElementById('gallery-modal-title').textContent = item ? 'Edit Gallery Photo' : 'Add Gallery Photo';
+  document.getElementById('gallery-item-id').value = item?.id || '';
+  document.getElementById('gal-alt').value     = item?.alt || '';
+  document.getElementById('gal-caption').value = item?.caption || '';
+  document.getElementById('gal-wide').checked  = item ? Boolean(Number(item.wide)) : false;
+
+  // Reset file input & preview
+  document.getElementById('gal-img-file').value = '';
+  if (item?.img) {
+    document.getElementById('gal-preview').src = imgSrc(item.img);
+    document.getElementById('gal-preview-wrap').style.display = 'block';
+    document.getElementById('gal-placeholder').style.display  = 'none';
+  } else {
+    document.getElementById('gal-preview-wrap').style.display = 'none';
+    document.getElementById('gal-placeholder').style.display  = 'block';
+  }
+
+  document.getElementById('gallery-modal-overlay').classList.add('open');
+  document.getElementById('gallery-modal').classList.add('open');
+}
+
+function closeGalleryModal() {
+  document.getElementById('gallery-modal-overlay').classList.remove('open');
+  document.getElementById('gallery-modal').classList.remove('open');
+}
+
+function previewGalleryImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('gal-preview').src = e.target.result;
+    document.getElementById('gal-preview-wrap').style.display = 'block';
+    document.getElementById('gal-placeholder').style.display  = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearGalleryImage() {
+  document.getElementById('gal-img-file').value  = '';
+  document.getElementById('gal-preview').src      = '';
+  document.getElementById('gal-preview-wrap').style.display = 'none';
+  document.getElementById('gal-placeholder').style.display  = 'block';
+}
+
+async function saveGalleryItem(e) {
+  e.preventDefault();
+  const btn = document.getElementById('gal-save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    const fileInput = document.getElementById('gal-img-file');
+    const isNew = !editingGalleryId;
+
+    if (isNew && !fileInput.files[0]) {
+      showToast('❌ Please select a photo to upload.');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('alt',     document.getElementById('gal-alt').value);
+    fd.append('caption', document.getElementById('gal-caption').value);
+    fd.append('wide',    document.getElementById('gal-wide').checked ? '1' : '0');
+    if (fileInput.files[0]) fd.append('image', fileInput.files[0]);
+
+    const headers = {};
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
+    let res;
+    if (editingGalleryId) {
+      res = await fetch(`${API}/gallery/${editingGalleryId}`, { method: 'PUT', headers, body: fd });
+    } else {
+      res = await fetch(`${API}/gallery`, { method: 'POST', headers, body: fd });
+    }
+
+    if (res.status === 401 || res.status === 403) { logout(); return; }
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    showToast(editingGalleryId ? 'Photo updated! 🖼️' : 'Photo added to gallery! 🌱');
+    closeGalleryModal();
+    loadGallery();
+  } catch (err) {
+    showToast('❌ Error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Photo';
+  }
+}
+
+async function editGalleryItem(id) {
+  const items = await api('GET', '/gallery');
+  const item = (Array.isArray(items) ? items : []).find(x => x.id === id);
+  if (item) openGalleryModal(item);
+}
+
+async function moveGalleryItem(id, newOrder) {
+  await api('PATCH', `/gallery/${id}/order`, { sort_order: newOrder });
+  loadGallery();
+}
+
+async function deleteGalleryItem(id) {
+  if (!confirm('Delete this gallery photo? This cannot be undone.')) return;
+  await api('DELETE', `/gallery/${id}`);
+  showToast('Photo removed from gallery');
+  loadGallery();
 }

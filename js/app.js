@@ -29,7 +29,7 @@ let activeFilter = 'all';
 document.addEventListener('DOMContentLoaded', async () => {
   await loadProductsFromAPI();
   renderProducts('all');
-  renderGallery();
+  await renderGallery();
   updateCartBadge();
   initNavScroll();
 });
@@ -450,18 +450,31 @@ async function sendContactMessage(e) {
 }
 
 // ===== GALLERY =====
-function renderGallery() {
-  const items = [
-    { img:'images/farm_hero.png', emoji:'🌿', wide:true, alt:'Pinnacles Farm Fields' },
-    { img:'images/tomatoes.png', emoji:'🍅', wide:false, alt:'Fresh Tomatoes' },
-    { img:'images/strawberry.png', emoji:'🍓', wide:false, alt:'Strawberries' },
-    { img:'images/pepper.png', emoji:'🫑', wide:false, alt:'Peppers' },
-    { img:'images/maize.png', emoji:'🌽', wide:false, alt:'Sweet Maize' },
-    { img:'images/carrots.png', emoji:'🥕', wide:false, alt:'Carrots' },
-  ];
+const FALLBACK_GALLERY = [
+  { img:'images/farm_hero.png', alt:'Pinnacles Farm Fields', wide:1 },
+  { img:'images/tomatoes.png',  alt:'Fresh Tomatoes',        wide:0 },
+  { img:'images/strawberry.png',alt:'Strawberries',          wide:0 },
+  { img:'images/pepper.png',    alt:'Peppers',               wide:0 },
+  { img:'images/maize.png',     alt:'Sweet Maize',           wide:0 },
+  { img:'images/carrots.png',   alt:'Carrots',               wide:0 },
+];
+
+async function renderGallery() {
+  let items = FALLBACK_GALLERY;
+  if (USE_BACKEND) {
+    try {
+      const res = await fetch(API_BASE + '/gallery');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) items = data;
+      }
+    } catch { /* backend offline — use fallback */ }
+  }
   document.getElementById('gallery-grid').innerHTML = items.map(item => `
-    <div class="gallery-item${item.wide?' wide':''}">
-      ${item.img ? `<img src="${item.img}" alt="${item.alt}" onerror="this.outerHTML='<div class=gallery-emoji>${item.emoji}</div>'" />` : `<div class="gallery-emoji">${item.emoji}</div>`}
+    <div class="gallery-item${item.wide ? ' wide' : ''}">
+      <img src="${item.img}" alt="${item.alt || 'Farm photo'}"
+           onerror="this.outerHTML='<div class=gallery-emoji>🌿</div>'" />
+      ${item.caption ? `<div class="gallery-caption">${item.caption}</div>` : ''}
     </div>
   `).join('');
 }

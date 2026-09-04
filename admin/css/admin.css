@@ -162,3 +162,15 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);heig
 ::-webkit-scrollbar{width:6px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* GALLERY ADMIN GRID */
+.admin-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.gallery-admin-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:var(--transition);}
+.gallery-admin-card:hover{border-color:var(--green-light);transform:translateY(-2px);}
+.gac-img{height:150px;background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.gac-wide-badge{position:absolute;top:8px;left:8px;background:var(--green);color:#fff;font-size:.65rem;font-weight:800;padding:3px 10px;border-radius:50px;text-transform:uppercase;letter-spacing:.06em;}
+.gac-body{padding:14px;}
+.gac-alt{font-weight:600;font-size:.88rem;color:#fff;margin-bottom:4px;line-height:1.4;}
+.gac-caption{font-size:.78rem;color:var(--text-muted);font-style:italic;margin-bottom:6px;}
+.gac-order{font-size:.72rem;color:var(--text-muted);margin-bottom:10px;}
+.gac-actions{display:flex;gap:6px;flex-wrap:wrap;}
