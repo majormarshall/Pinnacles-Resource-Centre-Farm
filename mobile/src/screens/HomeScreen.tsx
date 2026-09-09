@@ -127,9 +127,6 @@ export default function HomeScreen({ navigation }: any) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>⭐ Featured Products</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Shop')}>
-              <Text style={styles.sectionLink}>See all</Text>
-            </TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingLeft: 20 }}>
             {featured.map((p) => (

@@ -51,8 +51,8 @@ export default function CartScreen({ navigation }: any) {
         '✅ Order Placed!',
         `Order #${orderId} received! We'll confirm via WhatsApp shortly.\n\nTap OK to open WhatsApp and complete your order.`,
         [
-          { text: 'Skip', style: 'cancel', onPress: () => navigation.navigate('Home') },
-          { text: 'Open WhatsApp', onPress: () => { Linking.openURL(url); navigation.navigate('Home'); } },
+          { text: 'Skip', style: 'cancel', onPress: () => navigation.navigate('HomeTab') },
+          { text: 'Open WhatsApp', onPress: () => { Linking.openURL(url); navigation.navigate('HomeTab'); } },
         ]
       );
     } catch (e: any) {
@@ -68,7 +68,7 @@ export default function CartScreen({ navigation }: any) {
         <Text style={styles.emptyIcon}>🛒</Text>
         <Text style={styles.emptyTitle}>Your cart is empty</Text>
         <Text style={styles.emptySub}>Add some fresh produce from our farm!</Text>
-        <TouchableOpacity style={styles.shopBtn} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity style={styles.shopBtn} onPress={() => navigation.navigate('HomeTab')}>
           <Text style={styles.shopBtnText}>Start Shopping</Text>
         </TouchableOpacity>
       </View>

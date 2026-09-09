@@ -3,6 +3,7 @@ const router      = require('express').Router();
 const db          = require('../db');
 const requireAuth = require('../middleware/auth');
 const nodemailer  = require('nodemailer');
+const { orderLimiter } = require('../middleware/rateLimiter');
 
 // ── Email helper ──────────────────────────────────────────────
 function sendAdminOrderEmail({ orderId, customer_name, customer_phone, items, total, notes }) {
@@ -77,7 +78,7 @@ function sendAdminOrderEmail({ orderId, customer_name, customer_phone, items, to
 }
 
 // ── POST /api/orders — place a new order ──────────────────────
-router.post('/', async (req, res) => {
+router.post('/', orderLimiter, async (req, res) => {
   try {
     const { customer_name, customer_phone, items, total, notes, whatsapp_msg } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Order must contain items.' });

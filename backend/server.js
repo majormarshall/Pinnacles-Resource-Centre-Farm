@@ -13,6 +13,7 @@ if (!process.env.JWT_SECRET) {
 const express = require('express');
 const cors    = require('cors');
 const path    = require('path');
+const { globalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -30,6 +31,9 @@ app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ── API Routes ────────────────────────────────────────────────
+// Global rate limit applied to all /api/* routes
+app.use('/api', globalLimiter);
+
 app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders',   require('./routes/orders'));

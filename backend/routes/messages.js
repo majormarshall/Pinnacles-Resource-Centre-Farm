@@ -2,8 +2,9 @@
 const router     = require('express').Router();
 const db         = require('../db');
 const requireAuth= require('../middleware/auth');
+const { messageLimiter } = require('../middleware/rateLimiter');
 
-router.post('/', async (req, res) => {
+router.post('/', messageLimiter, async (req, res) => {
   try {
     const { name, phone, message } = req.body;
     if (!name || !message) return res.status(400).json({ error: 'Name and message are required.' });
