@@ -47,8 +47,8 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
     const imageUrl = resolveImageUrl(req) || img || null;
 
     const r = await db.runAsync(
-      'INSERT INTO products (name,emoji,img,price,unit,description,category,tag,stock) VALUES (?,?,?,?,?,?,?,?,?)',
-      [name, emoji||'🌿', imageUrl, Number(price), unit||'per unit', description||'', category||'vegetables', tag||'Fresh', Number(stock)||999]
+      'INSERT INTO products (name,emoji,img,price,unit,description,category,tag,stock,in_stock) VALUES (?,?,?,?,?,?,?,?,?,?)',
+      [name, emoji||'🌿', imageUrl, Number(price), unit||'per unit', description||'', category||'vegetables', tag||'Fresh', Number(stock)||999, 1]
     );
     res.status(201).json({ id: r.lastID, message: 'Product added.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -57,7 +57,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
 // ── PUT /api/products/:id — update existing product ────────────
 router.put('/:id', requireAuth, upload.single('image'), async (req, res) => {
   try {
-    const { name, emoji, img, price, unit, description, category, tag, active, stock } = req.body;
+    const { name, emoji, img, price, unit, description, category, tag, active, stock, in_stock } = req.body;
 
     // Priority: new upload > explicit img field > keep existing
     let imageUrl = resolveImageUrl(req);
@@ -71,9 +71,10 @@ router.put('/:id', requireAuth, upload.single('image'), async (req, res) => {
     }
 
     await db.runAsync(
-      'UPDATE products SET name=?,emoji=?,img=?,price=?,unit=?,description=?,category=?,tag=?,active=?,stock=? WHERE id=?',
+      'UPDATE products SET name=?,emoji=?,img=?,price=?,unit=?,description=?,category=?,tag=?,active=?,stock=?,in_stock=? WHERE id=?',
       [name, emoji, imageUrl, Number(price), unit, description, category, tag,
-       active != null ? Number(active) : 1, Number(stock)||999, req.params.id]
+       active != null ? Number(active) : 1, Number(stock)||999,
+       in_stock != null ? Number(in_stock) : 1, req.params.id]
     );
     res.json({ message: 'Product updated.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -84,6 +85,17 @@ router.delete('/:id', requireAuth, async (req, res) => {
   try {
     await db.runAsync('DELETE FROM products WHERE id = ?', [req.params.id]);
     res.json({ message: 'Product deleted.' });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── PATCH /api/products/:id/stock — quick availability toggle ──
+router.patch('/:id/stock', requireAuth, async (req, res) => {
+  try {
+    const { in_stock } = req.body;
+    if (in_stock === undefined) return res.status(400).json({ error: 'in_stock value required.' });
+    await db.runAsync('UPDATE products SET in_stock = ? WHERE id = ?', [Number(in_stock), req.params.id]);
+    const label = Number(in_stock) ? 'In Stock' : 'Out of Stock';
+    res.json({ message: `Product marked as ${label}.` });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

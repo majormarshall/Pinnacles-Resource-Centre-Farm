@@ -245,24 +245,39 @@ let editingProductId = null;
 
 async function loadProducts() {
   const products = await api('GET', '/products/all');
-  document.getElementById('products-admin-grid').innerHTML = (Array.isArray(products) ? products : []).map(p => `
-    <div class="admin-product-card ${p.active ? '' : 'inactive'}">
-      <div class="apc-img">
-        ${p.img
-          ? `<img src="${imgSrc(p.img)}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.outerHTML='<div style=\'font-size:2.5rem;line-height:1\'>${p.emoji||'🌿'}</div>'" />`
-          : `<div style="font-size:2.5rem;line-height:1">${p.emoji||'🌿'}</div>`
-        }
-      </div>
-      <div class="apc-body">
-        <div class="apc-name">${p.name}</div>
-        <div class="apc-price">₦${Number(p.price).toLocaleString()} <small style="color:var(--text-muted);font-weight:400">${p.unit}</small></div>
-        <div class="apc-meta">${p.category} · ${p.tag} · Stock: ${p.stock}</div>
-        <div class="apc-actions">
-          <button class="btn-outline btn-sm" onclick="editProduct(${p.id})">✏️ Edit</button>
-          <button class="btn-outline btn-sm btn-danger" onclick="deleteProduct(${p.id})">Delete</button>
-        </div>
-      </div>
-    </div>`).join('');
+  document.getElementById('products-admin-grid').innerHTML = (Array.isArray(products) ? products : []).map(p => {
+    const inStock = p.in_stock !== 0;
+    const stockColor  = inStock ? 'rgba(82,183,136,.18)' : 'rgba(231,111,81,.15)';
+    const stockText   = inStock ? 'rgba(82,183,136,1)'   : '#e76f51';
+    const stockBorder = inStock ? 'rgba(82,183,136,.35)'  : 'rgba(231,111,81,.35)';
+    const stockLabel  = inStock ? '✅ In Stock'           : '❌ Out of Stock';
+    const toggleLabel = inStock ? '❌ Mark Out of Stock'  : '✅ Mark In Stock';
+    const imgHtml = p.img
+      ? '<img src="' + imgSrc(p.img) + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px" />'
+      : '<div style="font-size:2.5rem;line-height:1">' + (p.emoji || '🌿') + '</div>';
+    return '<div class="admin-product-card ' + (p.active ? '' : 'inactive') + '">' +
+      '<div class="apc-img">' + imgHtml + '</div>' +
+      '<div class="apc-body">' +
+        '<div class="apc-name">' + p.name + '</div>' +
+        '<div class="apc-price">\u20a6' + Number(p.price).toLocaleString() + ' <small style="color:var(--text-muted);font-weight:400">' + p.unit + '</small></div>' +
+        '<div class="apc-meta" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
+          '<span style="background:' + stockColor + ';color:' + stockText + ';border:1px solid ' + stockBorder + ';border-radius:50px;padding:2px 10px;font-size:.72rem;font-weight:700;">' + stockLabel + '</span>' +
+          '<span style="color:var(--text-muted);font-size:.75rem;">' + p.category + ' · ' + p.tag + ' · Qty: ' + p.stock + '</span>' +
+        '</div>' +
+        '<div class="apc-actions">' +
+          '<button class="btn-outline btn-sm" onclick="toggleProductStock(' + p.id + ',' + (inStock ? 0 : 1) + ')">' + toggleLabel + '</button>' +
+          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">✏️ Edit</button>' +
+          '<button class="btn-outline btn-sm btn-danger" onclick="deleteProduct(' + p.id + ')">Delete</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function toggleProductStock(id, newVal) {
+  await api('PATCH', '/products/' + id + '/stock', { in_stock: newVal });
+  showToast(newVal ? '✅ Marked In Stock' : '❌ Marked Out of Stock');
+  loadProducts();
 }
 
 function previewImage(input) {
@@ -297,6 +312,7 @@ function openProductModal(product = null) {
   document.getElementById('prod-tag').value = product?.tag || 'Fresh';
   document.getElementById('prod-desc').value = product?.description || '';
   document.getElementById('prod-stock').value = product?.stock || 999;
+  document.getElementById('prod-in-stock').checked = product ? (product.in_stock !== 0) : true;
   document.getElementById('prod-active').checked = product ? Boolean(product.active) : true;
 
   // Handle image preview for edit
@@ -346,6 +362,7 @@ async function saveProduct(e) {
     fd.append('description', document.getElementById('prod-desc').value);
     fd.append('stock',       document.getElementById('prod-stock').value);
     fd.append('active',      document.getElementById('prod-active').checked ? '1' : '0');
+    fd.append('in_stock',    document.getElementById('prod-in-stock').checked ? '1' : '0');
 
     const fileInput = document.getElementById('prod-img-file');
     if (fileInput.files[0]) {

@@ -94,6 +94,11 @@ ul{list-style:none;}
 .product-price span{font-size:.75rem;font-weight:400;color:var(--text-muted);}
 .add-to-cart{background:linear-gradient(135deg,var(--green-light),var(--green));color:#fff;border:none;padding:10px 18px;border-radius:50px;font-size:.85rem;font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:6px;}
 .add-to-cart:hover{transform:scale(1.05);}
+/* Out-of-stock state */
+.product-card.out-of-stock{opacity:.75;}
+.product-card.out-of-stock:hover{transform:none;border-color:var(--border);}
+.product-card.out-of-stock .product-img-wrap img{filter:grayscale(40%);}
+.out-of-stock-badge{position:absolute;top:12px;right:12px;background:rgba(231,111,81,.92);color:#fff;padding:4px 10px;border-radius:50px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
 
 /* ===== CART ===== */
 .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1500;display:none;backdrop-filter:blur(4px);}

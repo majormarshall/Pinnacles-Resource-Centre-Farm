@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await renderGallery();
   updateCartBadge();
   initNavScroll();
+  checkPaymentReturn(); // Handle PayIsland redirect back
 });
 
 // ===== FETCH PRODUCTS FROM BACKEND =====
@@ -64,22 +65,25 @@ function toggleNav() {
 function renderProducts(filter) {
   const grid = document.getElementById('products-grid');
   const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
-  grid.innerHTML = filtered.map(p => `
-    <div class="product-card" data-id="${p.id}" onclick="openModal(${p.id})">
+  grid.innerHTML = filtered.map(p => {
+    const inStock = p.in_stock !== 0;
+    return `
+    <div class="product-card${inStock ? '' : ' out-of-stock'}" data-id="${p.id}" onclick="openModal(${p.id})">
       <div class="product-img-wrap">
         ${p.img ? `<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=product-emoji-placeholder>${p.emoji}</div>'" />` : `<div class="product-emoji-placeholder">${p.emoji}</div>`}
         <span class="product-tag">${p.tag}</span>
+        ${!inStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
       </div>
       <div class="product-info">
         <div class="product-name">${p.emoji} ${p.name}</div>
         <div class="product-desc">${p.desc}</div>
         <div class="product-footer">
           <div class="product-price">₦${p.price.toLocaleString()} <span>${p.unit}</span></div>
-          <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${p.id})">+ Add</button>
+          <button class="add-to-cart" ${!inStock ? 'disabled style="opacity:.45;cursor:not-allowed;"' : ''} onclick="event.stopPropagation(); ${inStock ? 'addToCart(' + p.id + ')' : ''}">+ Add</button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function filterProducts(filter, btn) {
@@ -100,8 +104,9 @@ function openModal(id) {
     <div class="modal-price">₦${p.price.toLocaleString()} <small style="font-weight:400;color:var(--text-muted);font-size:.8rem">${p.unit}</small></div>
     <div class="modal-desc">${p.desc}</div>
     <div class="modal-actions">
-      <button class="btn-primary" onclick="addToCart(${p.id}); closeModal()">🛒 Add to Cart</button>
-      <button class="btn-outline" onclick="directOrder(${p.id})">📲 Order Now</button>
+      ${p.in_stock !== 0
+        ? '<button class="btn-primary" onclick="addToCart(' + p.id + '); closeModal()">🛒 Add to Cart</button><button class="btn-outline" onclick="directOrder(' + p.id + ')">📲 Order Now</button>'
+        : '<button class="btn-primary" disabled style="opacity:.45;cursor:not-allowed;">❌ Out of Stock</button>'}
     </div>
   `;
   document.getElementById('modal-overlay').classList.add('open');
@@ -116,6 +121,7 @@ function closeModal() {
 function addToCart(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
+  if (p.in_stock === 0) { showCartToast('❌ ' + p.name + ' is out of stock'); return; }
   const existing = cart.find(x => x.id === id);
   if (existing) existing.qty++;
   else cart.push({ ...p, qty: 1 });
@@ -268,13 +274,19 @@ function showOrderModal() {
         <div id="oc-error" style="display:none;background:rgba(231,111,81,.15);border:1px solid rgba(231,111,81,.4);color:#f87171;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:.88rem;"></div>
       </div>
 
-      <!-- Submit Button (always visible at bottom) -->
+      <!-- Payment Method Selector (always visible at bottom) -->
       <div style="padding:16px 24px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;">
-        <button id="oc-submit-btn" onclick="submitOrder()" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:15px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,255,255,0.2)"/><path d="M23.5 8.5A10.45 10.45 0 0 0 16 5.5C10.2 5.5 5.5 10.2 5.5 16c0 1.85.48 3.65 1.4 5.24L5.5 26.5l5.4-1.38A10.43 10.43 0 0 0 16 26.5c5.8 0 10.5-4.7 10.5-10.5 0-2.8-1.09-5.43-3-7.5z" fill="white"/></svg>
-          Send Order via WhatsApp
-        </button>
-        <p style="text-align:center;font-size:.75rem;color:var(--text-muted);margin-top:8px;">Your order will be saved &amp; sent directly to our WhatsApp for confirmation.</p>
+        <div style="font-size:.78rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Choose Payment Method</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button id="oc-pay-online-btn" onclick="submitOrderOnline()" style="width:100%;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;border:none;padding:14px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
+            💳 Pay Online (Card / Bank Transfer)
+          </button>
+          <button id="oc-submit-btn" onclick="submitOrder()" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:14px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,255,255,0.2)"/><path d="M23.5 8.5A10.45 10.45 0 0 0 16 5.5C10.2 5.5 5.5 10.2 5.5 16c0 1.85.48 3.65 1.4 5.24L5.5 26.5l5.4-1.38A10.43 10.43 0 0 0 16 26.5c5.8 0 10.5-4.7 10.5-10.5 0-2.8-1.09-5.43-3-7.5z" fill="white"/></svg>
+            Send via WhatsApp
+          </button>
+        </div>
+        <p style="text-align:center;font-size:.73rem;color:var(--text-muted);margin-top:8px;">Pay online with card or bank transfer, or send to WhatsApp for manual confirmation.</p>
       </div>
     </div>`;
 
@@ -285,6 +297,92 @@ function showOrderModal() {
 function closeOrderModal() {
   const modal = document.getElementById('order-checkout-modal');
   if (modal) modal.style.display = 'none';
+}
+
+// ── Online Payment via PayIsland ─────────────────────────────
+async function submitOrderOnline() {
+  const name  = (document.getElementById('oc-name').value  || '').trim() || 'Customer';
+  const phone = (document.getElementById('oc-phone').value || '').trim();
+  const notes = (document.getElementById('oc-notes').value || '').trim();
+  const errEl = document.getElementById('oc-error');
+
+  if (!phone) {
+    errEl.textContent = '⚠️ Please enter your phone number so we can contact you about your order.';
+    errEl.style.display = 'block';
+    document.getElementById('oc-phone').focus();
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const onlineBtn = document.getElementById('oc-pay-online-btn');
+  const waBtn     = document.getElementById('oc-submit-btn');
+  onlineBtn.disabled = true; onlineBtn.style.opacity = '.6'; onlineBtn.textContent = '⏳ Connecting…';
+  if (waBtn) { waBtn.disabled = true; waBtn.style.opacity = '.6'; }
+
+  try {
+    const res = await fetch(API_BASE + '/payment/initialize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_name:  name,
+        customer_phone: phone,
+        customer_email: '',           // optional — user can leave blank
+        items: cart.map(i => ({ id: i.id, name: i.name, emoji: i.emoji, price: i.price, qty: i.qty })),
+        total,
+        notes,
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.checkoutUrl) {
+      throw new Error(data.error || 'Payment gateway unavailable. Please use WhatsApp checkout.');
+    }
+
+    // Clear cart and redirect to PayIsland checkout
+    cart = [];
+    updateCartBadge();
+    renderCartItems();
+    closeOrderModal();
+    // Redirect customer to PayIsland hosted checkout page
+    window.location.href = data.checkoutUrl;
+
+  } catch (err) {
+    onlineBtn.disabled = false; onlineBtn.style.opacity = '1'; onlineBtn.textContent = '💳 Pay Online (Card / Bank Transfer)';
+    if (waBtn) { waBtn.disabled = false; waBtn.style.opacity = '1'; }
+    errEl.textContent = '❌ ' + err.message;
+    errEl.style.display = 'block';
+  }
+}
+
+// ── Handle PayIsland payment callback (check URL params on load) ─
+function checkPaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const payStatus = params.get('payment');
+  if (!payStatus) return;
+  // Clean up the URL
+  window.history.replaceState({}, document.title, window.location.pathname);
+  if (payStatus === 'success') {
+    const name    = params.get('name') || 'Customer';
+    const orderId = params.get('order') || '';
+    const banner  = document.createElement('div');
+    banner.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);padding:20px;';
+    banner.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;max-width:420px;width:100%;padding:40px 28px;text-align:center;">
+      <div style="font-size:3.5rem;margin-bottom:12px;">✅</div>
+      <h3 style="color:#fff;font-size:1.2rem;margin-bottom:8px;">Payment Confirmed!</h3>
+      <p style="color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:24px;">
+        Thank you, ${name}! Your payment was successful and order ${orderId ? '#' + orderId : ''} is now confirmed.<br>We'll be in touch shortly via WhatsApp. 🌿
+      </p>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:var(--green);color:#fff;border:none;padding:12px 32px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;">Done</button>
+    </div>`;
+    document.body.appendChild(banner);
+  } else if (payStatus === 'failed') {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#e76f51;color:#fff;padding:14px 24px;border-radius:50px;font-weight:600;font-size:.9rem;z-index:3000;';
+    toast.textContent = '❌ Payment was not completed. Please try again or use WhatsApp checkout.';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+  }
 }
 
 async function submitOrder() {

@@ -83,6 +83,8 @@ async function initDB() {
       stock       INTEGER DEFAULT 999,
       created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
+  // Migration: add in_stock column if it doesn't exist yet (safe, no-op if already present)
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS in_stock INTEGER DEFAULT 1`).catch(() => {});
 
   // Orders
   await pool.query(`
