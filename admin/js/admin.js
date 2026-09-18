@@ -716,7 +716,8 @@ function sendReceiptWhatsApp() {
   const itemLines = o.items.map(i =>
     '   ' + (i.emoji || '🌿') + ' ' + i.name + ' x' + i.qty + ' — ₦' + Number(i.price * i.qty).toLocaleString()
   ).join('\n');
-  const link = currentReceiptUrl ? '\n\n📄 View your receipt: ' + currentReceiptUrl : '';
+  const pdfLink = currentReceiptUrl ? currentReceiptUrl + '/pdf' : null;
+  const link = pdfLink ? '\\n\\n📄 Download your PDF receipt:\\n' + pdfLink : '';
   const msg =
     '🌿 *PINNACLES RESOURCE CENTRE FARM*\n' +
     '───────────────────────────\n' +
