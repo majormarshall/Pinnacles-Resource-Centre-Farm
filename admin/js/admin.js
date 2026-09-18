@@ -713,25 +713,56 @@ function closeReceiptModal() {
 function sendReceiptWhatsApp() {
   if (!currentReceiptOrder) return;
   const o = currentReceiptOrder;
-  const itemLines = o.items.map(i =>
-    '   ' + (i.emoji || '🌿') + ' ' + i.name + ' x' + i.qty + ' — ₦' + Number(i.price * i.qty).toLocaleString()
-  ).join('\n');
+
+  // Format date like "18 September 2026"
+  const dateStr = new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const receiptNo = String(o.id).padStart(4, '0');
+
+  // Build items rows — padded to look tabular
+  const itemLines = o.items.map(i => {
+    const name = (i.emoji || '🌿') + ' ' + i.name;
+    const qty  = '×' + i.qty;
+    const amt  = '₦' + Number(i.price * i.qty).toLocaleString('en-NG');
+    return name + '   ' + qty + '   *' + amt + '*';
+  }).join('\n');
+
+  const statusMap = { pending: '⏳ Pending', confirmed: '✅ Confirmed', processing: '🔄 Processing', delivered: '🚚 Delivered', cancelled: '❌ Cancelled' };
+  const statusStr = statusMap[o.status] || o.status;
+  const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? '💳 Online Payment' : '💬 WhatsApp Order';
+
   const pdfLink = currentReceiptUrl ? currentReceiptUrl + '/pdf' : null;
-  const link = pdfLink ? '\\n\\n📄 Download your PDF receipt:\\n' + pdfLink : '';
+  const linkLine = pdfLink ? '\n📄 *Download PDF Receipt:*\n' + pdfLink : '';
+
+  const SEP  = '━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  const LINE = '───────────────────────────';
+
   const msg =
     '🌿 *PINNACLES RESOURCE CENTRE FARM*\n' +
-    '───────────────────────────\n' +
-    '🧾 *RECEIPT — Order #' + String(o.id).padStart(4,'0') + '*\n' +
-    '───────────────────────────\n' +
-    '👤 Customer: ' + (o.customer_name || 'Customer') + '\n' +
-    '📱 Phone: ' + (o.customer_phone || '—') + '\n' +
-    '📅 Date: ' + new Date(o.created_at).toLocaleDateString('en-GB') + '\n\n' +
-    '*Items Purchased:*\n' + itemLines + '\n\n' +
-    '───────────────────────────\n' +
-    '💰 *TOTAL: ₦' + Number(o.total).toLocaleString() + '*\n' +
-    '✅ Status: ' + o.status + '\n' +
-    '───────────────────────────\n' +
-    'Thank you for shopping with us! 🌱' + link;
+    '_FRESH · ORGANIC · FARM TO TABLE_\n\n' +
+    SEP + '\n' +
+    '       *OFFICIAL RECEIPT*\n' +
+    'Receipt #' + receiptNo + '  |  ' + dateStr + '\n' +
+    SEP + '\n\n' +
+    '*BILLED TO*\n' +
+    (o.customer_name || 'Customer') + '\n' +
+    '📱 ' + (o.customer_phone || '—') + '\n\n' +
+    '*ORDER DETAILS*\n' +
+    'Order #' + o.id + '\n' +
+    'Date: ' + dateStr + '\n\n' +
+    LINE + '\n' +
+    '*ITEMS PURCHASED*\n' +
+    LINE + '\n' +
+    itemLines + '\n' +
+    LINE + '\n' +
+    '*TOTAL          ₦' + Number(o.total).toLocaleString('en-NG') + '*\n' +
+    LINE + '\n\n' +
+    'Status:  ' + statusStr + '\n' +
+    'Payment: ' + payMethod + '\n\n' +
+    SEP + '\n' +
+    'Thank you for shopping with us! 🌱\n' +
+    '📧 agribusiness@pinnaclescentre.com\n' +
+    '📲 +234 903 750 5632' +
+    linkLine;
 
   const phone = (o.customer_phone || '').replace(/\D/g, '');
   const url = phone
@@ -739,34 +770,6 @@ function sendReceiptWhatsApp() {
     : 'https://wa.me/?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
 }
-
-async function sendReceiptEmail() {
-  const email = document.getElementById('receipt-email-input').value.trim();
-  const msgEl = document.getElementById('receipt-email-msg');
-  if (!email) {
-    msgEl.textContent = '⚠️ Please enter an email address.';
-    msgEl.style.display = 'block';
-    msgEl.style.background = 'rgba(231,111,81,.15)';
-    msgEl.style.color = '#e76f51';
-    return;
-  }
-  msgEl.textContent = '⏳ Sending…';
-  msgEl.style.display = 'block';
-  msgEl.style.background = 'rgba(82,183,136,.1)';
-  msgEl.style.color = 'var(--green-light)';
-  const result = await api('POST', '/orders/' + currentReceiptOrderId + '/receipt/email', { email });
-  if (result.error) {
-    msgEl.textContent = '❌ ' + result.error;
-    msgEl.style.background = 'rgba(231,111,81,.15)';
-    msgEl.style.color = '#e76f51';
-  } else {
-    msgEl.textContent = '✅ ' + (result.message || 'Receipt sent!');
-    msgEl.style.background = 'rgba(82,183,136,.12)';
-    msgEl.style.color = 'var(--green-light)';
-    showToast('Receipt emailed successfully!');
-  }
-}
-
 function copyReceiptLink() {
   if (!currentReceiptUrl) { showToast('Receipt link not ready yet.'); return; }
   navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('🔗 Receipt link copied!'));
