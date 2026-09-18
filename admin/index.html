@@ -317,6 +317,47 @@
     </form>
   </div>
 
+  <!-- RECEIPT MODAL -->
+  <div class="modal-overlay" id="receipt-modal-overlay" onclick="closeReceiptModal()"></div>
+  <div class="modal" id="receipt-modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h3>📄 Order Receipt</h3>
+      <button onclick="closeReceiptModal()" class="modal-close">✕</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <!-- Order summary shown inside modal -->
+      <div id="receipt-order-summary" style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:20px;font-size:.88rem;"></div>
+
+      <!-- Action buttons -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a id="receipt-download-btn" href="#" target="_blank"
+           style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;padding:13px 20px;border-radius:50px;font-weight:700;font-size:.92rem;text-decoration:none;text-align:center;">
+          ⬇️ Download / Print Receipt (PDF)
+        </a>
+        <button id="receipt-wa-btn" onclick="sendReceiptWhatsApp()"
+           style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.4);color:#25D366;padding:13px 20px;border-radius:50px;font-weight:700;font-size:.92rem;cursor:pointer;width:100%;">
+          📲 Send Receipt via WhatsApp
+        </button>
+        <!-- Email section -->
+        <div style="border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+          <div style="font-size:.75rem;font-weight:700;color:var(--green-light);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;">📧 Email Receipt to Customer</div>
+          <div style="display:flex;gap:8px;">
+            <input type="email" id="receipt-email-input" placeholder="customer@email.com"
+              style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:50px;padding:9px 16px;color:var(--text);font-family:inherit;font-size:.85rem;outline:none;" />
+            <button onclick="sendReceiptEmail()"
+              style="background:var(--green);color:#fff;border:none;padding:9px 18px;border-radius:50px;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;">Send</button>
+          </div>
+          <div id="receipt-email-msg" style="display:none;margin-top:8px;font-size:.78rem;padding:6px 12px;border-radius:8px;"></div>
+        </div>
+        <!-- Copy link -->
+        <button onclick="copyReceiptLink()"
+          style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:10px 20px;border-radius:50px;font-size:.82rem;cursor:pointer;font-family:inherit;">
+          🔗 Copy Receipt Link (share with customer)
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/admin.js"></script>
 </body>
 </html>

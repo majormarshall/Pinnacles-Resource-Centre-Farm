@@ -41,6 +41,27 @@ app.use('/api/messages', require('./routes/messages'));
 app.use('/api/gallery',  require('./routes/gallery'));
 app.use('/api/payment',  require('./routes/payment'));
 
+// ── Receipt Routes ────────────────────────────────────────────
+const { router: receiptRouter, buildReceiptHtml, verifyToken } = require('./routes/receipt');
+app.use('/api/orders', receiptRouter); // adds /:id/receipt-token and /:id/receipt/email
+
+// ── Public receipt page (/receipt/:id/:token) ─────────────────
+app.get('/receipt/:id/:token', async (req, res) => {
+  const { id, token } = req.params;
+  if (!verifyToken(id, token)) {
+    return res.status(403).send('<h2 style="font-family:sans-serif;padding:40px;">Invalid or expired receipt link.</h2>');
+  }
+  try {
+    const db = require('./db');
+    const order = await db.getAsync('SELECT * FROM orders WHERE id = ?', [id]);
+    if (!order) return res.status(404).send('<h2 style="font-family:sans-serif;padding:40px;">Order not found.</h2>');
+    order.items = JSON.parse(order.items_json || '[]');
+    return res.send(buildReceiptHtml(order));
+  } catch (e) {
+    return res.status(500).send('<h2 style="font-family:sans-serif;padding:40px;">Error: ' + e.message + '</h2>');
+  }
+});
+
 // ── Info endpoint ─────────────────────────────────────────────
 app.get('/api/info', (req, res) => {
   res.json({

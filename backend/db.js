@@ -100,6 +100,7 @@ async function initDB() {
       created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
   await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS whatsapp_msg TEXT DEFAULT ''`).catch(() => {});
+  await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email TEXT DEFAULT ''`).catch(() => {});
 
   // Messages
   await pool.query(`

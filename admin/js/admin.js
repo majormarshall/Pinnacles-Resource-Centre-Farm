@@ -162,6 +162,7 @@ async function loadOrders() {
               </select>
               <button class="btn-outline btn-sm" onclick="openOrderModal(${o.id})">View</button>
               <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">💬 WhatsApp</button>
+              <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">📄 Receipt</button>
               <button class="btn-outline btn-sm btn-danger" onclick="deleteOrder(${o.id})">Delete</button>
             </div>
           </div>
@@ -655,3 +656,118 @@ async function deleteGalleryItem(id) {
   showToast('Photo removed from gallery');
   loadGallery();
 }
+
+// ── Receipt Modal ─────────────────────────────────────────────
+let currentReceiptOrderId = null;
+let currentReceiptUrl     = null;
+let currentReceiptOrder   = null;
+
+async function openReceiptModal(orderId) {
+  currentReceiptOrderId = orderId;
+  currentReceiptUrl     = null;
+  currentReceiptOrder   = null;
+
+  document.getElementById('receipt-download-btn').href = '#';
+  document.getElementById('receipt-email-input').value = '';
+  document.getElementById('receipt-email-msg').style.display = 'none';
+  document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;">Loading…</div>';
+
+  document.getElementById('receipt-modal-overlay').classList.add('open');
+  document.getElementById('receipt-modal').classList.add('open');
+
+  try {
+    const data = await api('GET', '/orders');
+    const order = (data.orders || []).find(o => o.id === orderId);
+    if (order) {
+      currentReceiptOrder = order;
+      const itemsHtml = order.items.map(i =>
+        '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">' +
+        '<span>' + (i.emoji || '🌿') + ' ' + i.name + ' ×' + i.qty + '</span>' +
+        '<span style="font-weight:700;">₦' + Number(i.price * i.qty).toLocaleString() + '</span></div>'
+      ).join('');
+      document.getElementById('receipt-order-summary').innerHTML =
+        '<div style="font-weight:700;margin-bottom:10px;color:var(--text-light);">Order #' + order.id + ' — ' + (order.customer_name || 'Customer') + '</div>' +
+        '<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px;">📱 ' + (order.customer_phone || 'No phone') + '</div>' +
+        itemsHtml +
+        '<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:800;color:var(--green-light);">' +
+        '<span>Total</span><span>₦' + Number(order.total).toLocaleString() + '</span></div>';
+      if (order.customer_email) {
+        document.getElementById('receipt-email-input').value = order.customer_email;
+      }
+    }
+    const tokenData = await api('GET', '/orders/' + orderId + '/receipt-token');
+    if (tokenData.receiptUrl) {
+      currentReceiptUrl = tokenData.receiptUrl;
+      document.getElementById('receipt-download-btn').href = tokenData.receiptUrl;
+    }
+  } catch (err) {
+    document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--red);">Error: ' + err.message + '</div>';
+  }
+}
+
+function closeReceiptModal() {
+  document.getElementById('receipt-modal-overlay').classList.remove('open');
+  document.getElementById('receipt-modal').classList.remove('open');
+}
+
+function sendReceiptWhatsApp() {
+  if (!currentReceiptOrder) return;
+  const o = currentReceiptOrder;
+  const itemLines = o.items.map(i =>
+    '   ' + (i.emoji || '🌿') + ' ' + i.name + ' x' + i.qty + ' — ₦' + Number(i.price * i.qty).toLocaleString()
+  ).join('\n');
+  const link = currentReceiptUrl ? '\n\n📄 View your receipt: ' + currentReceiptUrl : '';
+  const msg =
+    '🌿 *PINNACLES RESOURCE CENTRE FARM*\n' +
+    '───────────────────────────\n' +
+    '🧾 *RECEIPT — Order #' + String(o.id).padStart(4,'0') + '*\n' +
+    '───────────────────────────\n' +
+    '👤 Customer: ' + (o.customer_name || 'Customer') + '\n' +
+    '📱 Phone: ' + (o.customer_phone || '—') + '\n' +
+    '📅 Date: ' + new Date(o.created_at).toLocaleDateString('en-GB') + '\n\n' +
+    '*Items Purchased:*\n' + itemLines + '\n\n' +
+    '───────────────────────────\n' +
+    '💰 *TOTAL: ₦' + Number(o.total).toLocaleString() + '*\n' +
+    '✅ Status: ' + o.status + '\n' +
+    '───────────────────────────\n' +
+    'Thank you for shopping with us! 🌱' + link;
+
+  const phone = (o.customer_phone || '').replace(/\D/g, '');
+  const url = phone
+    ? 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg)
+    : 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+async function sendReceiptEmail() {
+  const email = document.getElementById('receipt-email-input').value.trim();
+  const msgEl = document.getElementById('receipt-email-msg');
+  if (!email) {
+    msgEl.textContent = '⚠️ Please enter an email address.';
+    msgEl.style.display = 'block';
+    msgEl.style.background = 'rgba(231,111,81,.15)';
+    msgEl.style.color = '#e76f51';
+    return;
+  }
+  msgEl.textContent = '⏳ Sending…';
+  msgEl.style.display = 'block';
+  msgEl.style.background = 'rgba(82,183,136,.1)';
+  msgEl.style.color = 'var(--green-light)';
+  const result = await api('POST', '/orders/' + currentReceiptOrderId + '/receipt/email', { email });
+  if (result.error) {
+    msgEl.textContent = '❌ ' + result.error;
+    msgEl.style.background = 'rgba(231,111,81,.15)';
+    msgEl.style.color = '#e76f51';
+  } else {
+    msgEl.textContent = '✅ ' + (result.message || 'Receipt sent!');
+    msgEl.style.background = 'rgba(82,183,136,.12)';
+    msgEl.style.color = 'var(--green-light)';
+    showToast('Receipt emailed successfully!');
+  }
+}
+
+function copyReceiptLink() {
+  if (!currentReceiptUrl) { showToast('Receipt link not ready yet.'); return; }
+  navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('🔗 Receipt link copied!'));
+}
+
