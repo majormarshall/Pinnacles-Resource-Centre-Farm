@@ -1,6 +1,8 @@
 // ── Receipt Routes ────────────────────────────────────────────
 const router      = require('express').Router();
 const crypto      = require('crypto');
+const path        = require('path');
+const fsSync      = require('fs');
 const db          = require('../db');
 const requireAuth = require('../middleware/auth');
 const nodemailer  = require('nodemailer');
@@ -463,31 +465,21 @@ async function streamReceiptPdf(order, res) {
   // Darker accent strip (bottom 28pt of header)
   page.drawRectangle({ x: 18, y: pk(18+HDR_H-28, 28), width: PW-36, height: 28, color: C_DARKER });
 
-  // ── Farm logo: 3 triangles ───────────────────────────────
-  const cx = PW / 2;
-  const cy_pk = 56;   // pdfkit centre y (positions logo top at ~y=28)
-  const S  = 0.45;  // scale: logo ~72pt wide, ~57pt tall
-
-  const tri = (pts, color) => page.drawSvgPath(
-    'M ' + pts.map(([x,y]) => {
-      const fx = cx + (x - 110)*S;
-      const fy = pk(cy_pk + (y - 80)*S - 0); // pdf-lib y
-      return fx.toFixed(2) + ' ' + fy.toFixed(2);
-    }).join(' L ') + ' Z',
-    { color, opacity: 0.93 }
-  );
-
-  // Yellow back-left
-  tri([[45,145],[95,55],[145,145]], C_LOGO_Y);
-  // Light-green back-right
-  tri([[85,145],[140,60],[195,145]], C_LOGO_G);
-  // Dark-green front
-  page.drawSvgPath(
-    'M ' + [[30,145],[110,18],[190,145]].map(([x,y]) => {
-      return (cx+(x-110)*S).toFixed(2) + ' ' + (pk(cy_pk+(y-80)*S)).toFixed(2);
-    }).join(' L ') + ' Z',
-    { color: C_LOGO_D, opacity: 1 }
-  );
+  // ── Farm logo: embedded JPG image ─────────────────────────
+  try {
+    const logoPath = path.join(__dirname, '..', '..', 'images', 'logo-receipt.jpg');
+    const logoBytes = fsSync.readFileSync(logoPath);
+    const logoImg   = await doc.embedJpg(logoBytes);
+    // Draw logo centred in header — 90pt wide, proportional height
+    const logoW  = 90;
+    const logoH  = logoW * (logoImg.height / logoImg.width);
+    const logoX  = (PW - logoW) / 2;
+    const logoY  = pk(18 + (HDR_H - 28 - logoH) / 2, logoH); // vertically centred in non-accent part of header
+    page.drawImage(logoImg, { x: logoX, y: logoY, width: logoW, height: logoH });
+  } catch (logoErr) {
+    // Fallback: draw styled text if image can't be loaded
+    console.error('Logo load error:', logoErr.message);
+  }
 
   // Farm name
   const farmName = 'Pinnacles Resource Centre Farm';
