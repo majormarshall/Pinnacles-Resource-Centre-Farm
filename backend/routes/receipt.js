@@ -404,7 +404,6 @@ function streamReceiptPdf(order, res) {
     ? JSON.parse(order.items_json || '[]')
     : (order.items || []);
 
-  // A4 dimensions in points (1pt = 1/72 inch): 595.28 x 841.89
   const doc = new PDFDocument({
     size: 'A4',
     margins: { top: 0, bottom: 0, left: 0, right: 0 },
@@ -418,144 +417,222 @@ function streamReceiptPdf(order, res) {
   res.setHeader('Content-Disposition', 'attachment; filename="Receipt-' + String(order.id).padStart(4, '0') + '.pdf"');
   doc.pipe(res);
 
-  const W  = 595.28;  // A4 width pts
-  const LM = 60;      // left margin
-  const RM = W - 60;  // right margin
-  const CW = RM - LM; // content width
+  // ── A4 dimensions (points) ─────────────────────────────────
+  const PW = 595.28;   // page width
+  const PH = 841.89;   // page height
+  const ML = 50;       // left margin
+  const MR = PW - 50;  // right margin
+  const CW = MR - ML;  // content width
 
-  // ── HEADER BACKGROUND ──────────────────────────────────────
-  doc.rect(0, 0, W, 168).fill('#1b4332');
+  // ── COLOURS ────────────────────────────────────────────────
+  const C_DARK   = '#1b4332';
+  const C_MID    = '#2d6a4f';
+  const C_ACCENT = '#52b788';
+  const C_LIGHT  = '#f0faf4';
+  const C_BORDER = '#d1e8d8';
+  const C_TEXT   = '#1a1a2e';
+  const C_MUTED  = '#6b7280';
+  const C_WHITE  = '#ffffff';
 
-  // ── LOGO (3 triangles, centred at x=W/2, y≈55) ────────────
-  const cx = W / 2;
-  const cy = 50;
-  const s  = 0.22; // scale factor (original viewBox 220x160)
+  // ══════════════════════════════════════════════════════════
+  // 1. FULL-PAGE WHITE BACKGROUND
+  // ══════════════════════════════════════════════════════════
+  doc.rect(0, 0, PW, PH).fill(C_WHITE);
 
-  // Back left yellow triangle  (45,145 95,55 145,145)
+  // Subtle light-green outer border frame
+  doc.rect(18, 18, PW - 36, PH - 36)
+     .lineWidth(1.2).strokeColor(C_BORDER).stroke();
+
+  // ══════════════════════════════════════════════════════════
+  // 2. DARK GREEN HEADER BLOCK
+  // ══════════════════════════════════════════════════════════
+  const HDR_H = 175;
+  doc.rect(18, 18, PW - 36, HDR_H).fill(C_DARK);
+
+  // Header inner accent strip (bottom 28px of header)
+  doc.rect(18, 18 + HDR_H - 28, PW - 36, 28).fill('#163d29');
+
+  // ── Farm logo (3 triangles, scaled & centred) ────────────
+  const cx = PW / 2;
+  const cy = 62;
+  const S  = 0.19;  // scale (original 220×160 viewBox)
+
+  // Back-left yellow
   doc.polygon(
-    [cx + (45-110)*s,  cy + (145-80)*s],
-    [cx + (95-110)*s,  cy + (55-80)*s],
-    [cx + (145-110)*s, cy + (145-80)*s]
-  ).fillOpacity(0.92).fill('#F5C518');
+    [cx + (45-110)*S,  cy + (145-80)*S],
+    [cx + (95-110)*S,  cy + (55-80)*S],
+    [cx + (145-110)*S, cy + (145-80)*S]
+  ).fillOpacity(0.93).fill('#F5C518');
 
-  // Back right light-green triangle  (85,145 140,60 195,145)
+  // Back-right light green
   doc.polygon(
-    [cx + (85-110)*s,  cy + (145-80)*s],
-    [cx + (140-110)*s, cy + (60-80)*s],
-    [cx + (195-110)*s, cy + (145-80)*s]
-  ).fillOpacity(0.92).fill('#8CC63F');
+    [cx + (85-110)*S,  cy + (145-80)*S],
+    [cx + (140-110)*S, cy + (60-80)*S],
+    [cx + (195-110)*S, cy + (145-80)*S]
+  ).fillOpacity(0.93).fill('#8CC63F');
 
-  // Front dark-green triangle  (30,145 110,18 190,145)
+  // Front dark green
   doc.polygon(
-    [cx + (30-110)*s,  cy + (145-80)*s],
-    [cx + (110-110)*s, cy + (18-80)*s],
-    [cx + (190-110)*s, cy + (145-80)*s]
+    [cx + (30-110)*S,  cy + (145-80)*S],
+    [cx + (110-110)*S, cy + (18-80)*S],
+    [cx + (190-110)*S, cy + (145-80)*S]
   ).fillOpacity(1).fill('#1E6B3A');
 
-  // ── FARM NAME ──────────────────────────────────────────────
-  doc.fillOpacity(1)
-     .font('Helvetica-Bold').fontSize(14).fillColor('#ffffff')
-     .text('PINNACLES RESOURCE CENTRE FARM', 0, 105, { align: 'center', width: W });
+  doc.fillOpacity(1);
 
-  doc.font('Helvetica').fontSize(8).fillColor('rgba(255,255,255,0.7)')
-     .text('Fresh  ·  Organic  ·  Farm to Table', 0, 123, { align: 'center', width: W });
+  // ── Farm name ─────────────────────────────────────────────
+  doc.font('Helvetica-Bold').fontSize(15).fillColor(C_WHITE)
+     .text('Pinnacles Resource Centre Farm', 18, 112, { align: 'center', width: PW - 36 });
 
-  // ── RECEIPT TITLE BAR ──────────────────────────────────────
-  doc.rect(0, 140, W, 28).fill('#163d29');
-  doc.font('Helvetica-Bold').fontSize(13).fillColor('#52b788')
-     .text('OFFICIAL RECEIPT', 0, 148, { align: 'center', width: W });
+  doc.font('Helvetica').fontSize(8).fillColor('rgba(255,255,255,0.65)')
+     .text('FRESH  ·  ORGANIC  ·  FARM TO TABLE', 18, 130, { align: 'center', width: PW - 36 });
 
-  // ── RECEIPT META ROW ───────────────────────────────────────
-  const metaY = 185;
-  doc.font('Helvetica').fontSize(8.5).fillColor('#6b7280')
-     .text('RECEIPT NO.', LM, metaY)
-     .text('DATE', 0, metaY, { align: 'center', width: W })
-     .text('STATUS', RM - 80, metaY, { width: 80, align: 'right' });
+  // ── Receipt title in accent strip ─────────────────────────
+  doc.font('Helvetica-Bold').fontSize(14).fillColor(C_ACCENT)
+     .text('OFFICIAL RECEIPT', 18, 18 + HDR_H - 22, { align: 'center', width: PW - 36 });
 
-  doc.font('Helvetica-Bold').fontSize(10).fillColor('#1a1a2e')
-     .text('#' + String(order.id).padStart(4, '0'), LM, metaY + 13)
-     .text(formatDate(order.created_at), 0, metaY + 13, { align: 'center', width: W });
+  // ══════════════════════════════════════════════════════════
+  // 3. RECEIPT META ROW (below header)
+  // ══════════════════════════════════════════════════════════
+  const receiptNo = String(order.id).padStart(4, '0');
+  const dateStr   = formatDate(order.created_at);
+  const metaY     = 18 + HDR_H + 14;
 
-  const statusLabel2 = { pending: 'Pending', confirmed: 'Confirmed', processing: 'Processing', delivered: 'Delivered', cancelled: 'Cancelled', pending_payment: 'Awaiting Payment' };
-  doc.text(statusLabel2[order.status] || order.status, RM - 80, metaY + 13, { width: 80, align: 'right' });
+  doc.rect(ML, metaY, CW, 26).fill(C_LIGHT);
 
-  // Divider
-  doc.moveTo(LM, metaY + 32).lineTo(RM, metaY + 32).strokeColor('#e8f5e9').lineWidth(1).stroke();
+  doc.font('Helvetica').fontSize(9).fillColor(C_MUTED)
+     .text('Receipt #' + receiptNo + '   |   ' + dateStr, ML, metaY + 8,
+           { align: 'center', width: CW });
 
-  // ── CUSTOMER INFO ──────────────────────────────────────────
-  const custY = metaY + 45;
-  doc.font('Helvetica-Bold').fontSize(8).fillColor('#52b788')
-     .text('BILLED TO', LM, custY);
+  // ══════════════════════════════════════════════════════════
+  // 4. BILLED TO  /  ORDER DETAILS  (two columns)
+  // ══════════════════════════════════════════════════════════
+  const INFO_Y = metaY + 38;
+  const COL    = CW / 2 - 10;
 
-  doc.font('Helvetica-Bold').fontSize(11).fillColor('#1a1a2e')
-     .text(order.customer_name || 'Customer', LM, custY + 13);
-
-  doc.font('Helvetica').fontSize(9).fillColor('#6b7280')
-     .text('Phone: ' + (order.customer_phone || '—'), LM, custY + 27);
+  // Left column — Billed To
+  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(C_ACCENT)
+     .text('BILLED TO', ML, INFO_Y);
+  doc.font('Helvetica-Bold').fontSize(11).fillColor(C_TEXT)
+     .text(order.customer_name || 'Customer', ML, INFO_Y + 13);
+  doc.font('Helvetica').fontSize(9).fillColor(C_MUTED)
+     .text('\uD83D\uDCF1 ' + (order.customer_phone || '—'), ML, INFO_Y + 28);
   if (order.customer_email) {
-    doc.text('Email:  ' + order.customer_email, LM, custY + 39);
+    doc.text('\u2709\uFE0F ' + order.customer_email, ML, INFO_Y + 40);
   }
+
+  // Right column — Order Details
+  const RC = ML + CW / 2 + 10;
+  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(C_ACCENT)
+     .text('ORDER DETAILS', RC, INFO_Y);
+  doc.font('Helvetica-Bold').fontSize(11).fillColor(C_TEXT)
+     .text('Order #' + order.id, RC, INFO_Y + 13);
+  doc.font('Helvetica').fontSize(9).fillColor(C_MUTED)
+     .text('Date: ' + dateStr, RC, INFO_Y + 28);
   if (order.notes) {
-    doc.text('Notes:  ' + order.notes, LM, custY + (order.customer_email ? 51 : 39));
+    doc.text('Notes: ' + order.notes, RC, INFO_Y + 40, { width: COL });
   }
 
   // Divider
-  const divY2 = custY + 70;
-  doc.moveTo(LM, divY2).lineTo(RM, divY2).strokeColor('#e8f5e9').lineWidth(1).stroke();
+  const divY1 = INFO_Y + (order.customer_email || order.notes ? 60 : 50);
+  doc.moveTo(ML, divY1).lineTo(MR, divY1)
+     .lineWidth(0.8).strokeColor(C_BORDER).stroke();
 
-  // ── ITEMS TABLE ────────────────────────────────────────────
-  let tableY = divY2 + 16;
+  // ══════════════════════════════════════════════════════════
+  // 5. ITEMS TABLE
+  // ══════════════════════════════════════════════════════════
+  let tY = divY1 + 14;
 
-  // Table header
-  doc.rect(LM, tableY, CW, 22).fill('#f0faf4');
-  doc.font('Helvetica-Bold').fontSize(8.5).fillColor('#4b5563');
-  doc.text('ITEM', LM + 10, tableY + 7);
-  doc.text('QTY', LM + CW * 0.62, tableY + 7, { width: CW * 0.13, align: 'center' });
-  doc.text('UNIT PRICE', LM + CW * 0.75, tableY + 7, { width: CW * 0.12, align: 'right' });
-  doc.text('AMOUNT', LM + CW * 0.87, tableY + 7, { width: CW * 0.13, align: 'right' });
-  tableY += 22;
+  // Section label
+  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(C_ACCENT)
+     .text('ITEMS PURCHASED', ML, tY);
+  tY += 14;
 
-  // Rows
-  doc.font('Helvetica').fontSize(9).fillColor('#1a1a2e');
+  // Table header row
+  doc.rect(ML, tY, CW, 22).fill(C_LIGHT);
+  doc.font('Helvetica-Bold').fontSize(8.5).fillColor(C_MUTED);
+  doc.text('Item',       ML + 8,        tY + 7);
+  doc.text('Qty',        ML + CW*0.60,  tY + 7, { width: CW*0.13, align: 'center' });
+  doc.text('Unit Price', ML + CW*0.73,  tY + 7, { width: CW*0.12, align: 'right' });
+  doc.text('Amount',     ML + CW*0.86,  tY + 7, { width: CW*0.14, align: 'right' });
+  tY += 22;
+
+  // Item rows
   items.forEach((item, idx) => {
-    const rowH = 24;
-    if (idx % 2 === 1) doc.rect(LM, tableY, CW, rowH).fill('#fafdf9');
-    doc.fillColor('#1a1a2e')
-       .text((item.name || 'Item'), LM + 10, tableY + 7, { width: CW * 0.6 });
-    doc.text(String(item.qty), LM + CW * 0.62, tableY + 7, { width: CW * 0.13, align: 'center' });
-    doc.text('₦' + Number(item.price).toLocaleString('en-NG'), LM + CW * 0.75, tableY + 7, { width: CW * 0.12, align: 'right' });
-    doc.font('Helvetica-Bold').fillColor('#1b4332')
-       .text('₦' + Number(item.price * item.qty).toLocaleString('en-NG'), LM + CW * 0.87, tableY + 7, { width: CW * 0.13, align: 'right' });
-    doc.font('Helvetica').fillColor('#1a1a2e');
-    tableY += rowH;
+    const ROW_H = 24;
+    if (idx % 2 === 1) doc.rect(ML, tY, CW, ROW_H).fill('#f7fbf8');
+    doc.font('Helvetica').fontSize(9.5).fillColor(C_TEXT)
+       .text((item.name || 'Item'), ML + 8, tY + 7, { width: CW * 0.58 });
+    doc.text(String(item.qty),
+       ML + CW*0.60, tY + 7, { width: CW*0.13, align: 'center' });
+    doc.fillColor(C_MUTED)
+       .text('\u20A6' + Number(item.price).toLocaleString('en-NG'),
+             ML + CW*0.73, tY + 7, { width: CW*0.12, align: 'right' });
+    doc.font('Helvetica-Bold').fillColor(C_DARK)
+       .text('\u20A6' + Number(item.price * item.qty).toLocaleString('en-NG'),
+             ML + CW*0.86, tY + 7, { width: CW*0.14, align: 'right' });
+    tY += ROW_H;
   });
 
+  // Top border of total row
+  doc.moveTo(ML, tY).lineTo(MR, tY).lineWidth(1.2).strokeColor(C_DARK).stroke();
+  tY += 1;
+
   // Total row
-  doc.rect(LM, tableY, CW, 30).fill('#1b4332');
-  doc.font('Helvetica-Bold').fontSize(11).fillColor('#ffffff')
-     .text('TOTAL', LM + 10, tableY + 9)
-     .text('₦' + Number(order.total).toLocaleString('en-NG'), LM, tableY + 9, { width: CW - 10, align: 'right' });
-  tableY += 30;
+  doc.rect(ML, tY, CW, 32).fill(C_DARK);
+  doc.font('Helvetica-Bold').fontSize(12).fillColor(C_WHITE)
+     .text('TOTAL', ML + 12, tY + 10);
+  doc.font('Helvetica-Bold').fontSize(13).fillColor('#a3d9b8')
+     .text('\u20A6' + Number(order.total).toLocaleString('en-NG'),
+           ML, tY + 10, { width: CW - 10, align: 'right' });
+  tY += 32;
 
-  // Payment method
-  const payMethod2 = (order.whatsapp_msg || '').startsWith('payisland_ref:')
+  // ══════════════════════════════════════════════════════════
+  // 6. STATUS & PAYMENT ROW
+  // ══════════════════════════════════════════════════════════
+  tY += 14;
+
+  const statusLabels = {
+    pending: '\u23F3 Pending', confirmed: '\u2705 Confirmed',
+    processing: '\uD83D\uDD04 Processing', delivered: '\uD83D\uDE9A Delivered',
+    cancelled: '\u274C Cancelled', pending_payment: '\uD83D\uDCB3 Awaiting Payment'
+  };
+  const payMethod = (order.whatsapp_msg || '').startsWith('payisland_ref:')
     ? 'Online Payment (PayIsland)' : 'WhatsApp Order';
-  doc.font('Helvetica').fontSize(8.5).fillColor('#6b7280')
-     .text('Payment Method: ' + payMethod2, LM, tableY + 12);
 
-  // ── FOOTER ─────────────────────────────────────────────────
-  const footerY = 760;
-  doc.moveTo(LM, footerY).lineTo(RM, footerY).strokeColor('#52b788').lineWidth(1.5).stroke();
+  // Status pill
+  doc.roundedRect(ML, tY, 110, 22, 11).fill(C_LIGHT);
+  doc.font('Helvetica-Bold').fontSize(9).fillColor(C_DARK)
+     .text(statusLabels[order.status] || order.status, ML, tY + 6,
+           { width: 110, align: 'center' });
 
-  doc.font('Helvetica-Bold').fontSize(10).fillColor('#1b4332')
-     .text('Thank you for shopping with us!', 0, footerY + 10, { align: 'center', width: W });
+  doc.font('Helvetica').fontSize(9).fillColor(C_MUTED)
+     .text('Payment: ' + payMethod, ML + 120, tY + 6);
 
-  doc.font('Helvetica').fontSize(8).fillColor('#6b7280')
-     .text('Pinnacles Resource Centre Farm', 0, footerY + 25, { align: 'center', width: W })
-     .text('agribusiness@pinnaclescentre.com  |  +234 903 750 5632  |  +234 707 821 0834', 0, footerY + 38, { align: 'center', width: W });
+  // ══════════════════════════════════════════════════════════
+  // 7. FOOTER
+  // ══════════════════════════════════════════════════════════
+  const FTR_Y = PH - 90;
+
+  // Green gradient bar
+  doc.rect(18, FTR_Y, PW - 36, 2).fill(C_ACCENT);
+
+  doc.font('Helvetica-Bold').fontSize(10.5).fillColor(C_DARK)
+     .text('Thank you for shopping with us!', 18, FTR_Y + 10,
+           { align: 'center', width: PW - 36 });
+
+  doc.font('Helvetica').fontSize(8.5).fillColor(C_MUTED)
+     .text('Pinnacles Resource Centre Farm', 18, FTR_Y + 26,
+           { align: 'center', width: PW - 36 })
+     .text('agribusiness@pinnaclescentre.com  \u2022  +234 903 750 5632  \u2022  +234 707 821 0834',
+           18, FTR_Y + 39, { align: 'center', width: PW - 36 });
 
   doc.font('Helvetica').fontSize(7).fillColor('#aaaaaa')
-     .text('This is an official receipt. Please retain for your records.', 0, footerY + 54, { align: 'center', width: W });
+     .text('This is an official receipt. Please retain for your records.',
+           18, FTR_Y + 56, { align: 'center', width: PW - 36 });
+
+  // Bottom border line
+  doc.rect(18, PH - 20, PW - 36, 2).fill(C_ACCENT);
 
   doc.end();
 }
