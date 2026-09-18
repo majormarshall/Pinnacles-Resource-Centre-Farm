@@ -465,8 +465,8 @@ async function streamReceiptPdf(order, res) {
 
   // ── Farm logo: 3 triangles ───────────────────────────────
   const cx = PW / 2;
-  const cy_pk = 62;   // pdfkit centre y
-  const S  = 0.19;
+  const cy_pk = 56;   // pdfkit centre y (positions logo top at ~y=28)
+  const S  = 0.45;  // scale: logo ~72pt wide, ~57pt tall
 
   const tri = (pts, color) => page.drawSvgPath(
     'M ' + pts.map(([x,y]) => {
@@ -493,14 +493,14 @@ async function streamReceiptPdf(order, res) {
   const farmName = 'Pinnacles Resource Centre Farm';
   const farmNameW = fontBold.widthOfTextAtSize(farmName, 15);
   page.drawText(farmName, {
-    x: (PW - farmNameW) / 2, y: pk(112, 15),
+    x: (PW - farmNameW) / 2, y: pk(105, 15),
     size: 15, font: fontBold, color: C_WHITE,
   });
 
   const tagline = 'FRESH  ·  ORGANIC  ·  FARM TO TABLE';
   const tagW = font.widthOfTextAtSize(tagline, 8);
   page.drawText(tagline, {
-    x: (PW - tagW) / 2, y: pk(130, 8),
+    x: (PW - tagW) / 2, y: pk(123, 8),
     size: 8, font, color: rgb(1,1,1),
     opacity: 0.65,
   });
