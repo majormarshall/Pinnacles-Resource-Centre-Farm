@@ -396,4 +396,169 @@ router.post('/:id/receipt/email', requireAuth, async (req, res) => {
 // ── Public receipt page ───────────────────────────────────────
 // Served directly from server.js as app.get('/receipt/:id/:token', ...)
 // but the builder function is exported here for use there.
-module.exports = { router, buildReceiptHtml, generateToken, verifyToken };
+
+// ── A4 PDF Receipt Builder (pdfkit) ──────────────────────────
+function streamReceiptPdf(order, res) {
+  const PDFDocument = require('pdfkit');
+  const items = typeof order.items_json === 'string'
+    ? JSON.parse(order.items_json || '[]')
+    : (order.items || []);
+
+  // A4 dimensions in points (1pt = 1/72 inch): 595.28 x 841.89
+  const doc = new PDFDocument({
+    size: 'A4',
+    margins: { top: 0, bottom: 0, left: 0, right: 0 },
+    info: {
+      Title: 'Receipt #' + String(order.id).padStart(4, '0') + ' - Pinnacles Resource Centre Farm',
+      Author: 'Pinnacles Resource Centre Farm',
+    },
+  });
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'attachment; filename="Receipt-' + String(order.id).padStart(4, '0') + '.pdf"');
+  doc.pipe(res);
+
+  const W  = 595.28;  // A4 width pts
+  const LM = 60;      // left margin
+  const RM = W - 60;  // right margin
+  const CW = RM - LM; // content width
+
+  // ── HEADER BACKGROUND ──────────────────────────────────────
+  doc.rect(0, 0, W, 168).fill('#1b4332');
+
+  // ── LOGO (3 triangles, centred at x=W/2, y≈55) ────────────
+  const cx = W / 2;
+  const cy = 50;
+  const s  = 0.22; // scale factor (original viewBox 220x160)
+
+  // Back left yellow triangle  (45,145 95,55 145,145)
+  doc.polygon(
+    [cx + (45-110)*s,  cy + (145-80)*s],
+    [cx + (95-110)*s,  cy + (55-80)*s],
+    [cx + (145-110)*s, cy + (145-80)*s]
+  ).fillOpacity(0.92).fill('#F5C518');
+
+  // Back right light-green triangle  (85,145 140,60 195,145)
+  doc.polygon(
+    [cx + (85-110)*s,  cy + (145-80)*s],
+    [cx + (140-110)*s, cy + (60-80)*s],
+    [cx + (195-110)*s, cy + (145-80)*s]
+  ).fillOpacity(0.92).fill('#8CC63F');
+
+  // Front dark-green triangle  (30,145 110,18 190,145)
+  doc.polygon(
+    [cx + (30-110)*s,  cy + (145-80)*s],
+    [cx + (110-110)*s, cy + (18-80)*s],
+    [cx + (190-110)*s, cy + (145-80)*s]
+  ).fillOpacity(1).fill('#1E6B3A');
+
+  // ── FARM NAME ──────────────────────────────────────────────
+  doc.fillOpacity(1)
+     .font('Helvetica-Bold').fontSize(14).fillColor('#ffffff')
+     .text('PINNACLES RESOURCE CENTRE FARM', 0, 105, { align: 'center', width: W });
+
+  doc.font('Helvetica').fontSize(8).fillColor('rgba(255,255,255,0.7)')
+     .text('Fresh  ·  Organic  ·  Farm to Table', 0, 123, { align: 'center', width: W });
+
+  // ── RECEIPT TITLE BAR ──────────────────────────────────────
+  doc.rect(0, 140, W, 28).fill('#163d29');
+  doc.font('Helvetica-Bold').fontSize(13).fillColor('#52b788')
+     .text('OFFICIAL RECEIPT', 0, 148, { align: 'center', width: W });
+
+  // ── RECEIPT META ROW ───────────────────────────────────────
+  const metaY = 185;
+  doc.font('Helvetica').fontSize(8.5).fillColor('#6b7280')
+     .text('RECEIPT NO.', LM, metaY)
+     .text('DATE', 0, metaY, { align: 'center', width: W })
+     .text('STATUS', RM - 80, metaY, { width: 80, align: 'right' });
+
+  doc.font('Helvetica-Bold').fontSize(10).fillColor('#1a1a2e')
+     .text('#' + String(order.id).padStart(4, '0'), LM, metaY + 13)
+     .text(formatDate(order.created_at), 0, metaY + 13, { align: 'center', width: W });
+
+  const statusLabel2 = { pending: 'Pending', confirmed: 'Confirmed', processing: 'Processing', delivered: 'Delivered', cancelled: 'Cancelled', pending_payment: 'Awaiting Payment' };
+  doc.text(statusLabel2[order.status] || order.status, RM - 80, metaY + 13, { width: 80, align: 'right' });
+
+  // Divider
+  doc.moveTo(LM, metaY + 32).lineTo(RM, metaY + 32).strokeColor('#e8f5e9').lineWidth(1).stroke();
+
+  // ── CUSTOMER INFO ──────────────────────────────────────────
+  const custY = metaY + 45;
+  doc.font('Helvetica-Bold').fontSize(8).fillColor('#52b788')
+     .text('BILLED TO', LM, custY);
+
+  doc.font('Helvetica-Bold').fontSize(11).fillColor('#1a1a2e')
+     .text(order.customer_name || 'Customer', LM, custY + 13);
+
+  doc.font('Helvetica').fontSize(9).fillColor('#6b7280')
+     .text('Phone: ' + (order.customer_phone || '—'), LM, custY + 27);
+  if (order.customer_email) {
+    doc.text('Email:  ' + order.customer_email, LM, custY + 39);
+  }
+  if (order.notes) {
+    doc.text('Notes:  ' + order.notes, LM, custY + (order.customer_email ? 51 : 39));
+  }
+
+  // Divider
+  const divY2 = custY + 70;
+  doc.moveTo(LM, divY2).lineTo(RM, divY2).strokeColor('#e8f5e9').lineWidth(1).stroke();
+
+  // ── ITEMS TABLE ────────────────────────────────────────────
+  let tableY = divY2 + 16;
+
+  // Table header
+  doc.rect(LM, tableY, CW, 22).fill('#f0faf4');
+  doc.font('Helvetica-Bold').fontSize(8.5).fillColor('#4b5563');
+  doc.text('ITEM', LM + 10, tableY + 7);
+  doc.text('QTY', LM + CW * 0.62, tableY + 7, { width: CW * 0.13, align: 'center' });
+  doc.text('UNIT PRICE', LM + CW * 0.75, tableY + 7, { width: CW * 0.12, align: 'right' });
+  doc.text('AMOUNT', LM + CW * 0.87, tableY + 7, { width: CW * 0.13, align: 'right' });
+  tableY += 22;
+
+  // Rows
+  doc.font('Helvetica').fontSize(9).fillColor('#1a1a2e');
+  items.forEach((item, idx) => {
+    const rowH = 24;
+    if (idx % 2 === 1) doc.rect(LM, tableY, CW, rowH).fill('#fafdf9');
+    doc.fillColor('#1a1a2e')
+       .text((item.name || 'Item'), LM + 10, tableY + 7, { width: CW * 0.6 });
+    doc.text(String(item.qty), LM + CW * 0.62, tableY + 7, { width: CW * 0.13, align: 'center' });
+    doc.text('₦' + Number(item.price).toLocaleString('en-NG'), LM + CW * 0.75, tableY + 7, { width: CW * 0.12, align: 'right' });
+    doc.font('Helvetica-Bold').fillColor('#1b4332')
+       .text('₦' + Number(item.price * item.qty).toLocaleString('en-NG'), LM + CW * 0.87, tableY + 7, { width: CW * 0.13, align: 'right' });
+    doc.font('Helvetica').fillColor('#1a1a2e');
+    tableY += rowH;
+  });
+
+  // Total row
+  doc.rect(LM, tableY, CW, 30).fill('#1b4332');
+  doc.font('Helvetica-Bold').fontSize(11).fillColor('#ffffff')
+     .text('TOTAL', LM + 10, tableY + 9)
+     .text('₦' + Number(order.total).toLocaleString('en-NG'), LM, tableY + 9, { width: CW - 10, align: 'right' });
+  tableY += 30;
+
+  // Payment method
+  const payMethod2 = (order.whatsapp_msg || '').startsWith('payisland_ref:')
+    ? 'Online Payment (PayIsland)' : 'WhatsApp Order';
+  doc.font('Helvetica').fontSize(8.5).fillColor('#6b7280')
+     .text('Payment Method: ' + payMethod2, LM, tableY + 12);
+
+  // ── FOOTER ─────────────────────────────────────────────────
+  const footerY = 760;
+  doc.moveTo(LM, footerY).lineTo(RM, footerY).strokeColor('#52b788').lineWidth(1.5).stroke();
+
+  doc.font('Helvetica-Bold').fontSize(10).fillColor('#1b4332')
+     .text('Thank you for shopping with us!', 0, footerY + 10, { align: 'center', width: W });
+
+  doc.font('Helvetica').fontSize(8).fillColor('#6b7280')
+     .text('Pinnacles Resource Centre Farm', 0, footerY + 25, { align: 'center', width: W })
+     .text('agribusiness@pinnaclescentre.com  |  +234 903 750 5632  |  +234 707 821 0834', 0, footerY + 38, { align: 'center', width: W });
+
+  doc.font('Helvetica').fontSize(7).fillColor('#aaaaaa')
+     .text('This is an official receipt. Please retain for your records.', 0, footerY + 54, { align: 'center', width: W });
+
+  doc.end();
+}
+
+module.exports = { router, buildReceiptHtml, generateToken, verifyToken, streamReceiptPdf };
+

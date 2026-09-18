@@ -42,7 +42,7 @@ app.use('/api/gallery',  require('./routes/gallery'));
 app.use('/api/payment',  require('./routes/payment'));
 
 // ── Receipt Routes ────────────────────────────────────────────
-const { router: receiptRouter, buildReceiptHtml, verifyToken } = require('./routes/receipt');
+const { router: receiptRouter, buildReceiptHtml, verifyToken, streamReceiptPdf } = require('./routes/receipt');
 app.use('/api/orders', receiptRouter); // adds /:id/receipt-token and /:id/receipt/email
 
 // ── Public receipt page (/receipt/:id/:token) ─────────────────
@@ -59,6 +59,23 @@ app.get('/receipt/:id/:token', async (req, res) => {
     return res.send(buildReceiptHtml(order));
   } catch (e) {
     return res.status(500).send('<h2 style="font-family:sans-serif;padding:40px;">Error: ' + e.message + '</h2>');
+  }
+});
+
+// ── PDF receipt download (/receipt/:id/:token/pdf) ──────────
+app.get('/receipt/:id/:token/pdf', async (req, res) => {
+  const { id, token } = req.params;
+  if (!verifyToken(id, token)) {
+    return res.status(403).send('Invalid or expired receipt link.');
+  }
+  try {
+    const db = require('./db');
+    const order = await db.getAsync('SELECT * FROM orders WHERE id = ?', [id]);
+    if (!order) return res.status(404).send('Order not found.');
+    order.items = JSON.parse(order.items_json || '[]');
+    return streamReceiptPdf(order, res);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
   }
 });
 

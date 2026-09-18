@@ -698,7 +698,7 @@ async function openReceiptModal(orderId) {
     const tokenData = await api('GET', '/orders/' + orderId + '/receipt-token');
     if (tokenData.receiptUrl) {
       currentReceiptUrl = tokenData.receiptUrl;
-      document.getElementById('receipt-download-btn').href = tokenData.receiptUrl;
+      document.getElementById('receipt-download-btn').href = tokenData.receiptUrl + '/pdf';
     }
   } catch (err) {
     document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--red);">Error: ' + err.message + '</div>';
