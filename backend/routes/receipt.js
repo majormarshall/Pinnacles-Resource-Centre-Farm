@@ -408,251 +408,236 @@ async function streamReceiptPdf(order, res) {
     : (order.items || []);
 
   const doc  = await PDFDocument.create();
-  const PW   = PageSizes.A4[0];  // 595.28 pt
-  const PH   = PageSizes.A4[1];  // 841.89 pt
+  const PW   = PageSizes.A4[0];  // 595.28
+  const PH   = PageSizes.A4[1];  // 841.89
   const page = doc.addPage([PW, PH]);
 
-  // Standard fonts (no filesystem font reads — works on Vercel)
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold    = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  // Embed logo (JPG). Graceful fallback if file missing.
+  // Embed logo JPG
   let logo = null;
   try {
-    const logoPath  = nodePath.join(__dirname, '..', '..', 'images', 'receipt-logo.jpg');
-    const logoBytes = nodeFs.readFileSync(logoPath);
+    const logoBytes = nodeFs.readFileSync(nodePath.join(__dirname, '..', '..', 'images', 'receipt-logo.jpg'));
     logo = await doc.embedJpg(logoBytes);
-  } catch (_) { /* logo missing — continue */ }
+  } catch (_) {}
 
-  // ── Colour helpers ────────────────────────────────────────
-  const hex = (h) => rgb(
-    parseInt(h.slice(1,3),16)/255,
-    parseInt(h.slice(3,5),16)/255,
-    parseInt(h.slice(5,7),16)/255
-  );
-  const GREEN_DARK   = hex('#1b4332');
-  const GREEN_MID    = hex('#2d6a4f');
+  // ── Colours ───────────────────────────────────────────────
+  const hex = (h) => rgb(parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255);
+  const GREEN_DARK   = hex('#1b6b3a');
   const GREEN_ACCENT = hex('#52b788');
   const GREEN_LIGHT  = hex('#e8f5e9');
-  const GREY_LIGHT   = hex('#f5f5f5');
-  const GREY_LINE    = hex('#d1d5db');
+  const TBL_HEADER   = hex('#1b4332');
   const TXT_DARK     = hex('#111827');
   const TXT_MID      = hex('#374151');
   const TXT_MUTED    = hex('#6b7280');
+  const GREY_LINE    = hex('#d1d5db');
   const WHITE        = rgb(1,1,1);
 
-  // ── Coordinate helper: pdfkit-style (top-left) → pdf-lib (bottom-left) ──
-  const ML = 55;           // left margin
-  const MR = PW - 55;     // right margin
-  const CW = MR - ML;     // content width
-  const fl = (pkY, h=0) => PH - pkY - h;  // flip y
+  // ── Layout constants ─────────────────────────────────────
+  const ML = 55;
+  const MR = PW - 55;
+  const CW = MR - ML;
+  const fl = (pkY, h=0) => PH - pkY - h;
 
-  // ── Helper: right-aligned text ───────────────────────────
-  const textR = (txt, rightEdge, pkY, size, fnt, color) => {
+  // ── Helpers ───────────────────────────────────────────────
+  const textC = (txt, pkY, size, fnt, color) => {
     const w = fnt.widthOfTextAtSize(txt, size);
-    page.drawText(txt, { x: rightEdge - w, y: fl(pkY, size), size, font: fnt, color });
+    page.drawText(txt, { x:(PW-w)/2, y:fl(pkY, size), size, font:fnt, color });
   };
-
-  // ── Helper: centered text in a band ──────────────────────
-  const textC = (txt, bandX, bandW, pkY, size, fnt, color) => {
+  const textR = (txt, rightX, pkY, size, fnt, color) => {
     const w = fnt.widthOfTextAtSize(txt, size);
-    page.drawText(txt, { x: bandX + (bandW - w)/2, y: fl(pkY, size), size, font: fnt, color });
+    page.drawText(txt, { x:rightX-w, y:fl(pkY, size), size, font:fnt, color });
   };
-
-  // ── Helper: horizontal line ───────────────────────────────
-  const hline = (pkY, x1=ML, x2=MR, color=GREY_LINE, thickness=0.6) => {
-    page.drawLine({ start:{x:x1, y:fl(pkY)}, end:{x:x2, y:fl(pkY)}, thickness, color });
+  const hline = (pkY, x1=ML, x2=MR, color=GREY_LINE, thick=0.6) => {
+    page.drawLine({ start:{x:x1,y:fl(pkY)}, end:{x:x2,y:fl(pkY)}, thickness:thick, color });
   };
 
   // ══════════════════════════════════════════════════════════
-  // 1. WHITE PAGE BACKGROUND + OUTER BORDER
+  // PAGE BACKGROUND + THIN OUTER BORDER
   // ══════════════════════════════════════════════════════════
   page.drawRectangle({ x:0, y:0, width:PW, height:PH, color:WHITE });
-  page.drawRectangle({ x:20, y:20, width:PW-40, height:PH-40,
-    borderColor: GREEN_ACCENT, borderWidth: 1 });
+  page.drawRectangle({ x:16, y:16, width:PW-32, height:PH-32,
+    borderColor: hex('#c8e6c9'), borderWidth: 1 });
 
   // ══════════════════════════════════════════════════════════
-  // 2. HEADER: LOGO  +  FARM NAME
+  // HEADER — school-receipt style
+  // Logo centered at top, name centered below, title below
   // ══════════════════════════════════════════════════════════
-  const HDR_TOP  = 32;   // pdfkit y of header top
-  const HDR_BOT  = 115;  // pdfkit y of header bottom (thin line here)
-  const LOGO_H   = 62;   // logo rendered height (pt)
-  const LOGO_W   = logo ? LOGO_H * (logo.width / logo.height) : 0;
+  let curY = 32; // pdfkit y cursor from top
 
+  // 1. Logo — centered
   if (logo) {
+    const LOGO_H = 72;
+    const LOGO_W = LOGO_H * (logo.width / logo.height);
     page.drawImage(logo, {
-      x: ML,
-      y: fl(HDR_TOP + (HDR_BOT - HDR_TOP - LOGO_H)/2, LOGO_H),
+      x: (PW - LOGO_W) / 2,
+      y: fl(curY, LOGO_H),
       width: LOGO_W,
       height: LOGO_H,
     });
+    curY += LOGO_H + 10;
+  } else {
+    curY += 10;
   }
 
-  // Farm name & contact — right side of header
-  const nameX = logo ? ML + LOGO_W + 18 : ML;
-  const nameY  = HDR_TOP + 12;
-  page.drawText('PINNACLES RESOURCE CENTRE FARM', {
-    x: nameX, y: fl(nameY, 14), size: 14, font: bold, color: GREEN_DARK,
-  });
-  page.drawText('Fresh  ·  Organic  ·  Farm to Table', {
-    x: nameX, y: fl(nameY + 20, 9), size: 9, font: regular, color: TXT_MUTED,
-  });
-  page.drawText('agribusiness@pinnaclescentre.com  •  +234 903 750 5632', {
-    x: nameX, y: fl(nameY + 34, 8), size: 8, font: regular, color: TXT_MUTED,
-  });
+  // 2. Farm name — large, centered, green
+  textC('PINNACLES RESOURCE CENTRE FARM', curY, 16, bold, GREEN_DARK);
+  curY += 22;
 
-  // Green accent line under header
-  page.drawRectangle({ x:20, y:fl(HDR_BOT, 3), width:PW-40, height:3, color:GREEN_ACCENT });
+  // 3. Tagline — smaller, centered, muted green
+  textC('Fresh  ·  Organic  ·  Farm to Table', curY, 9, regular, GREEN_ACCENT);
+  curY += 16;
 
-  // ══════════════════════════════════════════════════════════
-  // 3. TITLE BAR: OFFICIAL RECEIPT
-  // ══════════════════════════════════════════════════════════
-  const TITLE_Y = HDR_BOT + 3;
-  page.drawRectangle({ x:20, y:fl(TITLE_Y, 30), width:PW-40, height:30, color:GREEN_DARK });
-  textC('OFFICIAL RECEIPT', 20, PW-40, TITLE_Y + 8, 14, bold, WHITE);
+  // Full-width green double rule (like the school receipt separator)
+  page.drawLine({ start:{x:ML,y:fl(curY)}, end:{x:MR,y:fl(curY)}, thickness:2, color:GREEN_DARK });
+  curY += 4;
+  page.drawLine({ start:{x:ML,y:fl(curY)}, end:{x:MR,y:fl(curY)}, thickness:0.5, color:GREEN_DARK });
+  curY += 12;
 
-  // ══════════════════════════════════════════════════════════
-  // 4. RECEIPT META: # and DATE
-  // ══════════════════════════════════════════════════════════
-  const receiptNo = '#' + String(order.id).padStart(4, '0');
-  const dateStr   = formatDate(order.created_at);
-  const META_Y    = TITLE_Y + 30 + 14;
+  // 4. "OFFICIAL RECEIPT" — bold, centered, black
+  textC('OFFICIAL RECEIPT', curY, 13, bold, TXT_DARK);
+  curY += 18;
 
-  page.drawText('Receipt No:  ' + receiptNo, {
-    x: ML, y: fl(META_Y, 9), size: 9, font: regular, color: TXT_MID,
-  });
-  textR('Date:  ' + dateStr, MR, META_Y, 9, regular, TXT_MID);
+  // 5. Date printed — bold, centered
+  const now = new Date();
+  const printedStr = 'Date Printed: ' +
+    now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' +
+    String(now.getDate()).padStart(2,'0') + '  ' +
+    String(now.getHours()).padStart(2,'0') + ':' +
+    String(now.getMinutes()).padStart(2,'0') + ':' +
+    String(now.getSeconds()).padStart(2,'0');
+  textC(printedStr, curY, 9, bold, TXT_MID);
+  curY += 20;
 
-  hline(META_Y + 14);
+  // Bottom rule of header section
+  page.drawLine({ start:{x:ML,y:fl(curY)}, end:{x:MR,y:fl(curY)}, thickness:0.5, color:GREY_LINE });
+  curY += 18;
 
   // ══════════════════════════════════════════════════════════
-  // 5. TWO-COLUMN INFO: BILLED TO  |  RECEIPT DETAILS
+  // TWO-COLUMN INFO: BILLED TO  |  RECEIPT DETAILS
   // ══════════════════════════════════════════════════════════
-  const INFO_Y = META_Y + 24;
-  const COL2_X = ML + CW * 0.52;
+  const INFO_Y  = curY;
+  const COL2_X  = ML + CW * 0.52;
 
-  // Left col header
-  page.drawText('BILLED TO', { x:ML, y:fl(INFO_Y,7.5), size:7.5, font:bold, color:GREEN_ACCENT });
-  page.drawText(order.customer_name || 'Customer', {
-    x:ML, y:fl(INFO_Y+14, 11), size:11, font:bold, color:TXT_DARK });
-  page.drawText(order.customer_phone || '—', {
-    x:ML, y:fl(INFO_Y+28, 9), size:9, font:regular, color:TXT_MID });
+  // Section labels
+  page.drawText('BILLED TO', { x:ML, y:fl(INFO_Y,8), size:8, font:bold, color:GREEN_ACCENT });
+  page.drawText(order.customer_name || 'Customer', { x:ML, y:fl(INFO_Y+14,11), size:11, font:bold, color:TXT_DARK });
+  page.drawText(order.customer_phone || '—', { x:ML, y:fl(INFO_Y+28,9), size:9, font:regular, color:TXT_MID });
   if (order.customer_email) {
-    page.drawText(order.customer_email, {
-      x:ML, y:fl(INFO_Y+40, 8.5), size:8.5, font:regular, color:TXT_MID });
+    page.drawText(order.customer_email, { x:ML, y:fl(INFO_Y+40,8.5), size:8.5, font:regular, color:TXT_MID });
   }
 
-  // Vertical separator
-  page.drawLine({
-    start:{x:COL2_X-10, y:fl(INFO_Y-4)},
-    end:  {x:COL2_X-10, y:fl(INFO_Y + 56)},
-    thickness:0.5, color:GREY_LINE,
-  });
+  // Vertical divider
+  page.drawLine({ start:{x:COL2_X-10,y:fl(INFO_Y-4)}, end:{x:COL2_X-10,y:fl(INFO_Y+56)}, thickness:0.5, color:GREY_LINE });
 
-  // Right col header
-  page.drawText('RECEIPT DETAILS', { x:COL2_X, y:fl(INFO_Y,7.5), size:7.5, font:bold, color:GREEN_ACCENT });
+  // Right col
+  page.drawText('RECEIPT DETAILS', { x:COL2_X, y:fl(INFO_Y,8), size:8, font:bold, color:GREEN_ACCENT });
 
   const statusLabels = {
     pending:'Pending', confirmed:'Confirmed', processing:'Processing',
     delivered:'Delivered', cancelled:'Cancelled', pending_payment:'Awaiting Payment'
   };
-  const statusStr = statusLabels[order.status] || order.status;
   const payMethod = (order.whatsapp_msg||'').startsWith('payisland_ref:')
     ? 'Online Payment' : 'WhatsApp Order';
 
-  const detailRows = [
-    ['Receipt No:', receiptNo],
-    ['Date:',       dateStr],
-    ['Status:',     statusStr],
+  const details = [
+    ['Receipt No:', '#' + String(order.id).padStart(4,'0')],
+    ['Date:',       formatDate(order.created_at)],
+    ['Status:',     statusLabels[order.status] || order.status],
     ['Payment:',    payMethod],
   ];
-  detailRows.forEach(([label, val], i) => {
-    page.drawText(label, { x:COL2_X, y:fl(INFO_Y+14+i*14, 9), size:9, font:bold, color:TXT_MID });
-    page.drawText(val,   { x:COL2_X+60, y:fl(INFO_Y+14+i*14, 9), size:9, font:regular, color:TXT_DARK });
+  details.forEach(([lbl, val], i) => {
+    page.drawText(lbl, { x:COL2_X,    y:fl(INFO_Y+14+i*14,9), size:9, font:bold, color:TXT_MID });
+    page.drawText(val, { x:COL2_X+65, y:fl(INFO_Y+14+i*14,9), size:9, font:regular, color:TXT_DARK });
   });
 
   if (order.notes) {
-    page.drawText('Notes:',    { x:COL2_X, y:fl(INFO_Y+70, 9), size:9, font:bold, color:TXT_MID });
-    page.drawText(order.notes.slice(0,45), { x:COL2_X, y:fl(INFO_Y+82, 8), size:8, font:regular, color:TXT_MID });
+    page.drawText('Notes:', { x:COL2_X, y:fl(INFO_Y+70,9), size:9, font:bold, color:TXT_MID });
+    page.drawText(order.notes.slice(0,45), { x:COL2_X, y:fl(INFO_Y+82,8), size:8, font:regular, color:TXT_MID });
   }
 
-  const TABLE_START_Y = INFO_Y + (order.notes ? 100 : 80);
-  hline(TABLE_START_Y - 6);
+  curY = INFO_Y + (order.notes ? 100 : 75);
+  hline(curY);
+  curY += 14;
 
   // ══════════════════════════════════════════════════════════
-  // 6. ITEMS TABLE
+  // ITEMS TABLE
   // ══════════════════════════════════════════════════════════
-  const COL = {
-    item:  ML,
-    qty:   ML + CW * 0.52,
-    unit:  ML + CW * 0.68,
-    amt:   ML + CW * 0.84,
-  };
-
-  // Table header row
+  const COL = { item:ML, qty:ML+CW*0.52, unit:ML+CW*0.68, amt:ML+CW*0.84 };
   const TH_H = 24;
-  page.drawRectangle({ x:ML, y:fl(TABLE_START_Y, TH_H), width:CW, height:TH_H, color:GREEN_DARK });
-  page.drawText('ITEM',       { x:COL.item+6,  y:fl(TABLE_START_Y+7, 9), size:9, font:bold, color:WHITE });
-  textC('QTY',  COL.qty,  CW*0.16, TABLE_START_Y+7, 9, bold, WHITE);
-  textR('UNIT PRICE', COL.unit + CW*0.14, TABLE_START_Y+7, 9, bold, WHITE);
-  textR('AMOUNT',     MR,              TABLE_START_Y+7, 9, bold, WHITE);
 
-  let tY = TABLE_START_Y + TH_H;
+  // Header
+  page.drawRectangle({ x:ML, y:fl(curY,TH_H), width:CW, height:TH_H, color:TBL_HEADER });
+  page.drawText('ITEM',       { x:COL.item+6, y:fl(curY+7,9), size:9, font:bold, color:WHITE });
+  const qtyHdrW = bold.widthOfTextAtSize('QTY',9);
+  page.drawText('QTY', { x:COL.qty+(CW*0.14-qtyHdrW)/2, y:fl(curY+7,9), size:9, font:bold, color:WHITE });
+  const upHdrW = bold.widthOfTextAtSize('UNIT PRICE',9);
+  page.drawText('UNIT PRICE', { x:COL.unit+CW*0.14-upHdrW, y:fl(curY+7,9), size:9, font:bold, color:WHITE });
+  const amtHdrW = bold.widthOfTextAtSize('AMOUNT',9);
+  page.drawText('AMOUNT', { x:MR-amtHdrW, y:fl(curY+7,9), size:9, font:bold, color:WHITE });
+  curY += TH_H;
+
+  // Rows
   const ROW_H = 22;
-
   items.forEach((item, idx) => {
-    const bg = idx % 2 === 1 ? GREEN_LIGHT : WHITE;
-    page.drawRectangle({ x:ML, y:fl(tY, ROW_H), width:CW, height:ROW_H, color:bg });
+    if (idx % 2 === 1) page.drawRectangle({ x:ML, y:fl(curY,ROW_H), width:CW, height:ROW_H, color:GREEN_LIGHT });
+    const name  = (item.name||'Item').slice(0,38);
+    const qty   = String(item.qty);
+    const unitP = 'NGN ' + Number(item.price).toLocaleString('en-NG');
+    const amt   = 'NGN ' + Number(item.price * item.qty).toLocaleString('en-NG');
 
-    const name   = (item.name || 'Item').slice(0, 38);
-    const qty    = String(item.qty);
-    const unitP  = 'NGN ' + Number(item.price).toLocaleString('en-NG');
-    const amount = 'NGN ' + Number(item.price * item.qty).toLocaleString('en-NG');
+    page.drawText(name, { x:COL.item+6, y:fl(curY+7,9), size:9, font:regular, color:TXT_DARK });
 
-    page.drawText(name,  { x:COL.item+6, y:fl(tY+7, 9), size:9, font:regular, color:TXT_DARK });
-    textC(qty, COL.qty, CW*0.16, tY+7, 9, regular, TXT_DARK);
-    textR(unitP,  COL.unit + CW*0.14, tY+7, 9, regular, TXT_MID);
-    textR(amount, MR, tY+7, 9, bold, TXT_DARK);
+    const qW = regular.widthOfTextAtSize(qty,9);
+    page.drawText(qty, { x:COL.qty+(CW*0.14-qW)/2, y:fl(curY+7,9), size:9, font:regular, color:TXT_DARK });
 
-    tY += ROW_H;
+    const uW = regular.widthOfTextAtSize(unitP,9);
+    page.drawText(unitP, { x:COL.unit+CW*0.14-uW, y:fl(curY+7,9), size:9, font:regular, color:TXT_MID });
+
+    const aW = bold.widthOfTextAtSize(amt,9);
+    page.drawText(amt, { x:MR-aW, y:fl(curY+7,9), size:9, font:bold, color:TXT_DARK });
+    curY += ROW_H;
   });
 
-  // Subtotal divider
-  hline(tY + 4, ML, MR, GREY_LINE, 0.5);
-  tY += 12;
+  // Divider before total
+  hline(curY+4, ML, MR, GREY_LINE, 0.5);
+  curY += 10;
 
-  // Total row
-  page.drawRectangle({ x:ML, y:fl(tY, 28), width:CW, height:28, color:GREEN_DARK });
-  page.drawText('TOTAL', { x:COL.item+6, y:fl(tY+8, 11), size:11, font:bold, color:WHITE });
+  // Total
+  page.drawRectangle({ x:ML, y:fl(curY,28), width:CW, height:28, color:TBL_HEADER });
+  page.drawText('TOTAL', { x:COL.item+6, y:fl(curY+8,11), size:11, font:bold, color:WHITE });
   const totalStr = 'NGN ' + Number(order.total).toLocaleString('en-NG');
-  textR(totalStr, MR-6, tY+8, 12, bold, hex('#a3d9b8'));
-  tY += 28;
+  const totW = bold.widthOfTextAtSize(totalStr,12);
+  page.drawText(totalStr, { x:MR-totW-4, y:fl(curY+8,12), size:12, font:bold, color:hex('#a3d9b8') });
+  curY += 28;
 
   // ══════════════════════════════════════════════════════════
-  // 7. FOOTER
+  // FOOTER
   // ══════════════════════════════════════════════════════════
-  const FTR_LINE_Y = PH - 75;  // pdf-lib y (from bottom)
+  const FTR_Y = PH - 70;
 
-  page.drawRectangle({ x:20, y:FTR_LINE_Y, width:PW-40, height:2, color:GREEN_ACCENT });
-  page.drawRectangle({ x:20, y:20,          width:PW-40, height:2, color:GREEN_ACCENT });
+  page.drawLine({ start:{x:ML,y:FTR_Y+2}, end:{x:MR,y:FTR_Y+2}, thickness:1.5, color:GREEN_DARK });
+  page.drawLine({ start:{x:ML,y:FTR_Y-1}, end:{x:MR,y:FTR_Y-1}, thickness:0.4, color:GREEN_DARK });
 
-  const ty1 = 'Thank you for your business!';
-  const ty1W = bold.widthOfTextAtSize(ty1, 11);
-  page.drawText(ty1, { x:(PW-ty1W)/2, y:FTR_LINE_Y - 16, size:11, font:bold, color:GREEN_DARK });
+  const ftrLines = [
+    ['Thank you for your business!', 10, bold, GREEN_DARK],
+    ['Pinnacles Resource Centre Farm', 8, regular, TXT_MUTED],
+    ['agribusiness@pinnaclescentre.com  •  +234 903 750 5632  •  +234 707 821 0834', 7.5, regular, TXT_MUTED],
+    ['This is an official receipt. Please retain for your records.', 7, regular, hex('#9ca3af')],
+  ];
+  let fy = FTR_Y - 14;
+  ftrLines.forEach(([txt, size, fnt, color]) => {
+    const w = fnt.widthOfTextAtSize(txt, size);
+    page.drawText(txt, { x:Math.max(ML,(PW-w)/2), y:fy, size, font:fnt, color });
+    fy -= size + 5;
+  });
 
-  const ty2 = 'Pinnacles Resource Centre Farm  •  agribusiness@pinnaclescentre.com';
-  const ty2W = regular.widthOfTextAtSize(ty2, 8);
-  page.drawText(ty2, { x:Math.max(20,(PW-ty2W)/2), y:FTR_LINE_Y-30, size:8, font:regular, color:TXT_MUTED });
+  // Bottom double rule
+  page.drawLine({ start:{x:ML,y:32}, end:{x:MR,y:32}, thickness:1.5, color:GREEN_DARK });
+  page.drawLine({ start:{x:ML,y:29}, end:{x:MR,y:29}, thickness:0.4, color:GREEN_DARK });
 
-  const ty3 = '+234 903 750 5632  •  +234 707 821 0834';
-  const ty3W = regular.widthOfTextAtSize(ty3, 8);
-  page.drawText(ty3, { x:(PW-ty3W)/2, y:FTR_LINE_Y-42, size:8, font:regular, color:TXT_MUTED });
-
-  const ty4 = 'This is an official receipt. Please retain for your records.';
-  const ty4W = regular.widthOfTextAtSize(ty4, 7);
-  page.drawText(ty4, { x:(PW-ty4W)/2, y:FTR_LINE_Y-56, size:7, font:regular, color:hex('#9ca3af') });
-
-  // ── Stream PDF ────────────────────────────────────────────
+  // ── Finalise ──────────────────────────────────────────────
   const pdfBytes = await doc.save();
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename="Receipt-' + String(order.id).padStart(4,'0') + '.pdf"');
