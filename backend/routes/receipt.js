@@ -1,8 +1,6 @@
 // ── Receipt Routes ────────────────────────────────────────────
 const router      = require('express').Router();
 const crypto      = require('crypto');
-const path        = require('path');
-const fsSync      = require('fs');
 const db          = require('../db');
 const requireAuth = require('../middleware/auth');
 const nodemailer  = require('nodemailer');
@@ -402,253 +400,259 @@ router.post('/:id/receipt/email', requireAuth, async (req, res) => {
 // ── A4 PDF Receipt Builder (pdfkit) ──────────────────────────
 async function streamReceiptPdf(order, res) {
   const { PDFDocument, rgb, StandardFonts, PageSizes } = require('pdf-lib');
+  const nodePath = require('path');
+  const nodeFs   = require('fs');
 
   const items = typeof order.items_json === 'string'
     ? JSON.parse(order.items_json || '[]')
     : (order.items || []);
 
   const doc  = await PDFDocument.create();
-  const PW   = PageSizes.A4[0];   // 595.28
-  const PH   = PageSizes.A4[1];   // 841.89
+  const PW   = PageSizes.A4[0];  // 595.28 pt
+  const PH   = PageSizes.A4[1];  // 841.89 pt
   const page = doc.addPage([PW, PH]);
 
-  // ── Embed standard fonts (built-in, no filesystem reads) ────
-  const font     = await doc.embedFont(StandardFonts.Helvetica);
-  const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
+  // Standard fonts (no filesystem font reads — works on Vercel)
+  const regular = await doc.embedFont(StandardFonts.Helvetica);
+  const bold    = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  // ── Colour helpers (rgb 0-1) ────────────────────────────────
-  const hex = (h) => {
-    const r = parseInt(h.slice(1,3),16)/255;
-    const g = parseInt(h.slice(3,5),16)/255;
-    const b = parseInt(h.slice(5,7),16)/255;
-    return rgb(r, g, b);
+  // Embed logo (JPG). Graceful fallback if file missing.
+  let logo = null;
+  try {
+    const logoPath  = nodePath.join(__dirname, '..', '..', 'images', 'receipt-logo.jpg');
+    const logoBytes = nodeFs.readFileSync(logoPath);
+    logo = await doc.embedJpg(logoBytes);
+  } catch (_) { /* logo missing — continue */ }
+
+  // ── Colour helpers ────────────────────────────────────────
+  const hex = (h) => rgb(
+    parseInt(h.slice(1,3),16)/255,
+    parseInt(h.slice(3,5),16)/255,
+    parseInt(h.slice(5,7),16)/255
+  );
+  const GREEN_DARK   = hex('#1b4332');
+  const GREEN_MID    = hex('#2d6a4f');
+  const GREEN_ACCENT = hex('#52b788');
+  const GREEN_LIGHT  = hex('#e8f5e9');
+  const GREY_LIGHT   = hex('#f5f5f5');
+  const GREY_LINE    = hex('#d1d5db');
+  const TXT_DARK     = hex('#111827');
+  const TXT_MID      = hex('#374151');
+  const TXT_MUTED    = hex('#6b7280');
+  const WHITE        = rgb(1,1,1);
+
+  // ── Coordinate helper: pdfkit-style (top-left) → pdf-lib (bottom-left) ──
+  const ML = 55;           // left margin
+  const MR = PW - 55;     // right margin
+  const CW = MR - ML;     // content width
+  const fl = (pkY, h=0) => PH - pkY - h;  // flip y
+
+  // ── Helper: right-aligned text ───────────────────────────
+  const textR = (txt, rightEdge, pkY, size, fnt, color) => {
+    const w = fnt.widthOfTextAtSize(txt, size);
+    page.drawText(txt, { x: rightEdge - w, y: fl(pkY, size), size, font: fnt, color });
   };
 
-  const C_DARK   = hex('#1b4332');
-  const C_DARKER = hex('#163d29');
-  const C_MID    = hex('#2d6a4f');
-  const C_ACCENT = hex('#52b788');
-  const C_LIGHT  = hex('#f0faf4');
-  const C_LIGHT2 = hex('#f7fbf8');
-  const C_BORDER = hex('#d1e8d8');
-  const C_TEXT   = hex('#1a1a2e');
-  const C_MUTED  = hex('#6b7280');
-  const C_WHITE  = rgb(1, 1, 1);
-  const C_LOGO_Y = hex('#F5C518');
-  const C_LOGO_G = hex('#8CC63F');
-  const C_LOGO_D = hex('#1E6B3A');
+  // ── Helper: centered text in a band ──────────────────────
+  const textC = (txt, bandX, bandW, pkY, size, fnt, color) => {
+    const w = fnt.widthOfTextAtSize(txt, size);
+    page.drawText(txt, { x: bandX + (bandW - w)/2, y: fl(pkY, size), size, font: fnt, color });
+  };
 
-  // ── pdf-lib: y=0 is BOTTOM. Helper to flip pdfkit-style y ──
-  // pk(y, h) converts a pdfkit top-left y + block height to pdf-lib y (bottom of block)
-  const pk = (y, h = 0) => PH - y - h;
-
-  const ML = 50;          // left margin
-  const MR = PW - 50;     // right edge
-  const CW = MR - ML;     // content width
+  // ── Helper: horizontal line ───────────────────────────────
+  const hline = (pkY, x1=ML, x2=MR, color=GREY_LINE, thickness=0.6) => {
+    page.drawLine({ start:{x:x1, y:fl(pkY)}, end:{x:x2, y:fl(pkY)}, thickness, color });
+  };
 
   // ══════════════════════════════════════════════════════════
-  // 1. WHITE BACKGROUND
+  // 1. WHITE PAGE BACKGROUND + OUTER BORDER
   // ══════════════════════════════════════════════════════════
-  page.drawRectangle({ x: 0, y: 0, width: PW, height: PH, color: C_WHITE });
-
-  // Outer green border frame
-  page.drawRectangle({
-    x: 18, y: 18, width: PW - 36, height: PH - 36,
-    borderColor: C_BORDER, borderWidth: 1.2,
-  });
+  page.drawRectangle({ x:0, y:0, width:PW, height:PH, color:WHITE });
+  page.drawRectangle({ x:20, y:20, width:PW-40, height:PH-40,
+    borderColor: GREEN_ACCENT, borderWidth: 1 });
 
   // ══════════════════════════════════════════════════════════
-  // 2. DARK GREEN HEADER
+  // 2. HEADER: LOGO  +  FARM NAME
   // ══════════════════════════════════════════════════════════
-  const HDR_H = 175;
-  page.drawRectangle({ x: 18, y: pk(18, HDR_H), width: PW-36, height: HDR_H, color: C_DARK });
-  // Darker accent strip (bottom 28pt of header)
-  page.drawRectangle({ x: 18, y: pk(18+HDR_H-28, 28), width: PW-36, height: 28, color: C_DARKER });
+  const HDR_TOP  = 32;   // pdfkit y of header top
+  const HDR_BOT  = 115;  // pdfkit y of header bottom (thin line here)
+  const LOGO_H   = 62;   // logo rendered height (pt)
+  const LOGO_W   = logo ? LOGO_H * (logo.width / logo.height) : 0;
 
-  // ── Farm logo: embedded JPG image ─────────────────────────
-  try {
-    const logoPath = path.join(__dirname, '..', '..', 'images', 'logo-receipt.jpg');
-    const logoBytes = fsSync.readFileSync(logoPath);
-    const logoImg   = await doc.embedJpg(logoBytes);
-    // Draw logo centred in header — 90pt wide, proportional height
-    const logoW  = 90;
-    const logoH  = logoW * (logoImg.height / logoImg.width);
-    const logoX  = (PW - logoW) / 2;
-    const logoY  = pk(18 + (HDR_H - 28 - logoH) / 2, logoH); // vertically centred in non-accent part of header
-    page.drawImage(logoImg, { x: logoX, y: logoY, width: logoW, height: logoH });
-  } catch (logoErr) {
-    // Fallback: draw styled text if image can't be loaded
-    console.error('Logo load error:', logoErr.message);
+  if (logo) {
+    page.drawImage(logo, {
+      x: ML,
+      y: fl(HDR_TOP + (HDR_BOT - HDR_TOP - LOGO_H)/2, LOGO_H),
+      width: LOGO_W,
+      height: LOGO_H,
+    });
   }
 
-  // Farm name
-  const farmName = 'Pinnacles Resource Centre Farm';
-  const farmNameW = fontBold.widthOfTextAtSize(farmName, 15);
-  page.drawText(farmName, {
-    x: (PW - farmNameW) / 2, y: pk(105, 15),
-    size: 15, font: fontBold, color: C_WHITE,
+  // Farm name & contact — right side of header
+  const nameX = logo ? ML + LOGO_W + 18 : ML;
+  const nameY  = HDR_TOP + 12;
+  page.drawText('PINNACLES RESOURCE CENTRE FARM', {
+    x: nameX, y: fl(nameY, 14), size: 14, font: bold, color: GREEN_DARK,
+  });
+  page.drawText('Fresh  ·  Organic  ·  Farm to Table', {
+    x: nameX, y: fl(nameY + 20, 9), size: 9, font: regular, color: TXT_MUTED,
+  });
+  page.drawText('agribusiness@pinnaclescentre.com  •  +234 903 750 5632', {
+    x: nameX, y: fl(nameY + 34, 8), size: 8, font: regular, color: TXT_MUTED,
   });
 
-  const tagline = 'FRESH  ·  ORGANIC  ·  FARM TO TABLE';
-  const tagW = font.widthOfTextAtSize(tagline, 8);
-  page.drawText(tagline, {
-    x: (PW - tagW) / 2, y: pk(123, 8),
-    size: 8, font, color: rgb(1,1,1),
-    opacity: 0.65,
-  });
-
-  // OFFICIAL RECEIPT in accent strip
-  const titleStr = 'OFFICIAL RECEIPT';
-  const titleW = fontBold.widthOfTextAtSize(titleStr, 14);
-  page.drawText(titleStr, {
-    x: (PW - titleW) / 2, y: pk(18 + HDR_H - 22, 14),
-    size: 14, font: fontBold, color: C_ACCENT,
-  });
+  // Green accent line under header
+  page.drawRectangle({ x:20, y:fl(HDR_BOT, 3), width:PW-40, height:3, color:GREEN_ACCENT });
 
   // ══════════════════════════════════════════════════════════
-  // 3. META ROW
+  // 3. TITLE BAR: OFFICIAL RECEIPT
   // ══════════════════════════════════════════════════════════
-  const receiptNo = String(order.id).padStart(4, '0');
+  const TITLE_Y = HDR_BOT + 3;
+  page.drawRectangle({ x:20, y:fl(TITLE_Y, 30), width:PW-40, height:30, color:GREEN_DARK });
+  textC('OFFICIAL RECEIPT', 20, PW-40, TITLE_Y + 8, 14, bold, WHITE);
+
+  // ══════════════════════════════════════════════════════════
+  // 4. RECEIPT META: # and DATE
+  // ══════════════════════════════════════════════════════════
+  const receiptNo = '#' + String(order.id).padStart(4, '0');
   const dateStr   = formatDate(order.created_at);
-  const META_Y    = 18 + HDR_H + 14;
+  const META_Y    = TITLE_Y + 30 + 14;
 
-  page.drawRectangle({ x: ML, y: pk(META_Y, 26), width: CW, height: 26, color: C_LIGHT });
-
-  const metaTxt = 'Receipt #' + receiptNo + '   |   ' + dateStr;
-  const metaW = font.widthOfTextAtSize(metaTxt, 9);
-  page.drawText(metaTxt, {
-    x: ML + (CW - metaW) / 2, y: pk(META_Y + 8, 9),
-    size: 9, font, color: C_MUTED,
+  page.drawText('Receipt No:  ' + receiptNo, {
+    x: ML, y: fl(META_Y, 9), size: 9, font: regular, color: TXT_MID,
   });
+  textR('Date:  ' + dateStr, MR, META_Y, 9, regular, TXT_MID);
+
+  hline(META_Y + 14);
 
   // ══════════════════════════════════════════════════════════
-  // 4. BILLED TO / ORDER DETAILS
+  // 5. TWO-COLUMN INFO: BILLED TO  |  RECEIPT DETAILS
   // ══════════════════════════════════════════════════════════
-  const INFO_Y = META_Y + 38;
-  const COL_W  = CW / 2 - 10;
+  const INFO_Y = META_Y + 24;
+  const COL2_X = ML + CW * 0.52;
 
-  // Left column
-  page.drawText('BILLED TO', { x: ML, y: pk(INFO_Y, 7.5), size: 7.5, font: fontBold, color: C_ACCENT });
-  page.drawText(order.customer_name || 'Customer', { x: ML, y: pk(INFO_Y+13, 11), size: 11, font: fontBold, color: C_TEXT });
-  page.drawText((order.customer_phone || '—'), { x: ML, y: pk(INFO_Y+28, 9), size: 9, font, color: C_MUTED });
+  // Left col header
+  page.drawText('BILLED TO', { x:ML, y:fl(INFO_Y,7.5), size:7.5, font:bold, color:GREEN_ACCENT });
+  page.drawText(order.customer_name || 'Customer', {
+    x:ML, y:fl(INFO_Y+14, 11), size:11, font:bold, color:TXT_DARK });
+  page.drawText(order.customer_phone || '—', {
+    x:ML, y:fl(INFO_Y+28, 9), size:9, font:regular, color:TXT_MID });
   if (order.customer_email) {
-    page.drawText(order.customer_email, { x: ML, y: pk(INFO_Y+40, 9), size: 9, font, color: C_MUTED });
+    page.drawText(order.customer_email, {
+      x:ML, y:fl(INFO_Y+40, 8.5), size:8.5, font:regular, color:TXT_MID });
   }
 
-  // Right column
-  const RC = ML + CW / 2 + 10;
-  page.drawText('ORDER DETAILS', { x: RC, y: pk(INFO_Y, 7.5), size: 7.5, font: fontBold, color: C_ACCENT });
-  page.drawText('Order #' + order.id, { x: RC, y: pk(INFO_Y+13, 11), size: 11, font: fontBold, color: C_TEXT });
-  page.drawText('Date: ' + dateStr, { x: RC, y: pk(INFO_Y+28, 9), size: 9, font, color: C_MUTED });
-  if (order.notes) {
-    page.drawText('Notes: ' + order.notes.slice(0, 40), { x: RC, y: pk(INFO_Y+40, 9), size: 9, font, color: C_MUTED });
-  }
-
-  // Divider
-  const DIV1_Y = INFO_Y + (order.customer_email || order.notes ? 60 : 50);
-  page.drawLine({ start: { x: ML, y: pk(DIV1_Y) }, end: { x: MR, y: pk(DIV1_Y) }, thickness: 0.8, color: C_BORDER });
-
-  // ══════════════════════════════════════════════════════════
-  // 5. ITEMS TABLE
-  // ══════════════════════════════════════════════════════════
-  let tY = DIV1_Y + 14;
-
-  page.drawText('ITEMS PURCHASED', { x: ML, y: pk(tY, 7.5), size: 7.5, font: fontBold, color: C_ACCENT });
-  tY += 14;
-
-  // Table header
-  page.drawRectangle({ x: ML, y: pk(tY, 22), width: CW, height: 22, color: C_LIGHT });
-  const hdrCols = [
-    ['Item',       ML + 8,           9.5, 'left'],
-    ['Qty',        ML + CW*0.61,     8.5, 'center'],
-    ['Unit Price', ML + CW*0.73,     8.5, 'right'],
-    ['Amount',     ML + CW*0.87,     8.5, 'right'],
-  ];
-  hdrCols.forEach(([t, x, sz]) => {
-    page.drawText(t, { x, y: pk(tY + 8, sz), size: sz, font: fontBold, color: C_MUTED });
+  // Vertical separator
+  page.drawLine({
+    start:{x:COL2_X-10, y:fl(INFO_Y-4)},
+    end:  {x:COL2_X-10, y:fl(INFO_Y + 56)},
+    thickness:0.5, color:GREY_LINE,
   });
-  tY += 22;
 
-  // Item rows
-  const ROW_H = 24;
+  // Right col header
+  page.drawText('RECEIPT DETAILS', { x:COL2_X, y:fl(INFO_Y,7.5), size:7.5, font:bold, color:GREEN_ACCENT });
+
+  const statusLabels = {
+    pending:'Pending', confirmed:'Confirmed', processing:'Processing',
+    delivered:'Delivered', cancelled:'Cancelled', pending_payment:'Awaiting Payment'
+  };
+  const statusStr = statusLabels[order.status] || order.status;
+  const payMethod = (order.whatsapp_msg||'').startsWith('payisland_ref:')
+    ? 'Online Payment' : 'WhatsApp Order';
+
+  const detailRows = [
+    ['Receipt No:', receiptNo],
+    ['Date:',       dateStr],
+    ['Status:',     statusStr],
+    ['Payment:',    payMethod],
+  ];
+  detailRows.forEach(([label, val], i) => {
+    page.drawText(label, { x:COL2_X, y:fl(INFO_Y+14+i*14, 9), size:9, font:bold, color:TXT_MID });
+    page.drawText(val,   { x:COL2_X+60, y:fl(INFO_Y+14+i*14, 9), size:9, font:regular, color:TXT_DARK });
+  });
+
+  if (order.notes) {
+    page.drawText('Notes:',    { x:COL2_X, y:fl(INFO_Y+70, 9), size:9, font:bold, color:TXT_MID });
+    page.drawText(order.notes.slice(0,45), { x:COL2_X, y:fl(INFO_Y+82, 8), size:8, font:regular, color:TXT_MID });
+  }
+
+  const TABLE_START_Y = INFO_Y + (order.notes ? 100 : 80);
+  hline(TABLE_START_Y - 6);
+
+  // ══════════════════════════════════════════════════════════
+  // 6. ITEMS TABLE
+  // ══════════════════════════════════════════════════════════
+  const COL = {
+    item:  ML,
+    qty:   ML + CW * 0.52,
+    unit:  ML + CW * 0.68,
+    amt:   ML + CW * 0.84,
+  };
+
+  // Table header row
+  const TH_H = 24;
+  page.drawRectangle({ x:ML, y:fl(TABLE_START_Y, TH_H), width:CW, height:TH_H, color:GREEN_DARK });
+  page.drawText('ITEM',       { x:COL.item+6,  y:fl(TABLE_START_Y+7, 9), size:9, font:bold, color:WHITE });
+  textC('QTY',  COL.qty,  CW*0.16, TABLE_START_Y+7, 9, bold, WHITE);
+  textR('UNIT PRICE', COL.unit + CW*0.14, TABLE_START_Y+7, 9, bold, WHITE);
+  textR('AMOUNT',     MR,              TABLE_START_Y+7, 9, bold, WHITE);
+
+  let tY = TABLE_START_Y + TH_H;
+  const ROW_H = 22;
+
   items.forEach((item, idx) => {
-    if (idx % 2 === 1) {
-      page.drawRectangle({ x: ML, y: pk(tY, ROW_H), width: CW, height: ROW_H, color: C_LIGHT2 });
-    }
-    const name = (item.name || 'Item').slice(0, 35);
-    const qty  = String(item.qty);
-    const unitP = 'NGN ' + Number(item.price).toLocaleString('en-NG');
-    const amt  = 'NGN ' + Number(item.price * item.qty).toLocaleString('en-NG');
+    const bg = idx % 2 === 1 ? GREEN_LIGHT : WHITE;
+    page.drawRectangle({ x:ML, y:fl(tY, ROW_H), width:CW, height:ROW_H, color:bg });
 
-    page.drawText(name, { x: ML + 8, y: pk(tY + 8, 9.5), size: 9.5, font, color: C_TEXT });
+    const name   = (item.name || 'Item').slice(0, 38);
+    const qty    = String(item.qty);
+    const unitP  = 'NGN ' + Number(item.price).toLocaleString('en-NG');
+    const amount = 'NGN ' + Number(item.price * item.qty).toLocaleString('en-NG');
 
-    const qtyW = font.widthOfTextAtSize(qty, 9);
-    const qtyX = ML + CW*0.61 + (CW*0.11 - qtyW) / 2;
-    page.drawText(qty, { x: qtyX, y: pk(tY + 8, 9), size: 9, font, color: C_TEXT });
-
-    const unitW = font.widthOfTextAtSize(unitP, 8.5);
-    page.drawText(unitP, { x: ML + CW*0.73 + CW*0.12 - unitW - 2, y: pk(tY + 8, 8.5), size: 8.5, font, color: C_MUTED });
-
-    const amtW = fontBold.widthOfTextAtSize(amt, 9.5);
-    page.drawText(amt, { x: MR - amtW - 2, y: pk(tY + 8, 9.5), size: 9.5, font: fontBold, color: C_DARK });
+    page.drawText(name,  { x:COL.item+6, y:fl(tY+7, 9), size:9, font:regular, color:TXT_DARK });
+    textC(qty, COL.qty, CW*0.16, tY+7, 9, regular, TXT_DARK);
+    textR(unitP,  COL.unit + CW*0.14, tY+7, 9, regular, TXT_MID);
+    textR(amount, MR, tY+7, 9, bold, TXT_DARK);
 
     tY += ROW_H;
   });
 
+  // Subtotal divider
+  hline(tY + 4, ML, MR, GREY_LINE, 0.5);
+  tY += 12;
+
   // Total row
-  page.drawLine({ start: { x: ML, y: pk(tY) }, end: { x: MR, y: pk(tY) }, thickness: 1.5, color: C_DARK });
-  page.drawRectangle({ x: ML, y: pk(tY, 32), width: CW, height: 32, color: C_DARK });
-  page.drawText('TOTAL', { x: ML + 12, y: pk(tY + 11, 12), size: 12, font: fontBold, color: C_WHITE });
+  page.drawRectangle({ x:ML, y:fl(tY, 28), width:CW, height:28, color:GREEN_DARK });
+  page.drawText('TOTAL', { x:COL.item+6, y:fl(tY+8, 11), size:11, font:bold, color:WHITE });
   const totalStr = 'NGN ' + Number(order.total).toLocaleString('en-NG');
-  const totalW = fontBold.widthOfTextAtSize(totalStr, 13);
-  page.drawText(totalStr, { x: MR - totalW - 8, y: pk(tY + 10, 13), size: 13, font: fontBold, color: hex('#a3d9b8') });
-  tY += 32;
-
-  // ══════════════════════════════════════════════════════════
-  // 6. STATUS & PAYMENT
-  // ══════════════════════════════════════════════════════════
-  tY += 14;
-  const statusLabels = {
-    pending: 'Pending', confirmed: 'Confirmed', processing: 'Processing',
-    delivered: 'Delivered', cancelled: 'Cancelled', pending_payment: 'Awaiting Payment'
-  };
-  const statusStr = statusLabels[order.status] || order.status;
-  const payMethod = (order.whatsapp_msg || '').startsWith('payisland_ref:')
-    ? 'Online Payment (PayIsland)' : 'WhatsApp Order';
-
-  page.drawRectangle({ x: ML, y: pk(tY, 22), width: 115, height: 22, color: C_LIGHT, borderColor: C_BORDER, borderWidth: 0.8 });
-  const sLblW = fontBold.widthOfTextAtSize(statusStr, 9);
-  page.drawText(statusStr, { x: ML + (115 - sLblW)/2, y: pk(tY + 6, 9), size: 9, font: fontBold, color: C_DARK });
-
-  page.drawText('Payment: ' + payMethod, { x: ML + 125, y: pk(tY + 6, 9), size: 9, font, color: C_MUTED });
+  textR(totalStr, MR-6, tY+8, 12, bold, hex('#a3d9b8'));
+  tY += 28;
 
   // ══════════════════════════════════════════════════════════
   // 7. FOOTER
   // ══════════════════════════════════════════════════════════
-  const FTR_Y = PH - 88;  // pdf-lib y (from bottom)
+  const FTR_LINE_Y = PH - 75;  // pdf-lib y (from bottom)
 
-  page.drawRectangle({ x: 18, y: FTR_Y, width: PW-36, height: 2, color: C_ACCENT });
+  page.drawRectangle({ x:20, y:FTR_LINE_Y, width:PW-40, height:2, color:GREEN_ACCENT });
+  page.drawRectangle({ x:20, y:20,          width:PW-40, height:2, color:GREEN_ACCENT });
 
-  const ty1 = 'Thank you for shopping with us!';
-  const ty1W = fontBold.widthOfTextAtSize(ty1, 10.5);
-  page.drawText(ty1, { x: (PW-ty1W)/2, y: FTR_Y - 18, size: 10.5, font: fontBold, color: C_DARK });
+  const ty1 = 'Thank you for your business!';
+  const ty1W = bold.widthOfTextAtSize(ty1, 11);
+  page.drawText(ty1, { x:(PW-ty1W)/2, y:FTR_LINE_Y - 16, size:11, font:bold, color:GREEN_DARK });
 
-  const ty2 = 'Pinnacles Resource Centre Farm';
-  const ty2W = font.widthOfTextAtSize(ty2, 8.5);
-  page.drawText(ty2, { x: (PW-ty2W)/2, y: FTR_Y - 32, size: 8.5, font, color: C_MUTED });
+  const ty2 = 'Pinnacles Resource Centre Farm  •  agribusiness@pinnaclescentre.com';
+  const ty2W = regular.widthOfTextAtSize(ty2, 8);
+  page.drawText(ty2, { x:Math.max(20,(PW-ty2W)/2), y:FTR_LINE_Y-30, size:8, font:regular, color:TXT_MUTED });
 
-  const ty3 = 'agribusiness@pinnaclescentre.com  •  +234 903 750 5632  •  +234 707 821 0834';
-  const ty3W = font.widthOfTextAtSize(ty3, 7.5);
-  page.drawText(ty3, { x: Math.max(18, (PW-ty3W)/2), y: FTR_Y - 44, size: 7.5, font, color: C_MUTED });
+  const ty3 = '+234 903 750 5632  •  +234 707 821 0834';
+  const ty3W = regular.widthOfTextAtSize(ty3, 8);
+  page.drawText(ty3, { x:(PW-ty3W)/2, y:FTR_LINE_Y-42, size:8, font:regular, color:TXT_MUTED });
 
   const ty4 = 'This is an official receipt. Please retain for your records.';
-  const ty4W = font.widthOfTextAtSize(ty4, 7);
-  page.drawText(ty4, { x: (PW-ty4W)/2, y: FTR_Y - 58, size: 7, font, color: hex('#aaaaaa') });
+  const ty4W = regular.widthOfTextAtSize(ty4, 7);
+  page.drawText(ty4, { x:(PW-ty4W)/2, y:FTR_LINE_Y-56, size:7, font:regular, color:hex('#9ca3af') });
 
-  // Bottom accent bar
-  page.drawRectangle({ x: 18, y: 20, width: PW-36, height: 2, color: C_ACCENT });
-
-  // ── Stream PDF bytes to response ────────────────────────────
+  // ── Stream PDF ────────────────────────────────────────────
   const pdfBytes = await doc.save();
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename="Receipt-' + String(order.id).padStart(4,'0') + '.pdf"');
