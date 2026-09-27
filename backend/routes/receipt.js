@@ -1,4 +1,6 @@
 // ── Receipt Routes ────────────────────────────────────────────
+
+
 const router      = require('express').Router();
 const crypto      = require('crypto');
 const db          = require('../db');
@@ -398,29 +400,30 @@ router.post('/:id/receipt/email', requireAuth, async (req, res) => {
 // but the builder function is exported here for use there.
 
 // ── A4 PDF Receipt Builder (pdfkit) ──────────────────────────
+
+// Farm logo — embedded as base64 so it works on Vercel (no filesystem read needed)
+const LOGO_B64 = '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';
+
 async function streamReceiptPdf(order, res) {
   const { PDFDocument, rgb, StandardFonts, PageSizes } = require('pdf-lib');
-  const nodePath = require('path');
-  const nodeFs   = require('fs');
 
   const items = typeof order.items_json === 'string'
     ? JSON.parse(order.items_json || '[]')
     : (order.items || []);
 
   const doc  = await PDFDocument.create();
-  const PW   = PageSizes.A4[0];  // 595.28
-  const PH   = PageSizes.A4[1];  // 841.89
+  const PW   = PageSizes.A4[0];   // 595.28 pt
+  const PH   = PageSizes.A4[1];   // 841.89 pt
   const page = doc.addPage([PW, PH]);
 
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold    = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  // ── Embed logo ────────────────────────────────────────────
+  // Embed logo from hardcoded base64
   let logo = null;
   try {
-    const lp = nodePath.join(__dirname, '..', '..', 'images', 'receipt-logo.jpg');
-    logo = await doc.embedJpg(nodeFs.readFileSync(lp));
-  } catch (_) {}
+    logo = await doc.embedJpg(Buffer.from(LOGO_B64, 'base64'));
+  } catch (e) { console.error('Logo embed error:', e.message); }
 
   // ── Colours ───────────────────────────────────────────────
   const hex = (h) => rgb(
@@ -428,135 +431,132 @@ async function streamReceiptPdf(order, res) {
     parseInt(h.slice(3,5),16)/255,
     parseInt(h.slice(5,7),16)/255
   );
-  const C_GREEN   = hex('#1b6b3a');
-  const C_ACCENT  = hex('#52b788');
-  const C_TBLHDR  = hex('#1b4332');
-  const C_ROWALT  = hex('#e8f5e9');
-  const C_TXTDK   = hex('#111827');
-  const C_TXTMD   = hex('#374151');
-  const C_TXTMT   = hex('#6b7280');
-  const C_GRYLN   = hex('#d1d5db');
-  const WHITE     = rgb(1,1,1);
+  const C_GREEN  = hex('#1b6b3a');
+  const C_ACCENT = hex('#52b788');
+  const C_TBLHDR = hex('#1b4332');
+  const C_ROWALT = hex('#e8f5e9');
+  const C_TXTDK  = hex('#111827');
+  const C_TXTMD  = hex('#374151');
+  const C_TXTMT  = hex('#6b7280');
+  const C_GRYLN  = hex('#d1d5db');
+  const WHITE    = rgb(1, 1, 1);
 
-  // ── Coordinate helpers ────────────────────────────────────
-  // fl(pkY) converts pdfkit top-left Y to pdf-lib bottom-left Y
-  const fl = (pkY) => PH - pkY;
+  // ── Layout ────────────────────────────────────────────────
   const ML = 52;
   const MR = PW - 52;
-  const CW = MR - ML;
+  const CW = MR - ML;  // 491.28
 
-  const drawTextC = (txt, pkY, size, fnt, color) => {
+  // Y helper: pdfkit top-left  →  pdf-lib bottom-left
+  const fl = (pkY) => PH - pkY;
+
+  // Draw centred text (pkY = distance from top)
+  const textC = (txt, pkY, size, fnt, color) => {
     const w = fnt.widthOfTextAtSize(txt, size);
-    page.drawText(txt, { x:(PW-w)/2, y:fl(pkY)-size, size, font:fnt, color });
+    page.drawText(txt, { x: (PW - w) / 2, y: fl(pkY) - size, size, font: fnt, color });
   };
-  const drawTextR = (txt, rightX, pkY, size, fnt, color) => {
-    const w = fnt.widthOfTextAtSize(txt, size);
-    page.drawText(txt, { x:rightX-w, y:fl(pkY)-size, size, font:fnt, color });
-  };
-  const hline = (pkY, x1=ML, x2=MR, color=C_GRYLN, t=0.6) =>
-    page.drawLine({ start:{x:x1,y:fl(pkY)}, end:{x:x2,y:fl(pkY)}, thickness:t, color });
+
+  // Horizontal rule
+  const hline = (pkY, x1 = ML, x2 = MR, color = C_GRYLN, thick = 0.6) =>
+    page.drawLine({ start:{x:x1, y:fl(pkY)}, end:{x:x2, y:fl(pkY)}, thickness: thick, color });
 
   // ══════════════════════════════════════════════════════════
-  // PAGE: white bg + light green outer border
+  // PAGE: white background + thin green outer border
   // ══════════════════════════════════════════════════════════
   page.drawRectangle({ x:0, y:0, width:PW, height:PH, color:WHITE });
   page.drawRectangle({ x:16, y:16, width:PW-32, height:PH-32,
-    borderColor:C_ACCENT, borderWidth:0.8 });
+    borderColor: C_ACCENT, borderWidth: 0.8 });
 
   // ══════════════════════════════════════════════════════════
-  // HEADER — fixed zone: pkY 28 → 215
-  // Logo (28-112) | Name (122) | Tagline (140) |
-  // double-rule (153,157) | OFFICIAL RECEIPT (170) |
-  // Date Printed (188) | thin rule (204)
+  // HEADER — fixed zone pkY 28-210
   // ══════════════════════════════════════════════════════════
 
-  // 1. Logo centred — fixed 84pt height slot (pkY 28-112)
-  const LOGO_H = 84;
+  // 1. Logo — centred, 84pt height, pkY slot 28-112
   if (logo) {
+    const LOGO_H = 84;
     const LOGO_W = LOGO_H * (logo.width / logo.height);
     page.drawImage(logo, {
       x: (PW - LOGO_W) / 2,
-      y: fl(28 + LOGO_H),      // pdf-lib y = bottom of image
+      y: fl(28 + LOGO_H),   // bottom of image in pdf-lib coords
       width:  LOGO_W,
       height: LOGO_H,
     });
   }
 
   // 2. Farm name — pkY 122
-  drawTextC('PINNACLES RESOURCE CENTRE FARM', 122, 15, bold, C_GREEN);
+  textC('PINNACLES RESOURCE CENTRE FARM', 122, 15, bold, C_GREEN);
 
   // 3. Tagline — pkY 140
-  drawTextC('Fresh  ·  Organic  ·  Farm to Table', 140, 9, regular, C_ACCENT);
+  textC('Fresh  \u00B7  Organic  \u00B7  Farm to Table', 140, 9, regular, C_ACCENT);
 
-  // 4. Double green rule — pkY 153 & 157
+  // 4. Green double rule — pkY 153 & 157
   hline(153, ML, MR, C_GREEN, 2.0);
   hline(157, ML, MR, C_GREEN, 0.5);
 
   // 5. OFFICIAL RECEIPT — pkY 172
-  drawTextC('OFFICIAL RECEIPT', 172, 13, bold, C_TXTDK);
+  textC('OFFICIAL RECEIPT', 172, 13, bold, C_TXTDK);
 
   // 6. Date Printed — pkY 190
-  const now     = new Date();
-  const pad     = (n) => String(n).padStart(2,'0');
-  const printed = 'Date Printed: ' +
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  textC(
+    'Date Printed: ' +
     now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) +
-    '  ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
-  drawTextC(printed, 190, 9, bold, C_TXTMD);
+    '  ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()),
+    190, 9, bold, C_TXTMD
+  );
 
-  // 7. Thin rule — pkY 204
-  hline(204, ML, MR, C_GRYLN, 0.6);
+  // 7. Thin rule — pkY 206
+  hline(206, ML, MR, C_GRYLN, 0.6);
 
   // ══════════════════════════════════════════════════════════
-  // BILLED TO | RECEIPT DETAILS — pkY 216 → 300
+  // TWO-COLUMN INFO: BILLED TO  |  RECEIPT DETAILS — pkY 218
   // ══════════════════════════════════════════════════════════
   const INFO_TOP = 218;
   const COL2_X   = ML + CW * 0.52;
 
-  // Left column label
-  page.drawText('BILLED TO', {
-    x:ML, y:fl(INFO_TOP)-8, size:8, font:bold, color:C_ACCENT });
-  page.drawText(order.customer_name || 'Customer', {
-    x:ML, y:fl(INFO_TOP+14)-11, size:11, font:bold, color:C_TXTDK });
-  page.drawText(order.customer_phone || '—', {
-    x:ML, y:fl(INFO_TOP+28)-9, size:9, font:regular, color:C_TXTMD });
+  // Left: BILLED TO
+  page.drawText('BILLED TO', { x:ML, y:fl(INFO_TOP)-8, size:8, font:bold, color:C_ACCENT });
+  page.drawText(order.customer_name || 'Customer',
+    { x:ML, y:fl(INFO_TOP+14)-11, size:11, font:bold, color:C_TXTDK });
+  page.drawText(order.customer_phone || '\u2014',
+    { x:ML, y:fl(INFO_TOP+28)-9, size:9, font:regular, color:C_TXTMD });
   if (order.customer_email) {
-    page.drawText(order.customer_email, {
-      x:ML, y:fl(INFO_TOP+41)-8.5, size:8.5, font:regular, color:C_TXTMD });
+    page.drawText(order.customer_email,
+      { x:ML, y:fl(INFO_TOP+41)-8.5, size:8.5, font:regular, color:C_TXTMD });
   }
 
   // Vertical divider
   page.drawLine({
-    start:{x:COL2_X-8, y:fl(INFO_TOP-4)},
-    end:  {x:COL2_X-8, y:fl(INFO_TOP+60)},
-    thickness:0.5, color:C_GRYLN,
+    start: { x:COL2_X-8, y:fl(INFO_TOP-4)  },
+    end:   { x:COL2_X-8, y:fl(INFO_TOP+62) },
+    thickness: 0.5, color: C_GRYLN,
   });
 
-  // Right column
-  page.drawText('RECEIPT DETAILS', {
-    x:COL2_X, y:fl(INFO_TOP)-8, size:8, font:bold, color:C_ACCENT });
+  // Right: RECEIPT DETAILS
+  page.drawText('RECEIPT DETAILS', { x:COL2_X, y:fl(INFO_TOP)-8, size:8, font:bold, color:C_ACCENT });
 
   const statusMap = {
     pending:'Pending', confirmed:'Confirmed', processing:'Processing',
-    delivered:'Delivered', cancelled:'Cancelled', pending_payment:'Awaiting Payment'
+    delivered:'Delivered', cancelled:'Cancelled', pending_payment:'Awaiting Payment',
   };
   const payMethod = (order.whatsapp_msg||'').startsWith('payisland_ref:')
     ? 'Online Payment' : 'WhatsApp Order';
 
   const details = [
-    ['Receipt No:',  '#' + String(order.id).padStart(4,'0')],
-    ['Date:',        formatDate(order.created_at)],
-    ['Status:',      statusMap[order.status] || order.status],
-    ['Payment:',     payMethod],
+    ['Receipt No:', '#' + String(order.id).padStart(4, '0')],
+    ['Date:',       formatDate(order.created_at)],
+    ['Status:',     statusMap[order.status] || order.status],
+    ['Payment:',    payMethod],
   ];
   details.forEach(([lbl, val], i) => {
-    const rowY = INFO_TOP + 14 + i * 14;
-    page.drawText(lbl, { x:COL2_X,    y:fl(rowY)-9, size:9, font:bold,    color:C_TXTMD });
-    page.drawText(val, { x:COL2_X+68, y:fl(rowY)-9, size:9, font:regular, color:C_TXTDK });
+    const ry = INFO_TOP + 14 + i * 14;
+    page.drawText(lbl, { x:COL2_X,    y:fl(ry)-9, size:9, font:bold,    color:C_TXTMD });
+    page.drawText(val, { x:COL2_X+68, y:fl(ry)-9, size:9, font:regular, color:C_TXTDK });
   });
 
   if (order.notes) {
-    page.drawText('Notes: ' + order.notes.slice(0,50),
-      { x:ML, y:fl(INFO_TOP+74)-8, size:8, font:regular, color:C_TXTMT });
+    page.drawText('Notes: ' + order.notes.slice(0, 50),
+      { x:ML, y:fl(INFO_TOP+75)-8, size:8, font:regular, color:C_TXTMT });
   }
 
   const TABLE_TOP = INFO_TOP + (order.notes ? 92 : 78);
@@ -564,90 +564,93 @@ async function streamReceiptPdf(order, res) {
 
   // ══════════════════════════════════════════════════════════
   // ITEMS TABLE
+  // Column layout (% of CW from ML):
+  //   ITEM:       0  – 52%   left-aligned
+  //   QTY:       55% – 64%   centred
+  //   UNIT PRICE: 65% – 82%  right-aligned
+  //   AMOUNT:    83% – 100%  right-aligned
   // ══════════════════════════════════════════════════════════
   const TH_H  = 24;
   const ROW_H = 22;
 
-  // Column x positions
-  const C_NAME = ML + 6;
-  const C_QTY  = ML + CW * 0.53;
-  const C_UNIT = ML + CW * 0.69;
-  const C_AMT  = MR;
+  const COL_ITEM_X   = ML + 6;
+  const COL_QTY_MID  = ML + CW * 0.595;   // centre of QTY zone
+  const COL_UNIT_END = ML + CW * 0.815;   // right edge of UNIT PRICE
+  const COL_AMT_END  = MR - 4;            // right edge of AMOUNT
 
-  // Table header row
+  // ── Table header row (dark green bar) ─────────────────────
   page.drawRectangle({ x:ML, y:fl(TABLE_TOP+TH_H), width:CW, height:TH_H, color:C_TBLHDR });
 
-  const thCols = [
-    ['ITEM',       C_NAME,  'left'],
-    ['QTY',        C_QTY,   'center'],
-    ['UNIT PRICE', C_UNIT,  'right'],
-    ['AMOUNT',     C_AMT,   'right'],
+  const headers = [
+    { txt:'ITEM',       x:COL_ITEM_X,   align:'left'   },
+    { txt:'QTY',        x:COL_QTY_MID,  align:'center' },
+    { txt:'UNIT PRICE', x:COL_UNIT_END, align:'right'  },
+    { txt:'AMOUNT',     x:COL_AMT_END,  align:'right'  },
   ];
-  thCols.forEach(([txt, x, align]) => {
+  const hdrY = fl(TABLE_TOP + TH_H - 8) - 9;
+  headers.forEach(({ txt, x, align }) => {
     const w = bold.widthOfTextAtSize(txt, 9);
-    let dx = x;
-    if (align === 'center') dx = x + (CW*0.14 - w)/2;
-    if (align === 'right')  dx = x - w;
-    page.drawText(txt, { x:dx, y:fl(TABLE_TOP+TH_H-7)-9, size:9, font:bold, color:WHITE });
+    const dx = align === 'center' ? x - w/2 : align === 'right' ? x - w : x;
+    page.drawText(txt, { x: dx, y: hdrY, size:9, font:bold, color:WHITE });
   });
 
-  let tY = TABLE_TOP + TH_H;  // pdfkit y of current row top
+  // ── Item rows ──────────────────────────────────────────────
+  let tY = TABLE_TOP + TH_H;   // pdfkit top of current row
 
   items.forEach((item, idx) => {
     if (idx % 2 === 1)
-      page.drawRectangle({ x:ML, y:fl(tY+ROW_H), width:CW, height:ROW_H, color:C_ROWALT });
+      page.drawRectangle({ x:ML, y:fl(tY + ROW_H), width:CW, height:ROW_H, color:C_ROWALT });
 
-    const name  = (item.name||'Item').slice(0,38);
+    const name  = (item.name || 'Item').slice(0, 32);
     const qty   = String(item.qty);
     const unitP = 'NGN ' + Number(item.price).toLocaleString('en-NG');
     const amt   = 'NGN ' + Number(item.price * item.qty).toLocaleString('en-NG');
+    const rowY  = fl(tY + ROW_H - 7) - 9;
 
-    const rowTextY = fl(tY + ROW_H - 7) - 9;
-
-    page.drawText(name,  { x:C_NAME, y:rowTextY, size:9, font:regular, color:C_TXTDK });
+    page.drawText(name, { x: COL_ITEM_X, y: rowY, size:9, font:regular, color:C_TXTDK });
 
     const qW = regular.widthOfTextAtSize(qty, 9);
-    page.drawText(qty, { x:C_QTY+(CW*0.14-qW)/2, y:rowTextY, size:9, font:regular, color:C_TXTDK });
+    page.drawText(qty,   { x: COL_QTY_MID  - qW/2, y: rowY, size:9, font:regular, color:C_TXTDK });
 
     const uW = regular.widthOfTextAtSize(unitP, 9);
-    page.drawText(unitP, { x:C_UNIT+CW*0.14-uW, y:rowTextY, size:9, font:regular, color:C_TXTMT });
+    page.drawText(unitP, { x: COL_UNIT_END - uW,   y: rowY, size:9, font:regular, color:C_TXTMT });
 
     const aW = bold.widthOfTextAtSize(amt, 9);
-    page.drawText(amt, { x:C_AMT-aW, y:rowTextY, size:9, font:bold, color:C_TXTDK });
+    page.drawText(amt,   { x: COL_AMT_END  - aW,   y: rowY, size:9, font:bold,    color:C_TXTDK });
 
     tY += ROW_H;
   });
 
-  // Divider above total
+  // ── Divider + TOTAL row ────────────────────────────────────
   hline(tY + 4, ML, MR, C_GRYLN, 0.5);
   tY += 8;
 
-  // TOTAL row
-  page.drawRectangle({ x:ML, y:fl(tY+28), width:CW, height:28, color:C_TBLHDR });
-  page.drawText('TOTAL', { x:C_NAME, y:fl(tY+28-8)-11, size:11, font:bold, color:WHITE });
+  page.drawRectangle({ x:ML, y:fl(tY + 28), width:CW, height:28, color:C_TBLHDR });
+
+  page.drawText('TOTAL', { x: COL_ITEM_X, y: fl(tY + 28 - 8) - 11, size:11, font:bold, color:WHITE });
+
   const totalStr = 'NGN ' + Number(order.total).toLocaleString('en-NG');
-  const totW = bold.widthOfTextAtSize(totalStr, 12);
-  page.drawText(totalStr, { x:MR-totW-4, y:fl(tY+28-8)-12, size:12, font:bold, color:hex('#a3d9b8') });
-  tY += 28;
+  const totW     = bold.widthOfTextAtSize(totalStr, 12);
+  page.drawText(totalStr, { x: COL_AMT_END - totW, y: fl(tY + 28 - 8) - 12, size:12, font:bold, color:hex('#a3d9b8') });
 
   // ══════════════════════════════════════════════════════════
-  // FOOTER — always anchored to bottom of page
-  // Double rule at pkY 756 & 760, text below, bottom rule at pkY 820
+  // FOOTER — anchored to bottom of page (pkY 756-820)
   // ══════════════════════════════════════════════════════════
   hline(756, ML, MR, C_GREEN, 2.0);
   hline(760, ML, MR, C_GREEN, 0.5);
 
-  drawTextC('Thank you for your business!', 774, 10, bold, C_GREEN);
-  drawTextC('Pinnacles Resource Centre Farm', 788, 8, regular, C_TXTMT);
-  drawTextC('agribusiness@pinnaclescentre.com  •  +234 903 750 5632  •  +234 707 821 0834', 800, 7.5, regular, C_TXTMT);
-  drawTextC('This is an official receipt. Please retain for your records.', 812, 7, regular, hex('#9ca3af'));
+  textC('Thank you for your business!',                                                   774, 10,  bold,    C_GREEN);
+  textC('Pinnacles Resource Centre Farm',                                                 788, 8,   regular, C_TXTMT);
+  textC('agribusiness@pinnaclescentre.com  \u2022  +234 903 750 5632  \u2022  +234 707 821 0834', 800, 7.5, regular, C_TXTMT);
+  textC('This is an official receipt. Please retain for your records.',                   812, 7,   regular, hex('#9ca3af'));
 
   hline(820, ML, MR, C_GREEN, 1.5);
 
-  // ── Finalise ──────────────────────────────────────────────
+  // ── Stream PDF ────────────────────────────────────────────
   const pdfBytes = await doc.save();
   res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', 'attachment; filename="Receipt-' + String(order.id).padStart(4,'0') + '.pdf"');
+  res.setHeader('Content-Disposition',
+    'attachment; filename="Receipt-' + String(order.id).padStart(4,'0') + '.pdf"');
   res.setHeader('Content-Length', pdfBytes.length);
   res.end(Buffer.from(pdfBytes));
 }
