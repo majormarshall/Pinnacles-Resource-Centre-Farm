@@ -126,4 +126,78 @@ router.delete('/:id', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+
+// ── Monthly Sales Report (Excel) ─────────────────────────────────────────
+router.get('/report', requireAuth, async (req, res) => {
+  try {
+    const XLSX  = require('xlsx');
+    const month = parseInt(req.query.month) || new Date().getMonth() + 1;
+    const year  = parseInt(req.query.year)  || new Date().getFullYear();
+
+    const start = new Date(year, month - 1, 1).toISOString();
+    const end   = new Date(year, month, 1).toISOString();
+
+    const orders = await db.allAsync(
+      'SELECT * FROM orders WHERE created_at >= ? AND created_at < ? ORDER BY created_at ASC',
+      [start, end]
+    );
+
+    const monthName = new Date(year, month - 1, 1)
+      .toLocaleString('en-NG', { month: 'long', year: 'numeric' });
+
+    const rows = orders.map(o => {
+      let items = [];
+      try { items = JSON.parse(o.items_json || '[]'); } catch (_) {}
+      const itemStr = items.map(i => i.name + ' x' + i.qty).join(', ');
+
+      const wm = o.whatsapp_msg || '';
+      const payMethod =
+        wm.startsWith('payisland_ref:') ? 'Online Payment' :
+        wm.startsWith('walkin:cash')    ? 'Cash Payment'   :
+        wm.startsWith('walkin:pos')     ? 'POS Payment'    :
+        wm.startsWith('walkin:transfer')? 'Bank Transfer'  :
+        'WhatsApp Order';
+
+      return {
+        'Order ID':       '#' + String(o.id).padStart(4, '0'),
+        'Date':           new Date(o.created_at).toLocaleDateString('en-NG', { day:'2-digit', month:'short', year:'numeric' }),
+        'Customer Name':  o.customer_name  || '',
+        'Phone':          o.customer_phone || '',
+        'Items':          itemStr,
+        'Total (NGN)':    Number(o.total),
+        'Status':         o.status         || '',
+        'Payment Method': payMethod,
+        'Notes':          o.notes          || '',
+      };
+    });
+
+    const grandTotal = orders.reduce((s, o) => s + Number(o.total), 0);
+    rows.push({});
+    rows.push({
+      'Order ID':       'SUMMARY',
+      'Customer Name':  'Total Orders: ' + orders.length,
+      'Total (NGN)':    grandTotal,
+      'Status':         'Grand Total: NGN ' + grandTotal.toLocaleString('en-NG'),
+    });
+
+    const wb = require('xlsx').utils.book_new();
+    const ws = require('xlsx').utils.json_to_sheet(rows);
+    ws['!cols'] = [
+      {wch:10},{wch:14},{wch:22},{wch:16},
+      {wch:40},{wch:14},{wch:14},{wch:18},{wch:30},
+    ];
+    require('xlsx').utils.book_append_sheet(wb, ws, monthName);
+    const buf = require('xlsx').write(wb, { type:'buffer', bookType:'xlsx' });
+
+    const fname = 'Pinnacles-Sales-Report-' + year + '-' + String(month).padStart(2,'0') + '.xlsx';
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="' + fname + '"');
+    res.setHeader('Content-Length', buf.length);
+    res.end(buf);
+  } catch (err) {
+    console.error('Report error:', err);
+    res.status(500).json({ error: 'Failed to generate report' });
+  }
+});
+
 module.exports = router;

@@ -174,3 +174,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);heig
 .gac-caption{font-size:.78rem;color:var(--text-muted);font-style:italic;margin-bottom:6px;}
 .gac-order{font-size:.72rem;color:var(--text-muted);margin-bottom:10px;}
 .gac-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* Walk-in + Report buttons */
+.btn-success { background: #22c55e; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: .875rem; }
+.btn-success:hover { background: #16a34a; }

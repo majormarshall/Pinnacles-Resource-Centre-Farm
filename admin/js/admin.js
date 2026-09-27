@@ -775,3 +775,107 @@ function copyReceiptLink() {
   navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('🔗 Receipt link copied!'));
 }
 
+
+
+// ─────────────────────────────────────────────────────────────────
+// WALK-IN / FARM ORDER
+// ─────────────────────────────────────────────────────────────────
+function openWalkinModal() {
+  document.getElementById('wi-name').value    = '';
+  document.getElementById('wi-phone').value   = '';
+  document.getElementById('wi-code').value    = '+234';
+  document.getElementById('wi-payment').value = 'cash';
+  document.getElementById('wi-notes').value   = '';
+  document.getElementById('wi-items-list').innerHTML = '';
+  document.getElementById('wi-total-display').textContent = '0';
+  addWalkinItem();
+  document.getElementById('walkin-modal').style.display = 'flex';
+}
+function closeWalkinModal() {
+  document.getElementById('walkin-modal').style.display = 'none';
+}
+function addWalkinItem() {
+  const list = document.getElementById('wi-items-list');
+  const div  = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:6px;margin-bottom:8px;align-items:center';
+  div.innerHTML =
+    '<input type="text"   placeholder="Item name"  class="form-input wi-item-name"  style="flex:2"     oninput="recalcWalkinTotal()">' +
+    '<input type="number" placeholder="Qty"        class="form-input wi-item-qty"   style="width:62px" oninput="recalcWalkinTotal()" min="1" value="1">' +
+    '<input type="number" placeholder="Unit price" class="form-input wi-item-price" style="width:95px" oninput="recalcWalkinTotal()" min="0">' +
+    '<button type="button" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;flex-shrink:0" ' +
+    'onclick="this.parentElement.remove();recalcWalkinTotal()">x</button>';
+  list.appendChild(div);
+}
+function recalcWalkinTotal() {
+  let total = 0;
+  document.querySelectorAll('#wi-items-list > div').forEach(row => {
+    const qty   = parseFloat(row.querySelector('.wi-item-qty').value)   || 0;
+    const price = parseFloat(row.querySelector('.wi-item-price').value) || 0;
+    total += qty * price;
+  });
+  document.getElementById('wi-total-display').textContent = total.toLocaleString('en-NG');
+}
+async function saveWalkinOrder() {
+  const name     = document.getElementById('wi-name').value.trim()  || 'Walk-in Customer';
+  const code     = document.getElementById('wi-code').value;
+  const rawPhone = document.getElementById('wi-phone').value.trim().replace(/^0+/, '');
+  const phone    = rawPhone ? code + rawPhone : '';
+  const payment  = document.getElementById('wi-payment').value;
+  const notes    = document.getElementById('wi-notes').value.trim();
+  const items = [];
+  let total = 0;
+  document.querySelectorAll('#wi-items-list > div').forEach(row => {
+    const nm  = row.querySelector('.wi-item-name').value.trim();
+    const qty = parseFloat(row.querySelector('.wi-item-qty').value)   || 0;
+    const pr  = parseFloat(row.querySelector('.wi-item-price').value) || 0;
+    if (nm && qty > 0 && pr >= 0) { items.push({ name: nm, qty, price: pr }); total += qty * pr; }
+  });
+  if (items.length === 0) { showToast('Add at least one item'); return; }
+  if (total <= 0)          { showToast('Total must be greater than zero'); return; }
+  try {
+    const token = localStorage.getItem('adminToken');
+    const resp  = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ customer_name: name, customer_phone: phone, items, total, notes, whatsapp_msg: 'walkin:' + payment }),
+    });
+    if (!resp.ok) throw new Error((await resp.json()).error || 'Failed');
+    showToast('Walk-in order saved! Click the Receipt button to generate PDF.');
+    closeWalkinModal();
+    loadOrders();
+  } catch (e) { showToast('Error: ' + e.message); }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MONTHLY SALES REPORT
+// ─────────────────────────────────────────────────────────────────
+function openReportModal() {
+  const now = new Date();
+  document.getElementById('report-month').value = now.getMonth() + 1;
+  document.getElementById('report-year').value  = now.getFullYear();
+  document.getElementById('report-modal').style.display = 'flex';
+}
+function closeReportModal() {
+  document.getElementById('report-modal').style.display = 'none';
+}
+async function downloadReport() {
+  const month = document.getElementById('report-month').value;
+  const year  = document.getElementById('report-year').value;
+  const token = localStorage.getItem('adminToken');
+  showToast('Generating report...');
+  try {
+    const resp = await fetch('/api/orders/report?month=' + month + '&year=' + year, {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!resp.ok) throw new Error('Server returned ' + resp.status);
+    const blob = await resp.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = 'Pinnacles-Sales-' + year + '-' + String(month).padStart(2,'0') + '.xlsx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Report downloaded!');
+    closeReportModal();
+  } catch (e) { showToast('Error: ' + e.message); }
+}

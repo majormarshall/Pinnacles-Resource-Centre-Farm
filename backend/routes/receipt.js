@@ -41,7 +41,12 @@ function buildReceiptHtml(order) {
       <td style="padding:10px 14px;border-bottom:1px solid #e8f5e9;text-align:right;font-weight:600;color:#1b4332;font-size:.9rem;">&#8358;${(i.price * i.qty).toLocaleString('en-NG')}</td>
     </tr>`).join('');
 
-  const payMethod = (order.whatsapp_msg || '').startsWith('payisland_ref:') ? '💳 Online Payment (PayIsland)' : '📲 WhatsApp Order';
+  const _wmh = (order.whatsapp_msg || '');
+  const payMethod = _wmh.startsWith('payisland_ref:')  ? '💳 Online Payment' :
+                    _wmh.startsWith('walkin:pos')       ? '💳 POS Payment'    :
+                    _wmh.startsWith('walkin:transfer')  ? '🏦 Bank Transfer'  :
+                    _wmh.startsWith('walkin:')          ? '💵 Cash Payment'   :
+                    '📲 WhatsApp Order';
   const receiptNo = String(order.id).padStart(4, '0');
 
   return `<!DOCTYPE html>
@@ -539,8 +544,12 @@ async function streamReceiptPdf(order, res) {
     pending:'Pending', confirmed:'Confirmed', processing:'Processing',
     delivered:'Delivered', cancelled:'Cancelled', pending_payment:'Awaiting Payment',
   };
-  const payMethod = (order.whatsapp_msg||'').startsWith('payisland_ref:')
-    ? 'Online Payment' : 'WhatsApp Order';
+  const _wm = (order.whatsapp_msg || '');
+  const payMethod = _wm.startsWith('payisland_ref:')  ? 'Online Payment' :
+                    _wm.startsWith('walkin:pos')       ? 'POS Payment'    :
+                    _wm.startsWith('walkin:transfer')  ? 'Bank Transfer'  :
+                    _wm.startsWith('walkin:')          ? 'Cash Payment'   :
+                    'WhatsApp Order';
 
   const details = [
     ['Receipt No:', '#' + String(order.id).padStart(4, '0')],

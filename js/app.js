@@ -302,7 +302,9 @@ function closeOrderModal() {
 // ── Online Payment via PayIsland ─────────────────────────────
 async function submitOrderOnline() {
   const name  = (document.getElementById('oc-name').value  || '').trim() || 'Customer';
-  const phone = (document.getElementById('oc-phone').value || '').trim();
+  const phoneCode = (document.getElementById('oc-phone-code') ? document.getElementById('oc-phone-code').value : '+234');
+  const rawPhone  = (document.getElementById('oc-phone').value || '').trim().replace(/^0+/, '');
+  const phone     = rawPhone ? phoneCode + rawPhone : '';
   const notes = (document.getElementById('oc-notes').value || '').trim();
   const errEl = document.getElementById('oc-error');
 
@@ -387,7 +389,9 @@ function checkPaymentReturn() {
 
 async function submitOrder() {
   const name  = (document.getElementById('oc-name').value  || '').trim() || 'Customer';
-  const phone = (document.getElementById('oc-phone').value || '').trim();
+  const phoneCode = (document.getElementById('oc-phone-code') ? document.getElementById('oc-phone-code').value : '+234');
+  const rawPhone  = (document.getElementById('oc-phone').value || '').trim().replace(/^0+/, '');
+  const phone     = rawPhone ? phoneCode + rawPhone : '';
   const notes = (document.getElementById('oc-notes').value || '').trim();
   const errEl = document.getElementById('oc-error');
   const btn   = document.getElementById('oc-submit-btn');
