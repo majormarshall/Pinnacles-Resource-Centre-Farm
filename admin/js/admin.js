@@ -833,7 +833,7 @@ async function saveWalkinOrder() {
   if (items.length === 0) { showToast('Add at least one item'); return; }
   if (total <= 0)          { showToast('Total must be greater than zero'); return; }
   try {
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('pinnacles_admin_token');
     const resp  = await fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -861,7 +861,7 @@ function closeReportModal() {
 async function downloadReport() {
   const month = document.getElementById('report-month').value;
   const year  = document.getElementById('report-year').value;
-  const token = localStorage.getItem('adminToken');
+  const token = localStorage.getItem('pinnacles_admin_token');
   showToast('Generating report...');
   try {
     const resp = await fetch('/api/orders/report?month=' + month + '&year=' + year, {
