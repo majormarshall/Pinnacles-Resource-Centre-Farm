@@ -73,7 +73,7 @@ app.get('/receipt/:id/:token/pdf', async (req, res) => {
     const order = await db.getAsync('SELECT * FROM orders WHERE id = ?', [id]);
     if (!order) return res.status(404).send('Order not found.');
     order.items = JSON.parse(order.items_json || '[]');
-    return streamReceiptPdf(order, res);
+    return streamReceiptPdf(order, res, req);
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
