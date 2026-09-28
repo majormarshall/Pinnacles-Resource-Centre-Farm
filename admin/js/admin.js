@@ -4,6 +4,10 @@
 const API = '/api';
 let authToken = localStorage.getItem('pinnacles_admin_token');
 let currentTab = 'overview';
+let _pollTimer    = null;   // auto-refresh interval handle
+let _lastOrderId  = 0;      // highest order ID seen so far
+let _pollRunning  = false;  // prevent overlapping polls
+
 
 // Ensure image paths resolve from root (handles relative paths like "images/foo.png")
 // Also passes data: URLs (base64) through unchanged.
@@ -30,6 +34,7 @@ function showDashboard() {
   const user = parseToken(authToken);
   if (user) document.getElementById('admin-name-display').textContent = user.username;
   loadOverview();
+  startOrderPolling();
 }
 
 function parseToken(token) {
@@ -66,6 +71,7 @@ async function handleLogin(e) {
 }
 
 function logout() {
+  stopOrderPolling();
   authToken = null;
   localStorage.removeItem('pinnacles_admin_token');
   showLogin();
@@ -878,4 +884,91 @@ async function downloadReport() {
     showToast('Report downloaded!');
     closeReportModal();
   } catch (e) { showToast('Error: ' + e.message); }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AUTO-REFRESH: poll for new orders every 30 seconds
+// ─────────────────────────────────────────────────────────────────
+function startOrderPolling() {
+  stopOrderPolling();
+  _initLastOrderId();
+  _pollTimer = setInterval(_pollNewOrders, 30000);
+  console.log('[Admin] Polling started');
+}
+function stopOrderPolling() {
+  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+}
+async function _initLastOrderId() {
+  try {
+    const data = await api('GET', '/orders?status=pending');
+    const list  = Array.isArray(data) ? data : (data.orders || []);
+    if (list.length > 0)
+      _lastOrderId = Math.max.apply(null, list.map(function(o){ return Number(o.id)||0; }));
+  } catch(_){}
+}
+async function _pollNewOrders() {
+  if (_pollRunning || !authToken) return;
+  _pollRunning = true;
+  try {
+    const data = await api('GET', '/orders?status=pending');
+    const list  = Array.isArray(data) ? data : (data.orders || []);
+    if (!list.length) { _pollRunning = false; return; }
+    const maxId = Math.max.apply(null, list.map(function(o){ return Number(o.id)||0; }));
+    if (_lastOrderId > 0 && maxId > _lastOrderId) {
+      const newCount = list.filter(function(o){ return Number(o.id) > _lastOrderId; }).length;
+      _lastOrderId = maxId;
+      loadOrders();
+      _updatePendingBadge(list.length);
+      _showNewOrderBanner(newCount);
+      _playNotifSound();
+    } else if (_lastOrderId === 0) {
+      _lastOrderId = maxId;
+    }
+  } catch(e) { console.warn('[Poll]', e.message); }
+  _pollRunning = false;
+}
+function _showNewOrderBanner(count) {
+  var old = document.getElementById('new-order-banner');
+  if (old) old.remove();
+  if (!document.getElementById('poll-anim')) {
+    var s = document.createElement('style');
+    s.id = 'poll-anim';
+    s.textContent = '@keyframes sldDn{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+    document.head.appendChild(s);
+  }
+  var b = document.createElement('div');
+  b.id = 'new-order-banner';
+  b.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);' +
+    'background:#1b4332;color:#fff;padding:14px 28px;border-radius:50px;' +
+    'font-weight:700;font-size:.95rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);' +
+    'display:flex;align-items:center;gap:10px;animation:sldDn .3s ease;white-space:nowrap;';
+  b.innerHTML = '<span style="font-size:1.2rem">&#x1F6D2;</span>' +
+    count + ' new order' + (count > 1 ? 's' : '') + ' received!' +
+    '<button onclick="showTab('orders',null);this.parentElement.remove()" ' +
+    'style="background:#52b788;border:none;color:#fff;padding:5px 14px;' +
+    'border-radius:20px;cursor:pointer;font-weight:700;margin-left:6px">View Orders</button>' +
+    '<button onclick="this.parentElement.remove()" ' +
+    'style="background:transparent;border:none;color:rgba(255,255,255,.7);' +
+    'cursor:pointer;font-size:1.2rem;line-height:1;padding:0 2px">&times;</button>';
+  document.body.appendChild(b);
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 8000);
+}
+function _playNotifSound() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var g = ctx.createGain(); g.connect(ctx.destination);
+    [880, 1100].forEach(function(freq, i) {
+      var o = ctx.createOscillator(); o.connect(g);
+      o.frequency.value = freq; o.type = 'sine';
+      g.gain.setValueAtTime(0, ctx.currentTime + i*0.15);
+      g.gain.linearRampToValueAtTime(0.25, ctx.currentTime + i*0.15 + 0.04);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + i*0.15 + 0.25);
+      o.start(ctx.currentTime + i*0.15);
+      o.stop(ctx.currentTime + i*0.15 + 0.3);
+    });
+  } catch(_){}
+}
+function _updatePendingBadge(count) {
+  var badge = document.getElementById('pending-badge');
+  if (badge) badge.textContent = count;
 }

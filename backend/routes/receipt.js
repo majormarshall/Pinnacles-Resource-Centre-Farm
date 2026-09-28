@@ -424,11 +424,27 @@ async function streamReceiptPdf(order, res) {
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold    = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  // Embed logo from hardcoded base64
+  // Embed logo — try filesystem first (Vercel includeFiles), then base64 fallback
   let logo = null;
   try {
-    logo = await doc.embedJpg(Buffer.from(LOGO_B64, 'base64'));
-  } catch (e) { console.error('Logo embed error:', e.message); }
+    const nodePath = require('path');
+    const nodeFs   = require('fs');
+    // Possible logo paths (filesystem first, multiple fallbacks)
+    const logoPaths = [
+      nodePath.join(process.cwd(), 'images', 'receipt-logo.jpg'),
+      nodePath.join(__dirname, '..', '..', 'images', 'receipt-logo.jpg'),
+      nodePath.join(__dirname, '..', 'images', 'receipt-logo.jpg'),
+      '/var/task/images/receipt-logo.jpg',
+    ];
+    let logoBytes = null;
+    for (const lp of logoPaths) {
+      try { if (nodeFs.existsSync(lp)) { logoBytes = nodeFs.readFileSync(lp); break; } } catch(_){}
+    }
+    // If no file found, use the hardcoded base64
+    if (!logoBytes) logoBytes = Buffer.from(LOGO_B64, 'base64');
+    logo = await doc.embedJpg(logoBytes);
+    console.log('Logo loaded OK, dims:', logo.width, 'x', logo.height);
+  } catch (e) { console.error('Logo embed FAILED:', e.message); }
 
   // ── Colours ───────────────────────────────────────────────
   const hex = (h) => rgb(
@@ -622,7 +638,7 @@ async function streamReceiptPdf(order, res) {
     page.drawText(qty,   { x: COL_QTY_MID  - qW/2, y: rowY, size:9, font:regular, color:C_TXTDK });
 
     const uW = regular.widthOfTextAtSize(unitP, 9);
-    page.drawText(unitP, { x: COL_UNIT_END - uW,   y: rowY, size:9, font:regular, color:C_TXTMT });
+    page.drawText(unitP, { x: COL_UNIT_END - uW,   y: rowY, size:9, font:regular, color:C_TXTDK });
 
     const aW = bold.widthOfTextAtSize(amt, 9);
     page.drawText(amt,   { x: COL_AMT_END  - aW,   y: rowY, size:9, font:bold,    color:C_TXTDK });
