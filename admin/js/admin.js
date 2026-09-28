@@ -805,19 +805,28 @@ function addWalkinItem() {
   const div  = document.createElement('div');
   div.style.cssText = 'display:flex;gap:6px;margin-bottom:8px;align-items:center';
   div.innerHTML =
-    '<input type="text"   placeholder="Item name"  class="form-input wi-item-name"  style="flex:2"     oninput="recalcWalkinTotal()">' +
-    '<input type="number" placeholder="Qty"        class="form-input wi-item-qty"   style="width:62px" oninput="recalcWalkinTotal()" min="1" value="1">' +
-    '<input type="number" placeholder="Unit price" class="form-input wi-item-price" style="width:95px" oninput="recalcWalkinTotal()" min="0">' +
+    '<input type="text"   placeholder="Item name"  class="form-input wi-item-name"  style="flex:2;min-width:0"  oninput="recalcWalkinTotal()">' +
+    '<input type="number" placeholder="Qty"        class="form-input wi-item-qty"   style="width:58px;flex-shrink:0" oninput="recalcWalkinTotal()" min="1" value="1">' +
+    '<input type="number" placeholder="Price/unit" class="form-input wi-item-price" style="width:90px;flex-shrink:0" oninput="recalcWalkinTotal()" min="0">' +
+    '<span class="wi-subtotal" style="width:80px;flex-shrink:0;text-align:right;font-weight:700;font-size:.8rem;color:#52b788;white-space:nowrap">NGN 0</span>' +
     '<button type="button" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;flex-shrink:0" ' +
-    'onclick="this.parentElement.remove();recalcWalkinTotal()">x</button>';
+    'onclick="this.parentElement.remove();recalcWalkinTotal()">×</button>';
   list.appendChild(div);
 }
 function recalcWalkinTotal() {
   let total = 0;
   document.querySelectorAll('#wi-items-list > div').forEach(row => {
-    const qty   = parseFloat(row.querySelector('.wi-item-qty').value)   || 0;
-    const price = parseFloat(row.querySelector('.wi-item-price').value) || 0;
-    total += qty * price;
+    const qty      = parseFloat(row.querySelector('.wi-item-qty').value)   || 0;
+    const price    = parseFloat(row.querySelector('.wi-item-price').value) || 0;
+    const subtotal = qty * price;
+    total += subtotal;
+    // Update the per-row subtotal label
+    const subtotalEl = row.querySelector('.wi-subtotal');
+    if (subtotalEl) {
+      subtotalEl.textContent = subtotal > 0
+        ? 'NGN ' + subtotal.toLocaleString('en-NG')
+        : 'NGN 0';
+    }
   });
   document.getElementById('wi-total-display').textContent = total.toLocaleString('en-NG');
 }
@@ -944,7 +953,7 @@ function _showNewOrderBanner(count) {
     'display:flex;align-items:center;gap:10px;animation:sldDn .3s ease;white-space:nowrap;';
   b.innerHTML = '<span style="font-size:1.2rem">&#x1F6D2;</span>' +
     count + ' new order' + (count > 1 ? 's' : '') + ' received!' +
-    '<button onclick="showTab('orders',null);this.parentElement.remove()" ' +
+    '<button onclick="showTab(\'orders\',null);this.parentElement.remove()" ' +
     'style="background:#52b788;border:none;color:#fff;padding:5px 14px;' +
     'border-radius:20px;cursor:pointer;font-weight:700;margin-left:6px">View Orders</button>' +
     '<button onclick="this.parentElement.remove()" ' +
