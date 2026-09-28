@@ -424,27 +424,13 @@ async function streamReceiptPdf(order, res) {
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold    = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  // Embed logo — try filesystem first (Vercel includeFiles), then base64 fallback
+  // Embed logo — loaded from logoData.js (bundled by Vercel's nft)
   let logo = null;
   try {
-    const nodePath = require('path');
-    const nodeFs   = require('fs');
-    // Possible logo paths (filesystem first, multiple fallbacks)
-    const logoPaths = [
-      nodePath.join(process.cwd(), 'images', 'receipt-logo.jpg'),
-      nodePath.join(__dirname, '..', '..', 'images', 'receipt-logo.jpg'),
-      nodePath.join(__dirname, '..', 'images', 'receipt-logo.jpg'),
-      '/var/task/images/receipt-logo.jpg',
-    ];
-    let logoBytes = null;
-    for (const lp of logoPaths) {
-      try { if (nodeFs.existsSync(lp)) { logoBytes = nodeFs.readFileSync(lp); break; } } catch(_){}
-    }
-    // If no file found, use the hardcoded base64
-    if (!logoBytes) logoBytes = Buffer.from(LOGO_B64, 'base64');
-    logo = await doc.embedJpg(logoBytes);
-    console.log('Logo loaded OK, dims:', logo.width, 'x', logo.height);
-  } catch (e) { console.error('Logo embed FAILED:', e.message); }
+    const logoBuffer = require('./logoData');
+    logo = await doc.embedJpg(logoBuffer);
+    console.log('Logo OK:', logo.width, 'x', logo.height);
+  } catch (e) { console.error('Logo FAILED:', e.message); }
 
   // ── Colours ───────────────────────────────────────────────
   const hex = (h) => rgb(
@@ -595,8 +581,8 @@ async function streamReceiptPdf(order, res) {
   //   UNIT PRICE: 65% – 82%  right-aligned
   //   AMOUNT:    83% – 100%  right-aligned
   // ══════════════════════════════════════════════════════════
-  const TH_H  = 24;
-  const ROW_H = 22;
+  const TH_H  = 28;
+  const ROW_H = 24;
 
   const COL_ITEM_X   = ML + 6;
   const COL_QTY_MID  = ML + CW * 0.595;   // centre of QTY zone
@@ -612,7 +598,10 @@ async function streamReceiptPdf(order, res) {
     { txt:'UNIT PRICE', x:COL_UNIT_END, align:'right'  },
     { txt:'AMOUNT',     x:COL_AMT_END,  align:'right'  },
   ];
-  const hdrY = fl(TABLE_TOP + TH_H - 8) - 9;
+  const hdrY = fl(TABLE_TOP + TH_H - 9) - 9;
+  // Thin separator under header
+  hline(TABLE_TOP + TH_H + 0.5, ML, MR, hex('#0f5132'), 0.5);
+
   headers.forEach(({ txt, x, align }) => {
     const w = bold.widthOfTextAtSize(txt, 9);
     const dx = align === 'center' ? x - w/2 : align === 'right' ? x - w : x;
@@ -630,7 +619,7 @@ async function streamReceiptPdf(order, res) {
     const qty   = String(item.qty);
     const unitP = 'NGN ' + Number(item.price).toLocaleString('en-NG');
     const amt   = 'NGN ' + Number(item.price * item.qty).toLocaleString('en-NG');
-    const rowY  = fl(tY + ROW_H - 7) - 9;
+    const rowY  = fl(tY + ROW_H - 8) - 9;
 
     page.drawText(name, { x: COL_ITEM_X, y: rowY, size:9, font:regular, color:C_TXTDK });
 

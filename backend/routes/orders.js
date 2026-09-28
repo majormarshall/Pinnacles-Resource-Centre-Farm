@@ -145,6 +145,17 @@ router.get('/report', requireAuth, async (req, res) => {
     const monthName = new Date(year, month - 1, 1)
       .toLocaleString('en-NG', { month: 'long', year: 'numeric' });
 
+    // ── Farm letterhead rows ────────────────────────────────────────────
+    const headerRows = [
+      ['PINNACLES RESOURCE CENTRE FARM'],
+      ['Fresh · Organic · Farm to Table'],
+      ['Email: agribusiness@pinnaclescentre.com  |  WhatsApp: +234 903 750 5632'],
+      [],
+      ['Monthly Sales Report — ' + monthName],
+      ['Generated: ' + new Date().toLocaleString('en-NG', { dateStyle:'full', timeStyle:'short' })],
+      [],
+    ];
+
     const rows = orders.map(o => {
       let items = [];
       try { items = JSON.parse(o.items_json || '[]'); } catch (_) {}
@@ -180,14 +191,46 @@ router.get('/report', requireAuth, async (req, res) => {
       'Status':         'Grand Total: NGN ' + grandTotal.toLocaleString('en-NG'),
     });
 
-    const wb = require('xlsx').utils.book_new();
-    const ws = require('xlsx').utils.json_to_sheet(rows);
+    const XLSX2 = require('xlsx');
+    const wb = XLSX2.utils.book_new();
+
+    // Build sheet from header + data rows
+    const ws = XLSX2.utils.aoa_to_sheet(headerRows);
+
+    // Determine data start row (after letterhead)
+    const dataStartRow = headerRows.length + 1; // 1-indexed
+    XLSX2.utils.sheet_add_json(ws, rows, { origin: 'A' + dataStartRow, skipHeader: false });
+
+    // Style letterhead (merge title across columns, bold it)
+    const totalCols = 9;
+    ws['!merges'] = [
+      { s:{r:0,c:0}, e:{r:0,c:totalCols-1} },  // Farm name row
+      { s:{r:1,c:0}, e:{r:1,c:totalCols-1} },  // Tagline
+      { s:{r:2,c:0}, e:{r:2,c:totalCols-1} },  // Contact
+      { s:{r:4,c:0}, e:{r:4,c:totalCols-1} },  // Report title
+      { s:{r:5,c:0}, e:{r:5,c:totalCols-1} },  // Date
+    ];
+
+    // Protect the worksheet (read-only, no editing)
+    ws['!protect'] = {
+      password:         '',
+      sheet:            true,
+      formatCells:      false,
+      formatColumns:    false,
+      formatRows:       false,
+      insertColumns:    false,
+      insertRows:       false,
+      deleteColumns:    false,
+      deleteRows:       false,
+      sort:             false,
+      autoFilter:       false,
+    };
     ws['!cols'] = [
       {wch:10},{wch:14},{wch:22},{wch:16},
       {wch:40},{wch:14},{wch:14},{wch:18},{wch:30},
     ];
-    require('xlsx').utils.book_append_sheet(wb, ws, monthName);
-    const buf = require('xlsx').write(wb, { type:'buffer', bookType:'xlsx' });
+    XLSX2.utils.book_append_sheet(wb, ws, monthName.slice(0,31));
+    const buf = XLSX2.write(wb, { type:'buffer', bookType:'xlsx' });
 
     const fname = 'Pinnacles-Sales-Report-' + year + '-' + String(month).padStart(2,'0') + '.xlsx';
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
