@@ -264,7 +264,74 @@ function showOrderModal() {
         </div>
         <div style="margin-bottom:14px;">
           <label style="display:block;font-size:.85rem;font-weight:600;color:var(--text-light);margin-bottom:6px;">WhatsApp / Phone Number <span style="color:var(--green-light)">*</span></label>
-          <input id="oc-phone" type="tel" placeholder="e.g. 08012345678" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;" />
+          <div style="display:flex;gap:8px;">
+            <select id="oc-phone-code" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 8px;color:#fff;font-family:'Outfit',sans-serif;font-size:.85rem;flex-shrink:0;width:150px;cursor:pointer;">
+              <optgroup label="Popular">
+                <option value="+234">🇳🇬 +234 Nigeria</option>
+                <option value="+233">🇬🇭 +233 Ghana</option>
+                <option value="+27">🇿🇦 +27 S.Africa</option>
+                <option value="+254">🇰🇪 +254 Kenya</option>
+                <option value="+44">🇬🇧 +44 UK</option>
+                <option value="+1">🇺🇸 +1 USA/Canada</option>
+              </optgroup>
+              <optgroup label="Africa">
+                <option value="+20">🇪🇬 +20 Egypt</option>
+                <option value="+212">🇲🇦 +212 Morocco</option>
+                <option value="+213">🇩🇿 +213 Algeria</option>
+                <option value="+216">🇹🇳 +216 Tunisia</option>
+                <option value="+221">🇸🇳 +221 Senegal</option>
+                <option value="+225">🇨🇮 +225 Ivory Coast</option>
+                <option value="+226">🇧🇫 +226 Burkina Faso</option>
+                <option value="+227">🇳🇪 +227 Niger</option>
+                <option value="+228">🇹🇬 +228 Togo</option>
+                <option value="+229">🇧🇯 +229 Benin</option>
+                <option value="+237">🇨🇲 +237 Cameroon</option>
+                <option value="+243">🇨🇩 +243 DR Congo</option>
+                <option value="+244">🇦🇴 +244 Angola</option>
+                <option value="+249">🇸🇩 +249 Sudan</option>
+                <option value="+250">🇷🇼 +250 Rwanda</option>
+                <option value="+251">🇪🇹 +251 Ethiopia</option>
+                <option value="+255">🇹🇿 +255 Tanzania</option>
+                <option value="+256">🇺🇬 +256 Uganda</option>
+                <option value="+260">🇿🇲 +260 Zambia</option>
+                <option value="+263">🇿🇼 +263 Zimbabwe</option>
+              </optgroup>
+              <optgroup label="Europe">
+                <option value="+33">🇫🇷 +33 France</option>
+                <option value="+49">🇩🇪 +49 Germany</option>
+                <option value="+39">🇮🇹 +39 Italy</option>
+                <option value="+34">🇪🇸 +34 Spain</option>
+                <option value="+31">🇳🇱 +31 Netherlands</option>
+                <option value="+32">🇧🇪 +32 Belgium</option>
+                <option value="+353">🇮🇪 +353 Ireland</option>
+                <option value="+46">🇸🇪 +46 Sweden</option>
+                <option value="+47">🇳🇴 +47 Norway</option>
+                <option value="+45">🇩🇰 +45 Denmark</option>
+                <option value="+41">🇨🇭 +41 Switzerland</option>
+                <option value="+7">🇷🇺 +7 Russia</option>
+              </optgroup>
+              <optgroup label="Americas">
+                <option value="+55">🇧🇷 +55 Brazil</option>
+                <option value="+52">🇲🇽 +52 Mexico</option>
+                <option value="+54">🇦🇷 +54 Argentina</option>
+                <option value="+57">🇨🇴 +57 Colombia</option>
+                <option value="+58">🇻🇪 +58 Venezuela</option>
+              </optgroup>
+              <optgroup label="Asia &amp; Middle East">
+                <option value="+91">🇮🇳 +91 India</option>
+                <option value="+86">🇨🇳 +86 China</option>
+                <option value="+81">🇯🇵 +81 Japan</option>
+                <option value="+82">🇰🇷 +82 S.Korea</option>
+                <option value="+966">🇸🇦 +966 Saudi Arabia</option>
+                <option value="+971">🇦🇪 +971 UAE</option>
+                <option value="+974">🇶🇦 +974 Qatar</option>
+                <option value="+965">🇰🇼 +965 Kuwait</option>
+                <option value="+92">🇵🇰 +92 Pakistan</option>
+                <option value="+880">🇧🇩 +880 Bangladesh</option>
+              </optgroup>
+            </select>
+            <input id="oc-phone" type="tel" placeholder="e.g. 08012345678" style="flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;" />
+          </div>
         </div>
         <div style="margin-bottom:8px;">
           <label style="display:block;font-size:.85rem;font-weight:600;color:var(--text-light);margin-bottom:6px;">Delivery Notes (optional)</label>
