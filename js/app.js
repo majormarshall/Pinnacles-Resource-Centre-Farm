@@ -67,24 +67,47 @@ function renderProducts(filter) {
   const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
   grid.innerHTML = filtered.map(p => {
     const inStock = p.in_stock !== 0;
+    const waMsg = encodeURIComponent(`Hello Pinnacles Farm! I'd like to order:\n\n${p.emoji} *${p.name}* — ₦${p.price.toLocaleString()} ${p.unit}\n\nPlease confirm availability and delivery cost.`);
     return `
-    <div class="product-card${inStock ? '' : ' out-of-stock'}" data-id="${p.id}" onclick="openModal(${p.id})">
-      <div class="product-img-wrap">
+    <div class="product-card${inStock ? '' : ' out-of-stock'}" data-id="${p.id}">
+      <div class="product-img-wrap" onclick="openModal(${p.id})" style="cursor:pointer">
         ${p.img ? `<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=product-emoji-placeholder>${p.emoji}</div>'" />` : `<div class="product-emoji-placeholder">${p.emoji}</div>`}
         <span class="product-tag">${p.tag}</span>
-        ${!inStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
+        <span class="avail-badge ${inStock ? 'avail-in' : 'avail-out'}">${inStock ? '🟢 In Stock' : '🔴 Out of Stock'}</span>
       </div>
       <div class="product-info">
         <div class="product-name">${p.emoji} ${p.name}</div>
-        <div class="product-desc">${p.desc}</div>
-        <div class="product-footer">
+        <div class="product-price-row">
           <div class="product-price">₦${p.price.toLocaleString()} <span>${p.unit}</span></div>
-          <button class="add-to-cart" ${!inStock ? 'disabled style="opacity:.45;cursor:not-allowed;"' : ''} onclick="event.stopPropagation(); ${inStock ? 'addToCart(' + p.id + ')' : ''}">+ Add</button>
+        </div>
+        <div class="product-qty-row">
+          <button class="qty-btn" onclick="changeCardQty(${p.id},-1)" ${!inStock?'disabled':''}>−</button>
+          <span class="qty-val" id="card-qty-${p.id}">1</span>
+          <button class="qty-btn" onclick="changeCardQty(${p.id},1)" ${!inStock?'disabled':''}>+</button>
+        </div>
+        <div class="product-card-actions">
+          <button class="btn-cart" ${!inStock ? 'disabled' : ''} onclick="addToCartWithQty(${p.id})">🛒 Add to Cart</button>
+          <a class="btn-wa-card" href="https://wa.me/2349037505632?text=${waMsg}" target="_blank" ${!inStock?'style="opacity:.5;pointer-events:none"':''}>💬 WhatsApp</a>
         </div>
       </div>
     </div>`;
   }).join('');
 }
+
+function changeCardQty(id, delta) {
+  const el = document.getElementById('card-qty-' + id);
+  if (!el) return;
+  const current = parseInt(el.textContent) || 1;
+  el.textContent = Math.max(1, current + delta);
+}
+
+function addToCartWithQty(id) {
+  const el = document.getElementById('card-qty-' + id);
+  const qty = el ? parseInt(el.textContent) || 1 : 1;
+  for (let i = 0; i < qty; i++) addToCart(id);
+  if (el) el.textContent = '1';
+}
+
 
 function filterProducts(filter, btn) {
   activeFilter = filter;

@@ -11,6 +11,7 @@ const ChatBot = (() => {
   let msgCount = 0;
   let greeted  = false;
   let lastIntent = null;
+  const chatSession = { lastProduct: null };   // context for follow-up messages
 
   // ── Intents + Responses ────────────────────────────────────
   const intents = [
@@ -120,6 +121,20 @@ const ChatBot = (() => {
     const lower = text.toLowerCase().trim();
     let best = null, bestScore = 0;
 
+    // Handle "Add N to Cart" chips from product search context
+    if ((lower.includes('add') && lower.includes('cart')) || lower.includes('add 1') || lower.includes('add 3') || lower.includes('add 5')) {
+      const numMatch = lower.match(/add\s+(\d+)/);
+      const qty = numMatch ? parseInt(numMatch[1]) : 1;
+      if (chatSession.lastProduct && typeof chatAddToCart === 'function') {
+        for (let i = 0; i < qty; i++) chatAddToCart(chatSession.lastProduct.id);
+        return {
+          type: 'cart_added', product: chatSession.lastProduct, qty,
+          reply: `✅ Done! I've added **${qty} x ${chatSession.lastProduct.name}** to your cart. 🛒\n\nWould you like delivery or farm pickup?`,
+          chips: ['📦 View Cart','🌿 Keep Shopping','💬 Order on WhatsApp']
+        };
+      }
+    }
+
     // Check if user is searching for a specific product by name
     const productMatch = products.find(p =>
       lower.includes(p.name.toLowerCase()) ||
@@ -130,8 +145,10 @@ const ChatBot = (() => {
     // Check chips/quick replies exact
     const chipMap = {
       '🛒 browse products': 'products', '🛒 view all': 'products', '🛒 shop now': 'products', '🛒 shop again': 'products', '🛒 shop our produce': 'products',
+      '🛒 browse all': 'products', '🛒 browse all products': 'products', '🛒 browse more': 'products', '🛒 browse available products': 'products',
+      '🛍️ browse more': 'products',
       '🥦 vegetables': 'vegetable', '🍓 fruits': 'fruit', '🌽 grains': 'grain', '🥚 proteins': 'protein',
-      '💬 whatsapp us': 'whatsapp', '💬 order on whatsapp': 'whatsapp', '💬 open whatsapp': 'whatsapp',
+      '💬 whatsapp us': 'whatsapp', '💬 order on whatsapp': 'whatsapp', '💬 open whatsapp': 'whatsapp', '💬 notify me on whatsapp': 'whatsapp',
       '💬 contact us': 'contact', '💬 learn more': 'about',
       '💰 view prices': 'price', '💰 view all products': 'products',
       '📍 location & hours': 'hour',
@@ -272,11 +289,57 @@ const ChatBot = (() => {
 
     const intent = matchIntent(text);
 
-    if (intent && intent.type === 'product_search') {
+    if (intent && intent.type === 'cart_added') {
+      await addBubble(intent.reply, 'bot');
+      await addChips(intent.chips, 300);
+      // Open cart panel
+      setTimeout(() => { if (typeof toggleCart === 'function') toggleCart(); }, 600);
+    } else if (intent && intent.type === 'product_search') {
       const p = intent.product;
-      await addBubble(`Great choice! Here's **${p.name}** 🌿`, 'bot');
+      const inStock = p.in_stock !== 0;
+
+      // Conversational availability response
+      if (inStock) {
+        await addBubble(
+          `Yes! ✅ We currently have **${p.name}** available.\n\n` +
+          `${p.emoji} **${p.name}** — ₦${Number(p.price).toLocaleString()} ${p.unit}\n\n` +
+          `Would you like to add some to your cart, or order directly via WhatsApp?`,
+          'bot'
+        );
+        await addProductCard(p, 200);
+        // Store context for follow-up "yes, 3 baskets" type replies
+        chatSession.lastProduct = p;
+        await addChips(['🛒 Add 1 to Cart', '🛒 Add 3 to Cart', '💬 Order on WhatsApp', '🛍️ Browse More'], 400);
+      } else {
+        await addBubble(
+          `Sorry, **${p.name}** is currently **out of stock** 😔\n\nBut you can message us on WhatsApp — we restock regularly and can let you know when it's back!`,
+          'bot'
+        );
+        await addChips(['💬 Notify Me on WhatsApp', '🛒 Browse Available Products'], 300);
+      }
+    } else if (intent && intent.type === 'add_to_cart') {
+      const p = intent.product;
+      const qty = intent.qty || 1;
+      const inStock = p.in_stock !== 0;
+      if (!inStock) {
+        await addBubble(`Sorry, **${p.name}** is currently 🔴 out of stock and can't be added to cart.`, 'bot');
+        await addChips(['🛒 Browse All Products', '💬 WhatsApp Us'], 200);
+      } else {
+        if (typeof window !== 'undefined' && typeof window.addToCart === 'function') {
+          for (let i = 0; i < qty; i++) window.addToCart(p.id);
+          await addBubble(`✅ Added **${qty}× ${p.name}** to your cart! 🛒\n\nYour cart has been updated. Open the 🛒 cart icon to review your order.`, 'bot');
+        } else {
+          await addBubble(`I'd love to add **${qty}× ${p.name}** to your cart! Tap the product card below then use **🛒 Add to Cart** on the page.`, 'bot');
+          await addProductCard(p, 100);
+        }
+        await addChips(['🛒 Browse More', '💬 WhatsApp Us'], 200);
+      }
+    } else if (intent && intent.type === 'order_product') {
+      const p = intent.product;
+      const inStock = p.in_stock !== 0;
+      await addBubble(`Great choice! **${p.name}** is ${inStock ? '🟢 in stock' : '🔴 currently out of stock'} at ₦${Number(p.price).toLocaleString()} ${p.unit || ''}.\n\n${inStock ? 'You can add it to your cart or order directly on WhatsApp! 👇' : 'Message us on WhatsApp — we restock regularly and can reserve it for you!'}`, 'bot');
       await addProductCard(p, 100);
-      await addChips(['🛒 Browse All','💰 View Prices','💬 WhatsApp Us'], 300);
+      await addChips(['🛒 Browse All', '💬 WhatsApp Us'], 300);
     } else if (intent) {
       const replyText = typeof intent.reply === 'function' ? intent.reply() : intent.reply;
       await addBubble(replyText, 'bot');
