@@ -45,10 +45,11 @@
         </div>
       </div>
       <nav class="sidebar-nav">
-        <a href="#" class="nav-item active" onclick="showTab('overview', this)">📊 Overview</a>
+        <a href="#" class="nav-item" onclick="showTab('overview', this)">📊 Overview</a>
         <a href="#" class="nav-item" onclick="showTab('orders', this)">🛒 Orders <span class="nav-badge" id="pending-badge">0</span></a>
         <a href="#" class="nav-item" onclick="showTab('products', this)">🌿 Products</a>
         <a href="#" class="nav-item" onclick="showTab('harvest', this); loadHarvestAdmin()">🌱 Today's Harvest</a>
+        <a href="#" class="nav-item" onclick="showTab('preorders', this); loadPreorders()">⏳ Pre-orders <span class="nav-badge" id="preorder-badge">0</span></a>
         <a href="#" class="nav-item" onclick="showTab('gallery', this)">🖼️ Gallery</a>
         <a href="#" class="nav-item" onclick="showTab('messages', this)">💬 Messages <span class="nav-badge" id="msg-badge">0</span></a>
         <a href="#" class="nav-item" onclick="showTab('settings', this)">⚙️ Settings</a>
@@ -70,6 +71,39 @@
           <div class="admin-avatar">A</div>
         </div>
       </div>
+
+      <!-- PRE-ORDERS TAB -->
+      <section id="tab-preorders" class="tab-content" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+          <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary)">⏳ Pre-orders</h2>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <select id="preorder-filter" onchange="loadPreorders()" class="form-input" style="width:auto;padding:8px 14px;font-size:.85rem">
+              <option value="all">All Pre-orders</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="ready">Ready</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button onclick="loadPreorders()" class="btn-secondary" style="padding:8px 16px;font-size:.85rem">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <!-- Product preorder toggle -->
+        <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px">
+          <h3 style="font-size:.95rem;font-weight:700;color:var(--text-primary);margin-bottom:16px">🔧 Enable Pre-order on Products</h3>
+          <div id="preorder-product-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+            <div style="color:var(--text-muted);font-size:.85rem">Loading products…</div>
+          </div>
+        </div>
+
+        <!-- Incoming preorders table -->
+        <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;color:var(--text-primary)">📋 Customer Pre-order Requests</div>
+          <div id="preorders-list" style="padding:16px 20px">
+            <div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:40px 0">Loading pre-orders…</div>
+          </div>
+        </div>
+      </section>
 
       <!-- OVERVIEW TAB -->
       <section id="tab-overview" class="tab-content active">

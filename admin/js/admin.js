@@ -1,5 +1,5 @@
-// ============================================================
-// Pinnacles Farm — Admin Dashboard JavaScript
+﻿// ============================================================
+// Pinnacles Farm â€” Admin Dashboard JavaScript
 // ============================================================
 const API = '/api';
 let authToken = localStorage.getItem('pinnacles_admin_token');
@@ -17,7 +17,7 @@ function imgSrc(url) {
   return '/' + url;
 }
 
-// ── Boot ─────────────────────────────────────────────────────
+// â”€â”€ Boot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.addEventListener('DOMContentLoaded', () => {
   if (authToken) showDashboard();
   else showLogin();
@@ -35,18 +35,19 @@ function showDashboard() {
   if (user) document.getElementById('admin-name-display').textContent = user.username;
   loadOverview();
   startOrderPolling();
+  setTimeout(() => { try { loadPreorders(); } catch(_){} }, 1200);
 }
 
 function parseToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); } catch { return null; }
 }
 
-// ── Login ─────────────────────────────────────────────────────
+// â”€â”€ Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function handleLogin(e) {
   e.preventDefault();
   const btn = document.getElementById('login-btn');
   const errEl = document.getElementById('login-error');
-  btn.textContent = 'Signing in…';
+  btn.textContent = 'Signing inâ€¦';
   btn.disabled = true;
   errEl.style.display = 'none';
   try {
@@ -77,7 +78,7 @@ function logout() {
   showLogin();
 }
 
-// ── API Helper ────────────────────────────────────────────────
+// â”€â”€ API Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function api(method, path, body = null, auth = true) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth && authToken) headers['Authorization'] = `Bearer ${authToken}`;
@@ -88,7 +89,7 @@ async function api(method, path, body = null, auth = true) {
   return res.json();
 }
 
-// ── Tabs ──────────────────────────────────────────────────────
+// â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -104,7 +105,7 @@ function showTab(tab, el) {
   if (tab === 'messages') loadMessages();
 }
 
-// ── Overview ──────────────────────────────────────────────────
+// â”€â”€ Overview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadOverview() {
   const [ordersData, msgsData] = await Promise.all([
     api('GET', '/orders'),
@@ -113,7 +114,7 @@ async function loadOverview() {
   const s = ordersData.stats || {};
   setText('stat-total-orders', s.total || 0);
   setText('stat-pending', s.pending || 0);
-  setText('stat-revenue', `₦${Number(s.revenue || 0).toLocaleString()}`);
+  setText('stat-revenue', `â‚¦${Number(s.revenue || 0).toLocaleString()}`);
   setText('stat-msgs', msgsData.unread || 0);
   document.getElementById('pending-badge').textContent = s.pending || 0;
   document.getElementById('msg-badge').textContent = msgsData.unread || 0;
@@ -128,7 +129,7 @@ async function loadOverview() {
             <div style="font-size:.75rem;color:var(--text-muted)">${formatDate(o.created_at)}</div>
           </div>
           <div style="text-align:right">
-            <div style="font-weight:700;color:var(--green-light)">₦${Number(o.total).toLocaleString()}</div>
+            <div style="font-weight:700;color:var(--green-light)">â‚¦${Number(o.total).toLocaleString()}</div>
             <span class="status-badge status-${o.status}">${o.status}</span>
           </div>
         </div>`).join('')
@@ -139,13 +140,13 @@ async function loadOverview() {
   document.getElementById('recent-messages-list').innerHTML = recentMsgs.length
     ? recentMsgs.map(m => `
         <div class="recent-msg-row">
-          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">● NEW</span>'}</div>
-          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'…':''}</div>
+          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">â— NEW</span>'}</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'â€¦':''}</div>
         </div>`).join('')
     : '<p style="color:var(--text-muted);font-size:.88rem;padding:20px 0;text-align:center">No messages yet</p>';
 }
 
-// ── Orders ────────────────────────────────────────────────────
+// â”€â”€ Orders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadOrders() {
   const status = document.getElementById('order-status-filter')?.value || '';
   const data = await api('GET', `/orders${status ? '?status=' + status : ''}`);
@@ -154,11 +155,11 @@ async function loadOrders() {
     ? orders.map(o => `
         <div class="order-item">
           <div class="order-info">
-            <div class="order-id">#${o.id} · ${formatDate(o.created_at)}</div>
+            <div class="order-id">#${o.id} Â· ${formatDate(o.created_at)}</div>
             <div class="order-name">${o.customer_name || 'Customer'}</div>
-            <div class="order-meta">📱 ${o.customer_phone || 'No phone'}</div>
+            <div class="order-meta">ðŸ“± ${o.customer_phone || 'No phone'}</div>
             <div class="order-meta" style="margin-top:4px">
-              ${o.items.map(i => `${i.emoji||''} ${i.name} ×${i.qty}`).join(' · ')}
+              ${o.items.map(i => `${i.emoji||''} ${i.name} Ã—${i.qty}`).join(' Â· ')}
             </div>
             <div class="order-actions">
               <span class="status-badge status-${o.status}">${o.status}</span>
@@ -167,12 +168,12 @@ async function loadOrders() {
                   `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
               </select>
               <button class="btn-outline btn-sm" onclick="openOrderModal(${o.id})">View</button>
-              <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">💬 WhatsApp</button>
-              <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">📄 Receipt</button>
+              <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">ðŸ’¬ WhatsApp</button>
+              <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">ðŸ“„ Receipt</button>
               <button class="btn-outline btn-sm btn-danger" onclick="deleteOrder(${o.id})">Delete</button>
             </div>
           </div>
-          <div class="order-total">₦${Number(o.total).toLocaleString()}</div>
+          <div class="order-total">â‚¦${Number(o.total).toLocaleString()}</div>
         </div>`).join('')
     : '<div style="text-align:center;padding:60px;color:var(--text-muted)">No orders found</div>';
 }
@@ -199,19 +200,19 @@ async function openOrderModal(id) {
   if (!order) return;
   document.getElementById('order-modal-content').innerHTML = `
     <div style="margin-bottom:16px">
-      <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px">#${order.id} · ${formatDate(order.created_at)}</div>
+      <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px">#${order.id} Â· ${formatDate(order.created_at)}</div>
       <div style="font-weight:700;font-size:1.1rem">${order.customer_name || 'Customer'}</div>
-      <div style="color:var(--text-muted);font-size:.88rem">📱 ${order.customer_phone || 'No phone provided'}</div>
+      <div style="color:var(--text-muted);font-size:.88rem">ðŸ“± ${order.customer_phone || 'No phone provided'}</div>
     </div>
     <div style="margin-bottom:16px">
       ${order.items.map(i => `
         <div class="order-detail-item">
-          <span>${i.emoji||'🌿'} ${i.name} ×${i.qty}</span>
-          <span>₦${Number(i.price * i.qty).toLocaleString()}</span>
+          <span>${i.emoji||'ðŸŒ¿'} ${i.name} Ã—${i.qty}</span>
+          <span>â‚¦${Number(i.price * i.qty).toLocaleString()}</span>
         </div>`).join('')}
-      <div class="order-detail-total"><span>Total</span><span>₦${Number(order.total).toLocaleString()}</span></div>
+      <div class="order-detail-total"><span>Total</span><span>â‚¦${Number(order.total).toLocaleString()}</span></div>
     </div>
-    ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">📝 ${order.notes}</div>` : ''}
+    ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">ðŸ“ ${order.notes}</div>` : ''}
     <span class="status-badge status-${order.status}" style="margin-bottom:16px;display:inline-block">${order.status}</span>
 
     ${order.whatsapp_msg ? `
@@ -219,17 +220,17 @@ async function openOrderModal(id) {
       <button id="wa-toggle-${order.id}"
         onclick="toggleWaMsg('${order.id}')"
         style="background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.35);color:#25D366;padding:9px 16px;border-radius:50px;font-size:.82rem;font-weight:700;cursor:pointer;width:100%;text-align:left;">
-        📲 Show WhatsApp Message Sent
+        ðŸ“² Show WhatsApp Message Sent
       </button>
       <div id="wa-box-${order.id}" style="display:none;margin-top:10px;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:14px 16px;">
         <div style="font-size:.72rem;font-weight:700;color:#25D366;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">Message sent to WhatsApp</div>
         <pre id="wa-pre-${order.id}" style="font-family:'Outfit',sans-serif;font-size:.83rem;color:var(--text-light);white-space:pre-wrap;word-break:break-word;margin:0;line-height:1.6"></pre>
         <button onclick="navigator.clipboard.writeText(document.getElementById('wa-pre-${order.id}').textContent).then(()=>showToast('Copied to clipboard!'))"
-          style="margin-top:10px;background:none;border:1px solid rgba(37,211,102,.4);color:#25D366;padding:6px 14px;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;">📋 Copy Message</button>
+          style="margin-top:10px;background:none;border:1px solid rgba(37,211,102,.4);color:#25D366;padding:6px 14px;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;">ðŸ“‹ Copy Message</button>
       </div>
     </div>` : ''}
 
-    ${order.customer_phone ? `<a href="https://wa.me/${order.customer_phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+order.customer_name+'! Your Pinnacles Farm order #'+order.id+' has been received. We will confirm shortly. 🌿')}" target="_blank" class="btn-primary wa-order-btn">💬 Message Customer on WhatsApp</a>` : ''}
+    ${order.customer_phone ? `<a href="https://wa.me/${order.customer_phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+order.customer_name+'! Your Pinnacles Farm order #'+order.id+' has been received. We will confirm shortly. ðŸŒ¿')}" target="_blank" class="btn-primary wa-order-btn">ðŸ’¬ Message Customer on WhatsApp</a>` : ''}
   `;
   // Safely inject whatsapp_msg as text (avoids XSS)
   if (order.whatsapp_msg) {
@@ -247,7 +248,7 @@ function closeOrderModal() {
 
 function waOrderReply(id) { openOrderModal(id); }
 
-// ── Products ──────────────────────────────────────────────────
+// â”€â”€ Products â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let editingProductId = null;
 
 async function loadProducts() {
@@ -257,11 +258,11 @@ async function loadProducts() {
     const stockColor  = inStock ? 'rgba(82,183,136,.18)' : 'rgba(231,111,81,.15)';
     const stockText   = inStock ? 'rgba(82,183,136,1)'   : '#e76f51';
     const stockBorder = inStock ? 'rgba(82,183,136,.35)'  : 'rgba(231,111,81,.35)';
-    const stockLabel  = inStock ? '✅ In Stock'           : '❌ Out of Stock';
-    const toggleLabel = inStock ? '❌ Mark Out of Stock'  : '✅ Mark In Stock';
+    const stockLabel  = inStock ? 'âœ… In Stock'           : 'âŒ Out of Stock';
+    const toggleLabel = inStock ? 'âŒ Mark Out of Stock'  : 'âœ… Mark In Stock';
     const imgHtml = p.img
       ? '<img src="' + imgSrc(p.img) + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px" />'
-      : '<div style="font-size:2.5rem;line-height:1">' + (p.emoji || '🌿') + '</div>';
+      : '<div style="font-size:2.5rem;line-height:1">' + (p.emoji || 'ðŸŒ¿') + '</div>';
     return '<div class="admin-product-card ' + (p.active ? '' : 'inactive') + '">' +
       '<div class="apc-img">' + imgHtml + '</div>' +
       '<div class="apc-body">' +
@@ -269,11 +270,11 @@ async function loadProducts() {
         '<div class="apc-price">\u20a6' + Number(p.price).toLocaleString() + ' <small style="color:var(--text-muted);font-weight:400">' + p.unit + '</small></div>' +
         '<div class="apc-meta" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
           '<span style="background:' + stockColor + ';color:' + stockText + ';border:1px solid ' + stockBorder + ';border-radius:50px;padding:2px 10px;font-size:.72rem;font-weight:700;">' + stockLabel + '</span>' +
-          '<span style="color:var(--text-muted);font-size:.75rem;">' + p.category + ' · ' + p.tag + ' · Qty: ' + p.stock + '</span>' +
+          '<span style="color:var(--text-muted);font-size:.75rem;">' + p.category + ' Â· ' + p.tag + ' Â· Qty: ' + p.stock + '</span>' +
         '</div>' +
         '<div class="apc-actions">' +
           '<button class="btn-outline btn-sm" onclick="toggleProductStock(' + p.id + ',' + (inStock ? 0 : 1) + ')">' + toggleLabel + '</button>' +
-          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">✏️ Edit</button>' +
+          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">âœï¸ Edit</button>' +
           '<button class="btn-outline btn-sm btn-danger" onclick="deleteProduct(' + p.id + ')">Delete</button>' +
         '</div>' +
       '</div>' +
@@ -283,7 +284,7 @@ async function loadProducts() {
 
 async function toggleProductStock(id, newVal) {
   await api('PATCH', '/products/' + id + '/stock', { in_stock: newVal });
-  showToast(newVal ? '✅ Marked In Stock' : '❌ Marked Out of Stock');
+  showToast(newVal ? 'âœ… Marked In Stock' : 'âŒ Marked Out of Stock');
   loadProducts();
 }
 
@@ -312,7 +313,7 @@ function openProductModal(product = null) {
   document.getElementById('prod-modal-title').textContent = product ? 'Edit Product' : 'Add Product';
   document.getElementById('prod-id').value = product?.id || '';
   document.getElementById('prod-name').value = product?.name || '';
-  document.getElementById('prod-emoji').value = product?.emoji || '🌿';
+  document.getElementById('prod-emoji').value = product?.emoji || 'ðŸŒ¿';
   document.getElementById('prod-price').value = product?.price || '';
   document.getElementById('prod-unit').value = product?.unit || 'per unit';
   document.getElementById('prod-category').value = product?.category || 'vegetables';
@@ -355,7 +356,7 @@ async function saveProduct(e) {
   e.preventDefault();
   const btn = document.getElementById('prod-save-btn');
   btn.disabled = true;
-  btn.textContent = 'Saving…';
+  btn.textContent = 'Savingâ€¦';
 
   try {
     // Build FormData so multer can receive the image file
@@ -398,7 +399,7 @@ async function saveProduct(e) {
     closeProductModal();
     loadProducts();
   } catch (err) {
-    showToast('❌ Error: ' + err.message);
+    showToast('âŒ Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Product';
@@ -412,7 +413,7 @@ async function deleteProduct(id) {
   loadProducts();
 }
 
-// ── Messages ──────────────────────────────────────────────────
+// â”€â”€ Messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadMessages() {
   const data = await api('GET', '/messages');
   const messages = data.messages || [];
@@ -421,11 +422,11 @@ async function loadMessages() {
         <div class="message-item ${m.is_read ? '' : 'msg-unread'}">
           <div style="flex:1">
             <div class="msg-name">${m.name} ${m.is_read ? '' : '<span style="background:var(--green-light);color:#fff;font-size:.65rem;padding:2px 8px;border-radius:50px;margin-left:6px">NEW</span>'}</div>
-            <div class="msg-meta">📱 ${m.phone || 'No phone'} · ${formatDate(m.created_at)}</div>
+            <div class="msg-meta">ðŸ“± ${m.phone || 'No phone'} Â· ${formatDate(m.created_at)}</div>
             <div class="msg-text">${m.message}</div>
             <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-              ${!m.is_read ? `<button class="btn-outline btn-sm" onclick="markMsgRead(${m.id})">✅ Mark Read</button>` : ''}
-              ${m.phone ? `<a href="https://wa.me/${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+m.name+'! Thank you for contacting Pinnacles Resource Centre Farm. 🌿')}" target="_blank" class="btn-outline btn-sm">💬 Reply via WhatsApp</a>` : ''}
+              ${!m.is_read ? `<button class="btn-outline btn-sm" onclick="markMsgRead(${m.id})">âœ… Mark Read</button>` : ''}
+              ${m.phone ? `<a href="https://wa.me/${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+m.name+'! Thank you for contacting Pinnacles Resource Centre Farm. ðŸŒ¿')}" target="_blank" class="btn-outline btn-sm">ðŸ’¬ Reply via WhatsApp</a>` : ''}
               <button class="btn-outline btn-sm btn-danger" onclick="deleteMsg(${m.id})">Delete</button>
             </div>
           </div>
@@ -447,7 +448,7 @@ async function deleteMsg(id) {
   loadMessages();
 }
 
-// ── Settings ──────────────────────────────────────────────────
+// â”€â”€ Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function changePassword(e) {
   e.preventDefault();
   const msgEl = document.getElementById('cp-msg');
@@ -463,25 +464,25 @@ async function changePassword(e) {
 }
 
 function generateAdvert() {
-  const text = `🌿 *PINNACLES RESOURCE CENTRE FARM* 🌿
+  const text = `ðŸŒ¿ *PINNACLES RESOURCE CENTRE FARM* ðŸŒ¿
 
-✅ Fresh Farm Produce Available NOW!
+âœ… Fresh Farm Produce Available NOW!
 
-🍅 Tomatoes
-🫑 Peppers
-🍓 Strawberries
-🌽 Maize
-🥕 Carrots
-🥚 Farm Fresh Eggs
-🫛 Green Peas
-🥬 And Much More!
+ðŸ… Tomatoes
+ðŸ«‘ Peppers
+ðŸ“ Strawberries
+ðŸŒ½ Maize
+ðŸ¥• Carrots
+ðŸ¥š Farm Fresh Eggs
+ðŸ«› Green Peas
+ðŸ¥¬ And Much More!
 
-💯 100% Organically Grown
-🚚 Fast Delivery Available
-💰 Fair & Affordable Prices
+ðŸ’¯ 100% Organically Grown
+ðŸšš Fast Delivery Available
+ðŸ’° Fair & Affordable Prices
 
-📲 Order via WhatsApp: +234 903 750 5632
-📧 agribusiness@pinnaclescentre.com
+ðŸ“² Order via WhatsApp: +234 903 750 5632
+ðŸ“§ agribusiness@pinnaclescentre.com
 
 #PinnaclesFarm #FreshProduce #FarmToTable`;
   const box = document.getElementById('advert-output');
@@ -491,7 +492,7 @@ function generateAdvert() {
   navigator.clipboard.writeText(text).then(() => showToast('Advert copied to clipboard!'));
 }
 
-// ── Helpers ───────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function setText(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
@@ -505,7 +506,7 @@ function formatDate(dt) {
 function showToast(msg) {
   const t = document.createElement('div');
   t.style.cssText = 'position:fixed;bottom:32px;right:32px;background:var(--green);color:#fff;padding:12px 24px;border-radius:50px;font-weight:600;font-size:.9rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)';
-  t.textContent = '✅ ' + msg;
+  t.textContent = 'âœ… ' + msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2800);
 }
@@ -516,10 +517,10 @@ function toggleWaMsg(orderId) {
   if (!box) return;
   const isOpen = box.style.display === 'block';
   box.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '📲 Show WhatsApp Message Sent' : '📲 Hide WhatsApp Message';
+  btn.textContent = isOpen ? 'ðŸ“² Show WhatsApp Message Sent' : 'ðŸ“² Hide WhatsApp Message';
 }
 
-// ── Gallery ───────────────────────────────────────────────────
+// â”€â”€ Gallery â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let editingGalleryId = null;
 
 async function loadGallery() {
@@ -534,7 +535,7 @@ async function loadGallery() {
       <div class="gac-img">
         <img src="${imgSrc(item.img)}" alt="${item.alt || 'Farm photo'}"
              style="width:100%;height:100%;object-fit:cover;border-radius:12px;"
-             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>🖼️</div>'" />
+             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>ðŸ–¼ï¸</div>'" />
         ${item.wide ? '<span class="gac-wide-badge">WIDE</span>' : ''}
       </div>
       <div class="gac-body">
@@ -542,10 +543,10 @@ async function loadGallery() {
         ${item.caption ? `<div class="gac-caption">"${item.caption}"</div>` : ''}
         <div class="gac-order">Order: #${item.sort_order ?? idx}</div>
         <div class="gac-actions">
-          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">✏️ Edit</button>
-          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) - 1})" ${idx === 0 ? 'disabled' : ''}>↑</button>
-          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) + 1})" ${idx === items.length - 1 ? 'disabled' : ''}>↓</button>
-          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">🗑️ Delete</button>
+          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">âœï¸ Edit</button>
+          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) - 1})" ${idx === 0 ? 'disabled' : ''}>â†‘</button>
+          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) + 1})" ${idx === items.length - 1 ? 'disabled' : ''}>â†“</button>
+          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">ðŸ—‘ï¸ Delete</button>
         </div>
       </div>
     </div>
@@ -603,14 +604,14 @@ async function saveGalleryItem(e) {
   e.preventDefault();
   const btn = document.getElementById('gal-save-btn');
   btn.disabled = true;
-  btn.textContent = 'Saving…';
+  btn.textContent = 'Savingâ€¦';
 
   try {
     const fileInput = document.getElementById('gal-img-file');
     const isNew = !editingGalleryId;
 
     if (isNew && !fileInput.files[0]) {
-      showToast('❌ Please select a photo to upload.');
+      showToast('âŒ Please select a photo to upload.');
       return;
     }
 
@@ -634,11 +635,11 @@ async function saveGalleryItem(e) {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    showToast(editingGalleryId ? 'Photo updated! 🖼️' : 'Photo added to gallery! 🌱');
+    showToast(editingGalleryId ? 'Photo updated! ðŸ–¼ï¸' : 'Photo added to gallery! ðŸŒ±');
     closeGalleryModal();
     loadGallery();
   } catch (err) {
-    showToast('❌ Error: ' + err.message);
+    showToast('âŒ Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Photo';
@@ -663,7 +664,7 @@ async function deleteGalleryItem(id) {
   loadGallery();
 }
 
-// ── Receipt Modal ─────────────────────────────────────────────
+// â”€â”€ Receipt Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let currentReceiptOrderId = null;
 let currentReceiptUrl     = null;
 let currentReceiptOrder   = null;
@@ -676,7 +677,7 @@ async function openReceiptModal(orderId) {
   document.getElementById('receipt-download-btn').href = '#';
   document.getElementById('receipt-email-input').value = '';
   document.getElementById('receipt-email-msg').style.display = 'none';
-  document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;">Loading…</div>';
+  document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;">Loadingâ€¦</div>';
 
   document.getElementById('receipt-modal-overlay').classList.add('open');
   document.getElementById('receipt-modal').classList.add('open');
@@ -688,15 +689,15 @@ async function openReceiptModal(orderId) {
       currentReceiptOrder = order;
       const itemsHtml = order.items.map(i =>
         '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">' +
-        '<span>' + (i.emoji || '🌿') + ' ' + i.name + ' ×' + i.qty + '</span>' +
-        '<span style="font-weight:700;">₦' + Number(i.price * i.qty).toLocaleString() + '</span></div>'
+        '<span>' + (i.emoji || 'ðŸŒ¿') + ' ' + i.name + ' Ã—' + i.qty + '</span>' +
+        '<span style="font-weight:700;">â‚¦' + Number(i.price * i.qty).toLocaleString() + '</span></div>'
       ).join('');
       document.getElementById('receipt-order-summary').innerHTML =
-        '<div style="font-weight:700;margin-bottom:10px;color:var(--text-light);">Order #' + order.id + ' — ' + (order.customer_name || 'Customer') + '</div>' +
-        '<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px;">📱 ' + (order.customer_phone || 'No phone') + '</div>' +
+        '<div style="font-weight:700;margin-bottom:10px;color:var(--text-light);">Order #' + order.id + ' â€” ' + (order.customer_name || 'Customer') + '</div>' +
+        '<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px;">ðŸ“± ' + (order.customer_phone || 'No phone') + '</div>' +
         itemsHtml +
         '<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:800;color:var(--green-light);">' +
-        '<span>Total</span><span>₦' + Number(order.total).toLocaleString() + '</span></div>';
+        '<span>Total</span><span>â‚¦' + Number(order.total).toLocaleString() + '</span></div>';
       if (order.customer_email) {
         document.getElementById('receipt-email-input').value = order.customer_email;
       }
@@ -724,34 +725,34 @@ function sendReceiptWhatsApp() {
   const dateStr = new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const receiptNo = String(o.id).padStart(4, '0');
 
-  // Build items rows — padded to look tabular
+  // Build items rows â€” padded to look tabular
   const itemLines = o.items.map(i => {
-    const name = (i.emoji || '🌿') + ' ' + i.name;
-    const qty  = '×' + i.qty;
-    const amt  = '₦' + Number(i.price * i.qty).toLocaleString('en-NG');
+    const name = (i.emoji || 'ðŸŒ¿') + ' ' + i.name;
+    const qty  = 'Ã—' + i.qty;
+    const amt  = 'â‚¦' + Number(i.price * i.qty).toLocaleString('en-NG');
     return name + '   ' + qty + '   *' + amt + '*';
   }).join('\n');
 
-  const statusMap = { pending: '⏳ Pending', confirmed: '✅ Confirmed', processing: '🔄 Processing', delivered: '🚚 Delivered', cancelled: '❌ Cancelled' };
+  const statusMap = { pending: 'â³ Pending', confirmed: 'âœ… Confirmed', processing: 'ðŸ”„ Processing', delivered: 'ðŸšš Delivered', cancelled: 'âŒ Cancelled' };
   const statusStr = statusMap[o.status] || o.status;
-  const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? '💳 Online Payment' : '💬 WhatsApp Order';
+  const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? 'ðŸ’³ Online Payment' : 'ðŸ’¬ WhatsApp Order';
 
   const pdfLink = currentReceiptUrl ? currentReceiptUrl + '/pdf' : null;
-  const linkLine = pdfLink ? '\n📄 *Download PDF Receipt:*\n' + pdfLink : '';
+  const linkLine = pdfLink ? '\nðŸ“„ *Download PDF Receipt:*\n' + pdfLink : '';
 
-  const SEP  = '━━━━━━━━━━━━━━━━━━━━━━━━━━━';
-  const LINE = '───────────────────────────';
+  const SEP  = 'â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”';
+  const LINE = 'â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€';
 
   const msg =
-    '🌿 *PINNACLES RESOURCE CENTRE FARM*\n' +
-    '_FRESH · ORGANIC · FARM TO TABLE_\n\n' +
+    'ðŸŒ¿ *PINNACLES RESOURCE CENTRE FARM*\n' +
+    '_FRESH Â· ORGANIC Â· FARM TO TABLE_\n\n' +
     SEP + '\n' +
     '       *OFFICIAL RECEIPT*\n' +
     'Receipt #' + receiptNo + '  |  ' + dateStr + '\n' +
     SEP + '\n\n' +
     '*BILLED TO*\n' +
     (o.customer_name || 'Customer') + '\n' +
-    '📱 ' + (o.customer_phone || '—') + '\n\n' +
+    'ðŸ“± ' + (o.customer_phone || 'â€”') + '\n\n' +
     '*ORDER DETAILS*\n' +
     'Order #' + o.id + '\n' +
     'Date: ' + dateStr + '\n\n' +
@@ -760,14 +761,14 @@ function sendReceiptWhatsApp() {
     LINE + '\n' +
     itemLines + '\n' +
     LINE + '\n' +
-    '*TOTAL          ₦' + Number(o.total).toLocaleString('en-NG') + '*\n' +
+    '*TOTAL          â‚¦' + Number(o.total).toLocaleString('en-NG') + '*\n' +
     LINE + '\n\n' +
     'Status:  ' + statusStr + '\n' +
     'Payment: ' + payMethod + '\n\n' +
     SEP + '\n' +
-    'Thank you for shopping with us! 🌱\n' +
-    '📧 agribusiness@pinnaclescentre.com\n' +
-    '📲 +234 903 750 5632' +
+    'Thank you for shopping with us! ðŸŒ±\n' +
+    'ðŸ“§ agribusiness@pinnaclescentre.com\n' +
+    'ðŸ“² +234 903 750 5632' +
     linkLine;
 
   const phone = (o.customer_phone || '').replace(/\D/g, '');
@@ -778,14 +779,14 @@ function sendReceiptWhatsApp() {
 }
 function copyReceiptLink() {
   if (!currentReceiptUrl) { showToast('Receipt link not ready yet.'); return; }
-  navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('🔗 Receipt link copied!'));
+  navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('ðŸ”— Receipt link copied!'));
 }
 
 
 
-// ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // WALK-IN / FARM ORDER
-// ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openWalkinModal() {
   document.getElementById('wi-name').value    = '';
   document.getElementById('wi-phone').value   = '';
@@ -810,7 +811,7 @@ function addWalkinItem() {
     '<input type="number" placeholder="Price/unit" class="form-input wi-item-price" style="width:90px;flex-shrink:0" oninput="recalcWalkinTotal()" min="0">' +
     '<span class="wi-subtotal" style="width:80px;flex-shrink:0;text-align:right;font-weight:700;font-size:.8rem;color:#52b788;white-space:nowrap">NGN 0</span>' +
     '<button type="button" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;flex-shrink:0" ' +
-    'onclick="this.parentElement.remove();recalcWalkinTotal()">×</button>';
+    'onclick="this.parentElement.remove();recalcWalkinTotal()">Ã—</button>';
   list.appendChild(div);
 }
 function recalcWalkinTotal() {
@@ -861,9 +862,9 @@ async function saveWalkinOrder() {
   } catch (e) { showToast('Error: ' + e.message); }
 }
 
-// ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // MONTHLY SALES REPORT
-// ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openReportModal() {
   const now = new Date();
   document.getElementById('report-month').value = now.getMonth() + 1;
@@ -895,9 +896,9 @@ async function downloadReport() {
   } catch (e) { showToast('Error: ' + e.message); }
 }
 
-// ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // AUTO-REFRESH: poll for new orders every 30 seconds
-// ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function startOrderPolling() {
   stopOrderPolling();
   _initLastOrderId();
@@ -1032,3 +1033,110 @@ async function clearTodaysHarvest() {
   showToast("Today's Harvest cleared");
   loadHarvestAdmin();
 }
+
+// -- PRE-ORDERS ADMIN -----------------------------------------------------
+async function loadPreorders() {
+  const filter = document.getElementById('preorder-filter')?.value || 'all';
+  const list = document.getElementById('preorders-list');
+  const prodList = document.getElementById('preorder-product-list');
+  if (!list) return;
+
+  // Load all products for the toggle section
+  if (prodList) {
+    try {
+      const prods = await api('GET', '/products/all');
+      prodList.innerHTML = (Array.isArray(prods) ? prods : []).map(p => {
+        const on = p.preorder_available === 1 || p.preorder_available === true;
+        return `<div style="background:var(--bg-primary);border:1px solid var(--border);border-radius:12px;padding:14px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-weight:700;font-size:.88rem;color:var(--text-primary)">${p.emoji||'??'} ${p.name}</div>
+            <label style="position:relative;display:inline-block;width:42px;height:24px;cursor:pointer">
+              <input type="checkbox" ${on?'checked':''} onchange="toggleProductPreorder(${p.id},this.checked)" style="opacity:0;width:0;height:0;position:absolute">
+              <span style="position:absolute;inset:0;background:${on?'#52b788':'rgba(255,255,255,.15)'};border-radius:24px;transition:.3s"></span>
+              <span style="position:absolute;left:${on?'20px':'2px'};top:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.3s"></span>
+            </label>
+          </div>
+          ${on ? `<div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="date" id="po-date-${p.id}" value="${p.preorder_expected_date||''}" style="flex:1;min-width:120px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:var(--text-primary);font-size:.78rem;font-family:inherit;outline:none" placeholder="Expected date">
+            <input type="text" id="po-note-${p.id}" value="${p.preorder_note||''}" style="flex:2;min-width:140px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:var(--text-primary);font-size:.78rem;font-family:inherit;outline:none" placeholder="Note (e.g. 'Available Friday')">
+            <button onclick="saveProductPreorder(${p.id})" style="background:#52b788;color:#0d2818;border:none;border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit">Save</button>
+          </div>` : `<div style="font-size:.78rem;color:var(--text-muted)">Pre-order disabled — toggle to enable</div>`}
+        </div>`;
+      }).join('') || '<div style="color:var(--text-muted);font-size:.85rem">No products found</div>';
+    } catch(e) { prodList.innerHTML = `<div style="color:#f87171;font-size:.85rem">Error: ${e.message}</div>`; }
+  }
+
+  // Load preorder requests
+  list.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:24px 0">Loading…</div>';
+  try {
+    const all = await api('GET', '/customers/preorders/all');
+    const rows = Array.isArray(all) ? (filter === 'all' ? all : all.filter(r => r.status === filter)) : [];
+
+    // Update badge
+    const pending = Array.isArray(all) ? all.filter(r => r.status === 'pending').length : 0;
+    const badge = document.getElementById('preorder-badge');
+    if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? '' : 'none'; }
+
+    if (rows.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:40px 0">No pre-orders found</div>';
+      return;
+    }
+
+    const statusColor = { pending:'#fbbf24', confirmed:'#52b788', ready:'#60a5fa', cancelled:'#f87171' };
+    list.innerHTML = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.85rem">
+      <thead><tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Product</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Customer</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Qty</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Notes</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Date</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Status</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Actions</th>
+      </tr></thead>
+      <tbody>${rows.map(r => `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:10px 12px;font-weight:600;color:var(--text-primary)">${r.product_name||'-'}</td>
+        <td style="padding:10px 12px">
+          <div style="font-weight:600;color:var(--text-primary)">${r.name||r.customer_name||'Guest'}</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">${r.phone||r.customer_phone||''}</div>
+        </td>
+        <td style="padding:10px 12px">${r.quantity||1} ${r.unit||''}</td>
+        <td style="padding:10px 12px;color:var(--text-muted);max-width:160px;overflow:hidden;text-overflow:ellipsis">${r.notes||'-'}</td>
+        <td style="padding:10px 12px;font-size:.78rem;color:var(--text-muted)">${r.created_at ? new Date(r.created_at).toLocaleDateString('en-NG') : '-'}</td>
+        <td style="padding:10px 12px"><span style="background:${statusColor[r.status]||'#6b7280'}22;color:${statusColor[r.status]||'#6b7280'};border-radius:20px;padding:3px 10px;font-size:.75rem;font-weight:700;text-transform:capitalize">${r.status||'pending'}</span></td>
+        <td style="padding:10px 12px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${r.status!=='confirmed' ? `<button onclick="updatePreorderStatus(${r.id},'confirmed')" style="background:rgba(82,183,136,.2);color:#52b788;border:none;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit">? Confirm</button>` : ''}
+            ${r.status!=='ready' ? `<button onclick="updatePreorderStatus(${r.id},'ready')" style="background:rgba(96,165,250,.2);color:#60a5fa;border:none;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit">?? Ready</button>` : ''}
+            ${r.phone ? `<a href="https://wa.me/${r.phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+( r.name||'')+'! Your pre-order for '+r.product_name+' from Pinnacles Farm is '+( r.status==='ready'?'ready for pickup/delivery!':'being processed.')+ ' We\'ll be in touch shortly. ??')}" target="_blank" style="background:rgba(37,211,102,.2);color:#25D366;border:none;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:600;cursor:pointer;text-decoration:none">??</a>` : ''}
+            ${r.status!=='cancelled' ? `<button onclick="updatePreorderStatus(${r.id},'cancelled')" style="background:rgba(248,113,113,.15);color:#f87171;border:none;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit">?</button>` : ''}
+          </div>
+        </td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  } catch(e) { list.innerHTML = `<div style="color:#f87171;font-size:.85rem;padding:20px">Error: ${e.message}</div>`; }
+}
+
+async function toggleProductPreorder(productId, enabled) {
+  try {
+    await api('PATCH', `/customers/product-preorder/${productId}`, { preorder_available: enabled ? 1 : 0 });
+    loadPreorders();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function saveProductPreorder(productId) {
+  const date = document.getElementById(`po-date-${productId}`)?.value || null;
+  const note = document.getElementById(`po-note-${productId}`)?.value || null;
+  try {
+    await api('PATCH', `/customers/product-preorder/${productId}`, { preorder_available: 1, preorder_expected_date: date, preorder_note: note });
+    showToast('Pre-order settings saved ?');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function updatePreorderStatus(id, status) {
+  try {
+    await api('PATCH', `/customers/preorder/${id}/status`, { status });
+    showToast(`Pre-order marked as ${status} ?`);
+    loadPreorders();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+

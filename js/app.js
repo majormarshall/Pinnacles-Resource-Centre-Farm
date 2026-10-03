@@ -705,3 +705,156 @@ async function loadTodaysHarvest() {
   } catch (_) { /* silent — endpoint may not be ready */ }
 }
 document.addEventListener('DOMContentLoaded', () => { loadTodaysHarvest(); });
+
+
+// ── PRE-ORDER SYSTEM ──────────────────────────────────────────────────────
+function openPreorderModal(productId, productName, expectedDate, note) {
+  const modal = document.getElementById('preorder-modal');
+  const body  = document.getElementById('preorder-modal-body');
+  if (!modal || !body) return;
+
+  // Find the product to get unit and price
+  const p = products.find(x => x.id === productId) || {};
+
+  body.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:4px">${p.emoji || '🌿'} ${productName}</div>
+      <div style="font-size:.85rem;color:#52b788">₦${Number(p.price||0).toLocaleString()} ${p.unit||''}</div>
+      ${expectedDate ? `<div style="margin-top:10px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:10px 14px;font-size:.82rem;color:#fbbf24">📅 Expected availability: <strong>${new Date(expectedDate).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'})}</strong></div>` : ''}
+      ${note ? `<div style="margin-top:8px;font-size:.8rem;color:rgba(255,255,255,.5)">${note}</div>` : ''}
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <input id="po-name" type="text" placeholder="Your name *" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none" />
+      <input id="po-phone" type="tel" placeholder="Your phone number *" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none" />
+      <div style="display:flex;align-items:center;gap:10px">
+        <label style="font-size:.82rem;color:rgba(255,255,255,.6);min-width:70px">Quantity</label>
+        <input id="po-qty" type="number" value="1" min="1" style="width:70px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 12px;color:#fff;font-family:inherit;font-size:.9rem;text-align:center;outline:none" />
+        <span style="font-size:.82rem;color:rgba(255,255,255,.5)">${p.unit||''}</span>
+      </div>
+      <textarea id="po-notes" placeholder="Any special requests? (optional)" rows="2" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none;resize:vertical"></textarea>
+    </div>
+
+    <div id="po-error" style="display:none;color:#f87171;font-size:.82rem;margin-top:10px"></div>
+
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button onclick="submitPreorder(${productId},'${productName}','${(p.unit||'').replace(/'/g,"\\'")}')" style="flex:1;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;border:none;border-radius:12px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">⏳ Reserve This Now</button>
+      <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello Pinnacles Farm! I want to pre-order: '+productName+(expectedDate?' (expected '+expectedDate+')':'')+'.')}" target="_blank" style="display:flex;align-items:center;gap:6px;background:#25D366;color:#fff;border-radius:12px;padding:12px 16px;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap">💬 WhatsApp</a>
+    </div>
+  `;
+
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('po-name')?.focus(), 100);
+}
+
+function closePreorderModal() {
+  const modal = document.getElementById('preorder-modal');
+  if (modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function submitPreorder(productId, productName, unit) {
+  const name  = document.getElementById('po-name')?.value?.trim();
+  const phone = document.getElementById('po-phone')?.value?.trim();
+  const qty   = parseInt(document.getElementById('po-qty')?.value) || 1;
+  const notes = document.getElementById('po-notes')?.value?.trim();
+  const errEl = document.getElementById('po-error');
+
+  if (!name)  { errEl.textContent = 'Please enter your name.';         errEl.style.display='block'; return; }
+  if (!phone) { errEl.textContent = 'Please enter your phone number.'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/customers/preorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_id: productId, product_name: productName, quantity: qty, unit, notes: notes || '', name, phone }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to submit pre-order');
+
+    // Show success
+    document.getElementById('preorder-modal-body').innerHTML = `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:3rem;margin-bottom:16px">✅</div>
+        <h4 style="font-size:1.1rem;color:#a3d9b8;margin-bottom:10px">Pre-order Reserved!</h4>
+        <p style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">Thank you, <strong style="color:#fff">${name}</strong>! Your pre-order for <strong style="color:#52b788">${productName}</strong> has been recorded. We'll contact you on <strong style="color:#fff">${phone}</strong> as soon as it's ready.</p>
+        <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello! I just pre-ordered '+productName+' on your website. My name is '+name+' and phone is '+phone+'.')}" target="_blank" style="display:inline-block;margin-top:20px;background:#25D366;color:#fff;border-radius:50px;padding:10px 24px;font-weight:700;font-size:.85rem;text-decoration:none">💬 Confirm on WhatsApp</a>
+        <br><button onclick="closePreorderModal()" style="margin-top:12px;background:none;border:none;color:rgba(255,255,255,.4);font-size:.82rem;cursor:pointer;font-family:inherit">Close</button>
+      </div>`;
+  } catch(e) {
+    if (errEl) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+  }
+}
+
+// -- PRE-ORDER SYSTEM ------------------------------------------------------
+function openPreorderModal(productId, productName, expectedDate, note) {
+  const modal = document.getElementById('preorder-modal');
+  const body  = document.getElementById('preorder-modal-body');
+  if (!modal || !body) return;
+  const p = products.find(x => x.id === productId) || {};
+  const waText = encodeURIComponent('Hello Pinnacles Farm! I want to pre-order: ' + productName + (expectedDate ? ' (expected ' + expectedDate + ')' : '') + '.');
+  body.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:4px">${p.emoji || '??'} ${productName}</div>
+      <div style="font-size:.85rem;color:#52b788">&#8358;${Number(p.price||0).toLocaleString()} ${p.unit||''}</div>
+      ${expectedDate ? `<div style="margin-top:10px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:10px 14px;font-size:.82rem;color:#fbbf24">?? Expected: <strong>${expectedDate}</strong></div>` : ''}
+      ${note ? `<div style="margin-top:8px;font-size:.8rem;color:rgba(255,255,255,.5)">${note}</div>` : ''}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <input id="po-name" type="text" placeholder="Your name *" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none;width:100%;box-sizing:border-box" />
+      <input id="po-phone" type="tel" placeholder="Your phone number *" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none;width:100%;box-sizing:border-box" />
+      <div style="display:flex;align-items:center;gap:10px">
+        <label style="font-size:.82rem;color:rgba(255,255,255,.6);min-width:70px">Quantity</label>
+        <input id="po-qty" type="number" value="1" min="1" style="width:70px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 12px;color:#fff;font-family:inherit;font-size:.9rem;text-align:center;outline:none" />
+        <span style="font-size:.82rem;color:rgba(255,255,255,.5)">${p.unit||''}</span>
+      </div>
+      <textarea id="po-notes" placeholder="Any special requests? (optional)" rows="2" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none;resize:vertical;width:100%;box-sizing:border-box"></textarea>
+    </div>
+    <div id="po-error" style="display:none;color:#f87171;font-size:.82rem;margin-top:10px"></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button onclick="submitPreorder(${productId},'${productName.replace(/'/g,"\\'")}','${(p.unit||'').replace(/'/g,"\\'")}')" style="flex:1;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;border:none;border-radius:12px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">? Reserve Now</button>
+      <a href="https://wa.me/2349037505632?text=${waText}" target="_blank" style="display:flex;align-items:center;gap:6px;background:#25D366;color:#fff;border-radius:12px;padding:12px 16px;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap">?? WhatsApp</a>
+    </div>`;
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('po-name')?.focus(), 100);
+}
+
+function closePreorderModal() {
+  const modal = document.getElementById('preorder-modal');
+  if (modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function submitPreorder(productId, productName, unit) {
+  const name  = (document.getElementById('po-name')?.value || '').trim();
+  const phone = (document.getElementById('po-phone')?.value || '').trim();
+  const qty   = parseInt(document.getElementById('po-qty')?.value) || 1;
+  const notes = (document.getElementById('po-notes')?.value || '').trim();
+  const errEl = document.getElementById('po-error');
+  if (!name)  { errEl.textContent='Please enter your name.';         errEl.style.display='block'; return; }
+  if (!phone) { errEl.textContent='Please enter your phone number.'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+  try {
+    const res = await fetch('/api/customers/preorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_id: productId, product_name: productName, quantity: qty, unit, notes, name, phone }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    const waConfirm = encodeURIComponent('Hello! I just pre-ordered ' + productName + ' on your website. My name is ' + name + ' and my phone is ' + phone + '.');
+    document.getElementById('preorder-modal-body').innerHTML = `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:3rem;margin-bottom:16px">?</div>
+        <h4 style="font-size:1.1rem;color:#a3d9b8;margin-bottom:10px">Pre-order Reserved!</h4>
+        <p style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">Thank you <strong style="color:#fff">${name}</strong>! We'll call you on <strong style="color:#fff">${phone}</strong> when <strong style="color:#52b788">${productName}</strong> is ready.</p>
+        <a href="https://wa.me/2349037505632?text=${waConfirm}" target="_blank" style="display:inline-block;margin-top:20px;background:#25D366;color:#fff;border-radius:50px;padding:10px 24px;font-weight:700;font-size:.85rem;text-decoration:none">?? Confirm on WhatsApp</a>
+        <br><button onclick="closePreorderModal()" style="margin-top:12px;background:none;border:none;color:rgba(255,255,255,.4);font-size:.82rem;cursor:pointer;font-family:inherit">Close</button>
+      </div>`;
+  } catch(e) {
+    if (errEl) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+  }
+}
