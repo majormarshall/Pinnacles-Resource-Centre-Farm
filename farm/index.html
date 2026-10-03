@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pinnacles Farm Operations</title>
-  <link rel="icon" href="../images/logo.svg" />
+  <link rel="icon" href="../images/receipt-logo.jpg" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/farm.css" />
 </head>
@@ -13,14 +13,14 @@
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">🌾</div>
+    <div class="login-logo"><img src="../images/receipt-logo.jpg" alt="Pinnacles Logo" style="width:90px;height:auto;border-radius:12px;object-fit:contain" /></div>
     <h1>Pinnacles Farm Ops</h1>
     <p>Operations & Record-Keeping System</p>
     <div id="login-error" class="login-error" style="display:none"></div>
     <input type="email"    id="l-email" placeholder="Email address" autocomplete="email" />
     <input type="password" id="l-pass"  placeholder="Password" autocomplete="current-password" />
-    <button onclick="doLogin()">Sign In →</button>
-    <a href="../admin/" style="display:block;text-align:center;margin-top:16px;color:rgba(255,255,255,.5);font-size:.8rem">← Back to E-commerce Admin</a>
+    <button onclick="doLogin()">Sign In â†’</button>
+    <a href="../admin/" style="display:block;text-align:center;margin-top:16px;color:rgba(255,255,255,.5);font-size:.8rem">â† Back to E-commerce Admin</a>
   </div>
 </div>
 
@@ -28,8 +28,7 @@
 <div id="main-app" style="display:none">
   <!-- SIDEBAR -->
   <nav class="fo-sidebar">
-    <div class="fo-brand">
-      <span>🌾</span>
+    <div class="fo-brand"><img src="../images/receipt-logo.jpg" alt="Pinnacles" style="width:44px;height:auto;border-radius:8px;object-fit:contain;flex-shrink:0" />
       <div>
         <div class="fo-brand-name">Farm Ops</div>
         <div class="fo-brand-sub">Pinnacles Resource Centre</div>
@@ -37,26 +36,26 @@
     </div>
     <div class="fo-user-info" id="fo-user-info"></div>
     <div class="fo-nav">
-      <a href="#" class="fo-nav-item active" onclick="showFoTab('overview',this)">📊 Dashboard</a>
+      <a href="#" class="fo-nav-item active" onclick="showFoTab('overview',this)">ðŸ“Š Dashboard</a>
       <div class="fo-nav-group">PRODUCTION</div>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('fields',this)">🗺️ Fields & Plots</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('plantings',this)">🌱 Planting Records</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('harvests',this)">🧺 Harvest Records</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('sprays',this)">💧 Spraying Log</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('fields',this)">ðŸ—ºï¸ Fields & Plots</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('plantings',this)">ðŸŒ± Planting Records</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('harvests',this)">ðŸ§º Harvest Records</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('sprays',this)">ðŸ’§ Spraying Log</a>
       <div class="fo-nav-group">RESOURCES</div>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('workers',this)">👷 Workers</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('attendance',this)">✅ Attendance</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('inputs',this)">🏪 Inputs & Supplies</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('equipment',this)">🚜 Equipment</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('workers',this)">ðŸ‘· Workers</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('attendance',this)">âœ… Attendance</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('inputs',this)">ðŸª Inputs & Supplies</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('equipment',this)">ðŸšœ Equipment</a>
       <div class="fo-nav-group">RECORDS</div>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('crops',this)">🌾 Crop Varieties</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('diary',this)">📔 Farm Diary</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('payroll',this)">💰 Payroll</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('reports',this)">📈 Reports</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('team',this)">👤 Team / Users</a>
-      <a href="../admin/" class="fo-nav-item" style="margin-top:auto;color:rgba(255,255,255,.4);font-size:.78rem">← E-commerce Admin</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('crops',this)">ðŸŒ¾ Crop Varieties</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('diary',this)">ðŸ“” Farm Diary</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('payroll',this)">ðŸ’° Payroll</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('reports',this)">ðŸ“ˆ Reports</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('team',this)">ðŸ‘¤ Team / Users</a>
+      <a href="../admin/" class="fo-nav-item" style="margin-top:auto;color:rgba(255,255,255,.4);font-size:.78rem">â† E-commerce Admin</a>
     </div>
-    <button class="fo-logout" onclick="doLogout()">🚪 Sign Out</button>
+    <button class="fo-logout" onclick="doLogout()">ðŸšª Sign Out</button>
   </nav>
 
   <!-- CONTENT AREA -->
@@ -73,51 +72,51 @@
     <div id="fotab-overview" class="fo-tab active">
       <div class="fo-stats-grid">
         <div class="fo-stat-card">
-          <div class="fo-stat-icon">🗺️</div>
-          <div class="fo-stat-val" id="st-fields">–</div>
+          <div class="fo-stat-icon">ðŸ—ºï¸</div>
+          <div class="fo-stat-val" id="st-fields">â€“</div>
           <div class="fo-stat-lbl">Active Fields</div>
         </div>
         <div class="fo-stat-card">
-          <div class="fo-stat-icon">🌱</div>
-          <div class="fo-stat-val" id="st-plantings">–</div>
+          <div class="fo-stat-icon">ðŸŒ±</div>
+          <div class="fo-stat-val" id="st-plantings">â€“</div>
           <div class="fo-stat-lbl">Growing Crops</div>
         </div>
         <div class="fo-stat-card">
-          <div class="fo-stat-icon">🧺</div>
-          <div class="fo-stat-val" id="st-harvests">–</div>
+          <div class="fo-stat-icon">ðŸ§º</div>
+          <div class="fo-stat-val" id="st-harvests">â€“</div>
           <div class="fo-stat-lbl">Harvests (30 days)</div>
         </div>
         <div class="fo-stat-card">
-          <div class="fo-stat-icon">👷</div>
-          <div class="fo-stat-val" id="st-workers">–</div>
+          <div class="fo-stat-icon">ðŸ‘·</div>
+          <div class="fo-stat-val" id="st-workers">â€“</div>
           <div class="fo-stat-lbl">Active Workers</div>
         </div>
         <div class="fo-stat-card">
-          <div class="fo-stat-icon">⚖️</div>
-          <div class="fo-stat-val" id="st-harvest-kg">–</div>
+          <div class="fo-stat-icon">âš–ï¸</div>
+          <div class="fo-stat-val" id="st-harvest-kg">â€“</div>
           <div class="fo-stat-lbl">Kg Harvested (30d)</div>
         </div>
         <div class="fo-stat-card">
-          <div class="fo-stat-icon">💧</div>
-          <div class="fo-stat-val" id="st-sprays">–</div>
+          <div class="fo-stat-icon">ðŸ’§</div>
+          <div class="fo-stat-val" id="st-sprays">â€“</div>
           <div class="fo-stat-lbl">Sprays (7 days)</div>
         </div>
       </div>
       <div class="fo-two-col">
         <div class="fo-card">
-          <div class="fo-card-header"><h3>📔 Recent Farm Diary</h3><button onclick="showFoTab('diary',null)">View All →</button></div>
+          <div class="fo-card-header"><h3>ðŸ“” Recent Farm Diary</h3><button onclick="showFoTab('diary',null)">View All â†’</button></div>
           <div id="recent-diary-list"><p class="fo-empty">No diary entries yet</p></div>
         </div>
         <div class="fo-card">
-          <div class="fo-card-header"><h3>⚡ Quick Actions</h3></div>
+          <div class="fo-card-header"><h3>âš¡ Quick Actions</h3></div>
           <div class="fo-quick-actions">
             <button onclick="showFoTab('harvests',null); setTimeout(openHarvestForm,200)">+ Log Harvest</button>
             <button onclick="showFoTab('attendance',null); setTimeout(openAttendanceForm,200)">+ Mark Attendance</button>
             <button onclick="showFoTab('sprays',null); setTimeout(openSprayForm,200)">+ Log Spray</button>
             <button onclick="showFoTab('diary',null); setTimeout(openDiaryForm,200)">+ Diary Entry</button>
             <button onclick="showFoTab('plantings',null); setTimeout(openPlantingForm,200)">+ New Planting</button>
-            <button onclick="showFoTab('inputs',null)">📦 Check Supplies</button>
-            <button onclick="showFoTab('payroll',null); setTimeout(openPayrollModal,200)">💰 Run Payroll</button>
+            <button onclick="showFoTab('inputs',null)">ðŸ“¦ Check Supplies</button>
+            <button onclick="showFoTab('payroll',null); setTimeout(openPayrollModal,200)">ðŸ’° Run Payroll</button>
           </div>
         </div>
       </div>
@@ -200,12 +199,12 @@
     <!-- REPORTS TAB -->
     <div id="fotab-reports" class="fo-tab">
       <div class="fo-card" style="max-width:700px">
-        <h3 style="margin-bottom:20px">📈 Farm Reports</h3>
+        <h3 style="margin-bottom:20px">ðŸ“ˆ Farm Reports</h3>
         <div class="fo-report-grid">
-          <button class="fo-report-btn" onclick="generateReport('harvest_summary')">🧺 Harvest Summary</button>
-          <button class="fo-report-btn" onclick="generateReport('worker_attendance')">👷 Worker Attendance</button>
-          <button class="fo-report-btn" onclick="generateReport('spray_log')">💧 Spray Log</button>
-          <button class="fo-report-btn" onclick="generateReport('inputs_usage')">📦 Inputs Usage</button>
+          <button class="fo-report-btn" onclick="generateReport('harvest_summary')">ðŸ§º Harvest Summary</button>
+          <button class="fo-report-btn" onclick="generateReport('worker_attendance')">ðŸ‘· Worker Attendance</button>
+          <button class="fo-report-btn" onclick="generateReport('spray_log')">ðŸ’§ Spray Log</button>
+          <button class="fo-report-btn" onclick="generateReport('inputs_usage')">ðŸ“¦ Inputs Usage</button>
         </div>
         <p style="color:rgba(255,255,255,.4);font-size:.8rem;margin-top:24px">More reports coming soon. Data exports (Excel) will be available here.</p>
       </div>
@@ -233,7 +232,7 @@
             <option value="11">November</option><option value="12">December</option>
           </select>
           <input type="number" id="pr-year" class="fo-input" style="width:100px" value="2026" min="2024" max="2030" />
-          <button class="fo-btn-primary" onclick="loadPayroll()">📊 Calculate Payroll</button>
+          <button class="fo-btn-primary" onclick="loadPayroll()">ðŸ“Š Calculate Payroll</button>
         </div>
       </div>
       <div id="payroll-summary" style="display:none;background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.25);border-radius:12px;padding:16px 20px;margin-bottom:16px">
@@ -257,11 +256,11 @@
         <h4 style="color:#a3d9b8;margin-bottom:12px">Role Permissions</h4>
         <div class="role-table">
           <div class="role-row header"><span>Role</span><span>E-commerce</span><span>Farm Ops</span></div>
-          <div class="role-row"><span>🔑 super_admin</span><span class="rc-full">Full Access</span><span class="rc-full">Full Access</span></div>
-          <div class="role-row"><span>📦 ecomm_admin</span><span class="rc-full">Full Access</span><span class="rc-read">Read Only</span></div>
-          <div class="role-row"><span>🌾 farm_manager</span><span class="rc-read">Products + Harvest</span><span class="rc-full">Full Access</span></div>
-          <div class="role-row"><span>👷 farm_worker</span><span class="rc-none">No Access</span><span class="rc-limited">Log Tasks Only</span></div>
-          <div class="role-row"><span>💰 finance</span><span class="rc-read">Reports Only</span><span class="rc-read">Costs + Payroll</span></div>
+          <div class="role-row"><span>ðŸ”‘ super_admin</span><span class="rc-full">Full Access</span><span class="rc-full">Full Access</span></div>
+          <div class="role-row"><span>ðŸ“¦ ecomm_admin</span><span class="rc-full">Full Access</span><span class="rc-read">Read Only</span></div>
+          <div class="role-row"><span>ðŸŒ¾ farm_manager</span><span class="rc-read">Products + Harvest</span><span class="rc-full">Full Access</span></div>
+          <div class="role-row"><span>ðŸ‘· farm_worker</span><span class="rc-none">No Access</span><span class="rc-limited">Log Tasks Only</span></div>
+          <div class="role-row"><span>ðŸ’° finance</span><span class="rc-read">Reports Only</span><span class="rc-read">Costs + Payroll</span></div>
         </div>
       </div>
       <div id="team-list" class="fo-list"></div>
@@ -275,7 +274,7 @@
 <div id="fo-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:101;background:#1a2e1a;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;width:min(520px,90vw);max-height:85vh;overflow-y:auto">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
     <h3 id="fo-modal-title" style="font-size:1.1rem;color:#a3d9b8"></h3>
-    <button onclick="closeFoModal()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:1.3rem;cursor:pointer">✕</button>
+    <button onclick="closeFoModal()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:1.3rem;cursor:pointer">âœ•</button>
   </div>
   <div id="fo-modal-body"></div>
 </div>
@@ -284,3 +283,5 @@
 <script src="js/farm_phase2.js"></script>
 </body>
 </html>
+
+

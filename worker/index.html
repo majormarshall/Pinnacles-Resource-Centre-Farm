@@ -1,35 +1,34 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a1a0a" />
-  <title>Pinnacles — Worker Portal</title>
+  <title>Pinnacles â€” Worker Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/worker.css" />
 </head>
 <body>
 
-<!-- ── LOGIN ─────────────────────────────────────────────────────────── -->
+<!-- â”€â”€ LOGIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div id="w-login">
   <div class="w-login-box">
-    <div style="font-size:3rem;margin-bottom:10px">🌾</div>
+    <div style="margin-bottom:14px"><img src="../images/receipt-logo.jpg" alt="Pinnacles Logo" style="width:80px;height:auto;border-radius:10px;object-fit:contain" /></div>
     <h1>Pinnacles Farm</h1>
     <p>Worker Portal</p>
     <div id="w-err" class="w-err" style="display:none"></div>
     <input type="email"    id="we" placeholder="Your email address" autocomplete="email" />
     <input type="password" id="wp" placeholder="Password"           autocomplete="current-password"
            onkeydown="if(event.key==='Enter')wLogin()" />
-    <button onclick="wLogin()">Sign In →</button>
+    <button onclick="wLogin()">Sign In â†’</button>
   </div>
 </div>
 
-<!-- ── MAIN APP ───────────────────────────────────────────────────────── -->
+<!-- â”€â”€ MAIN APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div id="w-app" style="display:none">
 
-  <header class="w-header">
-    <div>
+  <header class="w-header"><img src="../images/receipt-logo.jpg" alt="Pinnacles" style="height:38px;width:auto;border-radius:6px;object-fit:contain;flex-shrink:0" /><div>
       <div class="w-greeting" id="w-greeting">Good morning!</div>
       <div class="w-date"     id="w-date"></div>
     </div>
@@ -38,10 +37,10 @@
 
   <main class="w-main">
 
-    <!-- ATTENDANCE / CLOCK IN ─────────────────────────────────────────── -->
+    <!-- ATTENDANCE / CLOCK IN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="wtab-attendance" class="w-tab active">
       <div class="w-card">
-        <h2>✅ Clock In / Attendance</h2>
+        <h2>âœ… Clock In / Attendance</h2>
         <div class="w-field">
           <label>Date</label>
           <input type="date" id="wa-date" class="w-input" />
@@ -64,7 +63,7 @@
           <label>Notes</label>
           <textarea id="wa-notes" class="w-input" rows="2" placeholder="Any observations or reports..."></textarea>
         </div>
-        <button class="w-btn" onclick="wSubmitAttendance()">✅ Submit Attendance</button>
+        <button class="w-btn" onclick="wSubmitAttendance()">âœ… Submit Attendance</button>
       </div>
 
       <div class="w-card" style="margin-top:14px">
@@ -73,10 +72,10 @@
       </div>
     </div>
 
-    <!-- TASKS ────────────────────────────────────────────────────────── -->
+    <!-- TASKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="wtab-tasks" class="w-tab">
       <div class="w-card">
-        <h2>📋 Log a Task</h2>
+        <h2>ðŸ“‹ Log a Task</h2>
         <div class="w-field">
           <label>Date</label>
           <input type="date" id="wt-date" class="w-input" />
@@ -104,14 +103,14 @@
           <label>Field / Area</label>
           <input id="wt-area" class="w-input" placeholder="e.g. Block A, Greenhouse, Poultry House" />
         </div>
-        <button class="w-btn" onclick="wSubmitTask()">📋 Log Task</button>
+        <button class="w-btn" onclick="wSubmitTask()">ðŸ“‹ Log Task</button>
       </div>
     </div>
 
-    <!-- HARVEST ──────────────────────────────────────────────────────── -->
+    <!-- HARVEST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="wtab-harvest" class="w-tab">
       <div class="w-card">
-        <h2>🧺 Log a Harvest</h2>
+        <h2>ðŸ§º Log a Harvest</h2>
         <div class="w-field">
           <label>Crop Name *</label>
           <input id="wh-crop" class="w-input" placeholder="e.g. Tomatoes, Peppers, Eggs" />
@@ -140,9 +139,9 @@
         <div class="w-field">
           <label>Quality</label>
           <select id="wh-grade" class="w-input">
-            <option value="A">A — Excellent</option>
-            <option value="B">B — Good</option>
-            <option value="C">C — Fair</option>
+            <option value="A">A â€” Excellent</option>
+            <option value="B">B â€” Good</option>
+            <option value="C">C â€” Fair</option>
           </select>
         </div>
         <div class="w-field">
@@ -150,14 +149,14 @@
           <textarea id="wh-notes" class="w-input" rows="2"
                     placeholder="Any issues, pests, damage, etc."></textarea>
         </div>
-        <button class="w-btn" onclick="wSubmitHarvest()">🧺 Submit Harvest</button>
+        <button class="w-btn" onclick="wSubmitHarvest()">ðŸ§º Submit Harvest</button>
       </div>
     </div>
 
-    <!-- DIARY ────────────────────────────────────────────────────────── -->
+    <!-- DIARY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="wtab-diary" class="w-tab">
       <div class="w-card">
-        <h2>📔 Daily Diary</h2>
+        <h2>ðŸ“” Daily Diary</h2>
         <div class="w-field">
           <label>Date</label>
           <input type="date" id="wd-date" class="w-input" />
@@ -165,24 +164,24 @@
         <div class="w-field">
           <label>What happened today? *</label>
           <textarea id="wd-note" class="w-input" rows="6"
-                    placeholder="Write your farm diary entry — tasks completed, observations, issues, progress..."></textarea>
+                    placeholder="Write your farm diary entry â€” tasks completed, observations, issues, progress..."></textarea>
         </div>
         <div class="w-field">
           <label>Weather</label>
-          <input id="wd-weather" class="w-input" placeholder="e.g. Sunny 32°C, Rainy, Cloudy" />
+          <input id="wd-weather" class="w-input" placeholder="e.g. Sunny 32Â°C, Rainy, Cloudy" />
         </div>
-        <button class="w-btn" onclick="wSubmitDiary()">📔 Save Entry</button>
+        <button class="w-btn" onclick="wSubmitDiary()">ðŸ“” Save Entry</button>
       </div>
     </div>
 
   </main>
 
-  <!-- BOTTOM NAV ────────────────────────────────────────────────────── -->
+  <!-- BOTTOM NAV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <nav class="w-nav">
-    <button class="w-nav-btn active" onclick="wTab('attendance',this)">✅<span>Clock In</span></button>
-    <button class="w-nav-btn"        onclick="wTab('tasks',this)">📋<span>Tasks</span></button>
-    <button class="w-nav-btn"        onclick="wTab('harvest',this)">🧺<span>Harvest</span></button>
-    <button class="w-nav-btn"        onclick="wTab('diary',this)">📔<span>Diary</span></button>
+    <button class="w-nav-btn active" onclick="wTab('attendance',this)">âœ…<span>Clock In</span></button>
+    <button class="w-nav-btn"        onclick="wTab('tasks',this)">ðŸ“‹<span>Tasks</span></button>
+    <button class="w-nav-btn"        onclick="wTab('harvest',this)">ðŸ§º<span>Harvest</span></button>
+    <button class="w-nav-btn"        onclick="wTab('diary',this)">ðŸ“”<span>Diary</span></button>
   </nav>
 
 </div><!-- /#w-app -->
@@ -192,3 +191,4 @@
 <script src="js/worker.js"></script>
 </body>
 </html>
+
