@@ -1,6 +1,6 @@
 // ── Orders Routes ────────────────────────────────────────────
 const router      = require('express').Router();
-const db          = require('../db');
+const supabase    = require('../db');
 const { requireAuth } = require('../middleware/auth');
 const nodemailer  = require('nodemailer');
 const { orderLimiter } = require('../middleware/rateLimiter');
@@ -83,11 +83,23 @@ router.post('/', orderLimiter, async (req, res) => {
     const { customer_name, customer_phone, customer_id, items, total, notes, whatsapp_msg } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Order must contain items.' });
     if (!total || total <= 0) return res.status(400).json({ error: 'Invalid order total.' });
-    const r = await db.runAsync(
-      'INSERT INTO orders (customer_name, customer_phone, customer_id, items_json, total, notes, whatsapp_msg) VALUES (?,?,?,?,?,?,?)',
-      [customer_name||'Walk-in Customer', customer_phone||'', customer_id||null, JSON.stringify(items), total, notes||'', whatsapp_msg||'']
-    );
-    const newOrderId = r.lastID || (r.rows && r.rows[0] && r.rows[0].id);
+
+    const { data: newOrder, error: insertError } = await supabase
+      .from('orders')
+      .insert({
+        customer_name:  customer_name  || 'Walk-in Customer',
+        customer_phone: customer_phone || '',
+        customer_id:    customer_id    || null,
+        items_json:     JSON.stringify(items),
+        total,
+        notes:          notes          || '',
+        whatsapp_msg:   whatsapp_msg   || '',
+      })
+      .select('id')
+      .single();
+    if (insertError) throw new Error(insertError.message);
+
+    const newOrderId = newOrder.id;
     // Fire-and-forget admin email notification
     sendAdminOrderEmail({ orderId: newOrderId, customer_name, customer_phone, items, total, notes });
 
@@ -95,14 +107,27 @@ router.post('/', orderLimiter, async (req, res) => {
     const loyaltyPoints = Math.floor((total || 0) / 100);
     if (customer_id && loyaltyPoints > 0) {
       try {
-        await db.runAsync(
-          'UPDATE customers SET loyalty_points = loyalty_points + ?, total_orders = total_orders + 1, total_spent = total_spent + ? WHERE id=?',
-          [loyaltyPoints, total || 0, customer_id]
-        );
-        await db.runAsync(
-          'INSERT INTO loyalty_transactions (customer_id, order_id, points, type, description) VALUES (?,?,?,\'earn\',?)',
-          [customer_id, newOrderId, loyaltyPoints, 'Earned from order #' + newOrderId]
-        );
+        // Fetch current customer stats, then update atomically
+        const { data: cust } = await supabase
+          .from('customers')
+          .select('loyalty_points, total_orders, total_spent')
+          .eq('id', customer_id)
+          .single();
+        if (cust) {
+          await supabase.from('customers').update({
+            loyalty_points: (cust.loyalty_points || 0) + loyaltyPoints,
+            total_orders:   (cust.total_orders   || 0) + 1,
+            total_spent:    (cust.total_spent     || 0) + (total || 0),
+          }).eq('id', customer_id);
+        }
+
+        await supabase.from('loyalty_transactions').insert({
+          customer_id,
+          order_id:    newOrderId,
+          points:      loyaltyPoints,
+          type:        'earn',
+          description: 'Earned from order #' + newOrderId,
+        });
       } catch(e) { console.error('Loyalty points error:', e.message); }
     }
 
@@ -110,35 +135,49 @@ router.post('/', orderLimiter, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── GET /api/orders — admin: list orders + stats ──────────────
 router.get('/', requireAuth, async (req, res) => {
   try {
     const { status } = req.query;
-    const orders = await db.allAsync(
-      status ? 'SELECT * FROM orders WHERE status=? ORDER BY created_at DESC LIMIT 100' : 'SELECT * FROM orders ORDER BY created_at DESC LIMIT 100',
-      status ? [status] : []
-    );
-    const stats = await db.getAsync(`SELECT COUNT(*) as total,
-      SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) as pending,
-      SUM(CASE WHEN status='confirmed' THEN 1 ELSE 0 END) as confirmed,
-      SUM(CASE WHEN status='delivered' THEN 1 ELSE 0 END) as delivered,
-      SUM(total) as revenue FROM orders`);
-    res.json({ orders: orders.map(o => ({ ...o, items: JSON.parse(o.items_json) })), stats });
+
+    // Build query — filter by status if provided, always desc + limit 100
+    let query = supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(100);
+    if (status) query = query.eq('status', status);
+
+    const { data: orders, error: ordersError } = await query;
+    if (ordersError) throw new Error(ordersError.message);
+
+    // Aggregate stats in JS (PostgREST doesn't support CASE WHEN SUM)
+    const allOrders = orders || [];
+    const stats = {
+      total:     allOrders.length,
+      pending:   allOrders.filter(o => o.status === 'pending').length,
+      confirmed: allOrders.filter(o => o.status === 'confirmed').length,
+      delivered: allOrders.filter(o => o.status === 'delivered').length,
+      revenue:   allOrders.reduce((s, o) => s + Number(o.total || 0), 0),
+    };
+
+    res.json({ orders: allOrders.map(o => ({ ...o, items: JSON.parse(o.items_json || '[]') })), stats });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── PATCH /api/orders/:id/status — update order status ────────
 router.patch('/:id/status', requireAuth, async (req, res) => {
   try {
     const { status } = req.body;
     if (!['pending','confirmed','processing','delivered','cancelled'].includes(status))
       return res.status(400).json({ error: 'Invalid status.' });
-    await db.runAsync('UPDATE orders SET status = ? WHERE id = ?', [status, req.params.id]);
+    const { error } = await supabase.from('orders').update({ status }).eq('id', req.params.id);
+    if (error) throw new Error(error.message);
     res.json({ message: `Order marked as ${status}.` });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── DELETE /api/orders/:id ─────────────────────────────────────
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    await db.runAsync('DELETE FROM orders WHERE id = ?', [req.params.id]);
+    const { error } = await supabase.from('orders').delete().eq('id', req.params.id);
+    if (error) throw new Error(error.message);
     res.json({ message: 'Order deleted.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -154,10 +193,13 @@ router.get('/report', requireAuth, async (req, res) => {
     const start = new Date(year, month - 1, 1).toISOString();
     const end   = new Date(year, month, 1).toISOString();
 
-    const orders = await db.allAsync(
-      'SELECT * FROM orders WHERE created_at >= ? AND created_at < ? ORDER BY created_at ASC',
-      [start, end]
-    );
+    const { data: orders, error: reportError } = await supabase
+      .from('orders')
+      .select('*')
+      .gte('created_at', start)
+      .lt('created_at', end)
+      .order('created_at');
+    if (reportError) throw new Error(reportError.message);
 
     const monthName = new Date(year, month - 1, 1)
       .toLocaleString('en-NG', { month: 'long', year: 'numeric' });
@@ -173,7 +215,7 @@ router.get('/report', requireAuth, async (req, res) => {
       [],
     ];
 
-    const rows = orders.map(o => {
+    const rows = (orders || []).map(o => {
       let items = [];
       try { items = JSON.parse(o.items_json || '[]'); } catch (_) {}
       const itemStr = items.map(i => i.name + ' x' + i.qty).join(', ');
@@ -199,11 +241,11 @@ router.get('/report', requireAuth, async (req, res) => {
       };
     });
 
-    const grandTotal = orders.reduce((s, o) => s + Number(o.total), 0);
+    const grandTotal = (orders || []).reduce((s, o) => s + Number(o.total), 0);
     rows.push({});
     rows.push({
       'Order ID':       'SUMMARY',
-      'Customer Name':  'Total Orders: ' + orders.length,
+      'Customer Name':  'Total Orders: ' + (orders || []).length,
       'Total (NGN)':    grandTotal,
       'Status':         'Grand Total: NGN ' + grandTotal.toLocaleString('en-NG'),
     });

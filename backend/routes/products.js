@@ -1,6 +1,6 @@
 // ── Products Routes ───────────────────────────────────────────
 const router      = require('express').Router();
-const db          = require('../db');
+const supabase    = require('../db');
 const { requireAuth } = require('../middleware/auth');
 const multer      = require('multer');
 
@@ -27,13 +27,16 @@ function resolveImageUrl(req) {
 router.get('/', async (req, res) => {
   try {
     // Works whether 'active' is BOOLEAN or INTEGER in PostgreSQL
-    const products = await db.allAsync(
-      "SELECT * FROM products WHERE active IS NOT FALSE AND active != 0 ORDER BY id ASC", []
-    );
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .neq('active', false)
+      .order('id');
+    if (error) throw new Error(error.message);
     // Normalise numeric fields so frontend always gets numbers (not strings from PG)
-    const normalised = (products || []).map(prod => ({
+    const normalised = (data || []).map(prod => ({
       ...prod,
-      price:              Number(prod.price    || 0),
+      price:              Number(prod.price || 0),
       in_stock:           (prod.in_stock === true || prod.in_stock === 1 || Number(prod.in_stock) > 0) ? 1 : 0,
       active:             1,
       preorder_available: (prod.preorder_available === true || prod.preorder_available === 1) ? 1 : 0,
@@ -44,8 +47,11 @@ router.get('/', async (req, res) => {
 
 // ── GET /api/products/all — admin: all products ────────────────
 router.get('/all', requireAuth, async (req, res) => {
-  try { res.json(await db.allAsync('SELECT * FROM products ORDER BY id ASC')); }
-  catch (e) { res.status(500).json({ error: e.message }); }
+  try {
+    const { data, error } = await supabase.from('products').select('*').order('id');
+    if (error) throw new Error(error.message);
+    res.json(data || []);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── POST /api/products — create new product ────────────────────
@@ -57,11 +63,24 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
     // Uploaded file takes priority, then img URL from form body
     const imageUrl = resolveImageUrl(req) || img || null;
 
-    const r = await db.runAsync(
-      'INSERT INTO products (name,emoji,img,price,unit,description,category,tag,stock,in_stock) VALUES (?,?,?,?,?,?,?,?,?,?)',
-      [name, emoji||'🌿', imageUrl, Number(price), unit||'per unit', description||'', category||'vegetables', tag||'Fresh', Number(stock)||999, 1]
-    );
-    res.status(201).json({ id: r.lastID, message: 'Product added.' });
+    const { data, error } = await supabase
+      .from('products')
+      .insert({
+        name,
+        emoji:       emoji || '🌿',
+        img:         imageUrl,
+        price:       Number(price),
+        unit:        unit || 'per unit',
+        description: description || '',
+        category:    category || 'vegetables',
+        tag:         tag || 'Fresh',
+        stock:       Number(stock) || 999,
+        in_stock:    1,
+      })
+      .select('id')
+      .single();
+    if (error) throw new Error(error.message);
+    res.status(201).json({ id: data.id, message: 'Product added.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -76,17 +95,32 @@ router.put('/:id', requireAuth, upload.single('image'), async (req, res) => {
       if (img) {
         imageUrl = img;
       } else {
-        const existing = await db.getAsync('SELECT img FROM products WHERE id = ?', [req.params.id]);
+        const { data: existing } = await supabase
+          .from('products')
+          .select('img')
+          .eq('id', req.params.id)
+          .single();
         imageUrl = existing ? existing.img : null;
       }
     }
 
-    await db.runAsync(
-      'UPDATE products SET name=?,emoji=?,img=?,price=?,unit=?,description=?,category=?,tag=?,active=?,stock=?,in_stock=? WHERE id=?',
-      [name, emoji, imageUrl, Number(price), unit, description, category, tag,
-       active != null ? Number(active) : 1, Number(stock)||999,
-       in_stock != null ? Number(in_stock) : 1, req.params.id]
-    );
+    const { error } = await supabase
+      .from('products')
+      .update({
+        name,
+        emoji,
+        img:         imageUrl,
+        price:       Number(price),
+        unit,
+        description,
+        category,
+        tag,
+        active:      active != null ? Number(active) : 1,
+        stock:       Number(stock) || 999,
+        in_stock:    in_stock != null ? Number(in_stock) : 1,
+      })
+      .eq('id', req.params.id);
+    if (error) throw new Error(error.message);
     res.json({ message: 'Product updated.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -94,7 +128,8 @@ router.put('/:id', requireAuth, upload.single('image'), async (req, res) => {
 // ── DELETE /api/products/:id ───────────────────────────────────
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    await db.runAsync('DELETE FROM products WHERE id = ?', [req.params.id]);
+    const { error } = await supabase.from('products').delete().eq('id', req.params.id);
+    if (error) throw new Error(error.message);
     res.json({ message: 'Product deleted.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -104,7 +139,11 @@ router.patch('/:id/stock', requireAuth, async (req, res) => {
   try {
     const { in_stock } = req.body;
     if (in_stock === undefined) return res.status(400).json({ error: 'in_stock value required.' });
-    await db.runAsync('UPDATE products SET in_stock = ? WHERE id = ?', [Number(in_stock), req.params.id]);
+    const { error } = await supabase
+      .from('products')
+      .update({ in_stock: Number(in_stock) })
+      .eq('id', req.params.id);
+    if (error) throw new Error(error.message);
     const label = Number(in_stock) ? 'In Stock' : 'Out of Stock';
     res.json({ message: `Product marked as ${label}.` });
   } catch (e) { res.status(500).json({ error: e.message }); }

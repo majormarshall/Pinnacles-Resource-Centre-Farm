@@ -1,6 +1,6 @@
 // ── PayIsland Payment Routes ──────────────────────────────────
 const router   = require('express').Router();
-const db       = require('../db');
+const supabase = require('../db');
 const nodemailer = require('nodemailer');
 
 const PAYISLAND_SECRET = process.env.PAYISLAND_SECRET_KEY;
@@ -64,11 +64,11 @@ router.post('/initialize', async (req, res) => {
     }
 
     // 1 — Save order in DB (pending_payment status)
-    const r = await db.runAsync(
-      'INSERT INTO orders (customer_name, customer_phone, items_json, total, notes, status) VALUES (?,?,?,?,?,?)',
-      [customer_name || 'Online Customer', customer_phone || '', JSON.stringify(items), total, notes || '', 'pending_payment']
-    );
-    const orderId = r.lastID;
+    const { data: newOrder, error: insertErr } = await supabase.from('orders')
+      .insert({ customer_name: customer_name || 'Online Customer', customer_phone: customer_phone || '', items_json: JSON.stringify(items), total, notes: notes || '', status: 'pending_payment' })
+      .select('id').single();
+    if (insertErr) throw new Error(insertErr.message);
+    const orderId = newOrder.id;
 
     // 2 — Generate a unique reference
     const reference = `PINN-${orderId}-${Date.now()}`;
@@ -98,12 +98,12 @@ router.post('/initialize', async (req, res) => {
     if (!payRes.ok || !payData?.data?.checkout_url) {
       console.error('PayIsland init error:', payData);
       // Roll back the pending order
-      await db.runAsync('DELETE FROM orders WHERE id = ?', [orderId]).catch(() => {});
+      await supabase.from('orders').delete().eq('id', orderId);
       return res.status(502).json({ error: payData?.message || 'Payment gateway error. Please try WhatsApp checkout.' });
     }
 
     // 4 — Store the PayIsland reference on the order
-    await db.runAsync('UPDATE orders SET whatsapp_msg = ? WHERE id = ?', [`payisland_ref:${reference}`, orderId]);
+    await supabase.from('orders').update({ whatsapp_msg: `payisland_ref:${reference}` }).eq('id', orderId);
 
     res.json({ checkoutUrl: payData.data.checkout_url, orderId, reference });
   } catch (e) {
@@ -139,13 +139,12 @@ router.get('/callback', async (req, res) => {
     }
 
     // 2 — Find order by reference stored in whatsapp_msg field
-    const order = await db.getAsync(
-      `SELECT * FROM orders WHERE whatsapp_msg LIKE ?`, [`payisland_ref:${reference}%`]
-    );
+    const { data: orders } = await supabase.from('orders').select('*').like('whatsapp_msg', `payisland_ref:${reference}%`).limit(1);
+    const order = orders?.[0] || null;
 
     if (order) {
       // 3 — Mark order as confirmed
-      await db.runAsync('UPDATE orders SET status = ? WHERE id = ?', ['confirmed', order.id]);
+      await supabase.from('orders').update({ status: 'confirmed' }).eq('id', order.id);
 
       // 4 — Fire admin notification
       const items = JSON.parse(order.items_json || '[]');

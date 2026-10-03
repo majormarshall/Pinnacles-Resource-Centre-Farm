@@ -1,194 +1,38 @@
-// ============================================================
-// Pinnacles Resource Centre Farm — Database (Supabase / PostgreSQL)
-// ============================================================
-const { Pool } = require('pg');
-const bcrypt   = require('bcryptjs');
+// backend/db.js
+// ══════════════════════════════════════════════════════════════
+// Pinnacles Farm — Supabase JS database client
+// Uses @supabase/supabase-js — NO pg / PostgreSQL driver
+// ══════════════════════════════════════════════════════════════
+require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
 
-// Default seed products
-const DEFAULT_PRODUCTS = [
-  ['Fresh Tomatoes','🍅','images/tomatoes.png',1500,'per basket','Sun-ripened juicy tomatoes. Perfect for stews and salads.','vegetables','Bestseller'],
-  ['Peppers','🫑','images/pepper.png',1200,'per pack','Fresh bell and chili peppers. Vibrant and full of flavour.','vegetables','Fresh'],
-  ['Strawberries','🍓','images/strawberry.png',3500,'per punnet','Sweet juicy strawberries picked at peak ripeness.','fruits','Premium'],
-  ['Sweet Maize','🌽','images/maize.png',800,'per 3 cobs','Golden sweet maize cobs freshly harvested.','grains','Fresh'],
-  ['Carrots','🥕','images/carrots.png',1000,'per bunch','Crunchy sweet orange carrots. Great for juices and soups.','vegetables','Organic'],
-  ['Farm Fresh Eggs','🥚',null,2500,'per crate (30)','Free-range farm eggs — rich and full of protein.','proteins','Popular'],
-  ['Green Peas','🫛',null,1800,'per kg','Tender sweet green peas. Perfect for soups and rice dishes.','vegetables','Fresh'],
-  ['Fresh Greens','🥬',null,600,'per bunch','Assorted fresh leafy greens including spinach and ugwu.','vegetables','Daily Harvest'],
-  ['Garden Cucumber','🥒',null,700,'per pack','Cool crisp cucumbers perfect for salads and juicing.','vegetables','Fresh'],
-  ['Spring Onions','🧅',null,500,'per bunch','Fresh spring onions with a mild sweet flavour.','vegetables','Fresh'],
-  ['Sweet Pepper','🌶️',null,900,'per pack','Colourful sweet peppers — red, yellow and green.','vegetables','Seasonal'],
-  ['Farm Honey','🍯',null,4500,'per jar','Pure raw natural honey from our farm bees.','fruits','Natural'],
-];
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
 
-// ── Connection pool ────────────────────────────────────────────
-// Append pgbouncer=true if not already present (disables prepared statements
-// which are not supported in Supabase transaction pooler / PgBouncer)
-const dbUrl = process.env.DATABASE_URL
-  ? (process.env.DATABASE_URL.includes('pgbouncer')
-      ? process.env.DATABASE_URL
-      : process.env.DATABASE_URL + '?pgbouncer=true')
-  : undefined;
-
-const pool = new Pool({
-  connectionString: dbUrl,
-  ssl: { rejectUnauthorized: false },
-  max: 3,
-  idleTimeoutMillis: 10000,
-  connectionTimeoutMillis: 8000,
-});
-
-pool.on('error', err => console.error('PostgreSQL pool error:', err.message));
-
-// ── Convert SQLite ? placeholders → PostgreSQL $1, $2 … ────────
-function toPg(sql) {
-  let n = 0;
-  return sql.replace(/\?/g, () => `$${++n}`);
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('❌ FATAL: SUPABASE_URL and SUPABASE_SERVICE_KEY must be set.');
+  console.error('   Add them in Vercel → Settings → Environment Variables.');
+  console.error('   Get them from: Supabase Dashboard → Your Project → Settings → API');
 }
 
-// ── Promisified helpers (same interface as before) ─────────────
-const db = {
-  runAsync: async (sql, params = []) => {
-    const pgSql = toPg(sql);
-    const final = /^\s*INSERT/i.test(pgSql) && !/RETURNING/i.test(pgSql)
-      ? `${pgSql} RETURNING id`
-      : pgSql;
-    const r = await pool.query(final, params);
-    return { lastID: r.rows[0]?.id ?? null, rowCount: r.rowCount };
-  },
-  getAsync: async (sql, params = []) => {
-    const r = await pool.query(toPg(sql), params);
-    return r.rows[0] ?? null;
-  },
-  allAsync: async (sql, params = []) => {
-    const r = await pool.query(toPg(sql), params);
-    return r.rows;
-  },
-};
-
-// ── Schema & seed ──────────────────────────────────────────────
-async function initDB() {
-  // Products
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS products (
-      id          SERIAL PRIMARY KEY,
-      name        TEXT NOT NULL,
-      emoji       TEXT DEFAULT '🌿',
-      img         TEXT,
-      price       REAL NOT NULL,
-      unit        TEXT DEFAULT 'per unit',
-      description TEXT DEFAULT '',
-      category    TEXT DEFAULT 'vegetables',
-      tag         TEXT DEFAULT 'Fresh',
-      active      INTEGER DEFAULT 1,
-      stock       INTEGER DEFAULT 999,
-      created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-  // Migration: add in_stock column if it doesn't exist yet (safe, no-op if already present)
-  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS in_stock INTEGER DEFAULT 1`).catch(() => {});
-  // Migration: add today_harvest column for Today's Harvest banner
-  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS today_harvest INTEGER DEFAULT 0`).catch(() => {});
-  // Migration: add preorder columns
-  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS preorder_available INTEGER DEFAULT 0`).catch(() => {});
-  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS preorder_expected_date DATE`).catch(() => {});
-  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS preorder_note TEXT`).catch(() => {});
-  // DATA FIX: set in_stock=1 for all active products that have NULL or 0 in_stock
-  // (covers the case where the column was added after products were inserted,
-  //  leaving them with DEFAULT value that Vercel didn't apply retroactively)
-  await pool.query(`UPDATE products SET in_stock = 1 WHERE active IS NOT FALSE AND active != 0 AND (in_stock IS NULL OR in_stock = 0 OR in_stock = false)`).catch(() => {});
-
-  // Orders
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS orders (
-      id             SERIAL PRIMARY KEY,
-      customer_name  TEXT,
-      customer_phone TEXT,
-      items_json     TEXT NOT NULL,
-      total          REAL NOT NULL,
-      status         TEXT DEFAULT 'pending',
-      notes          TEXT DEFAULT '',
-      whatsapp_msg   TEXT DEFAULT '',
-      created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-  await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS whatsapp_msg TEXT DEFAULT ''`).catch(() => {});
-  await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email TEXT DEFAULT ''`).catch(() => {});
-
-  // Messages
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS messages (
-      id         SERIAL PRIMARY KEY,
-      name       TEXT NOT NULL,
-      phone      TEXT DEFAULT '',
-      message    TEXT NOT NULL,
-      is_read    INTEGER DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-
-  // Gallery
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS gallery (
-      id          SERIAL PRIMARY KEY,
-      img         TEXT NOT NULL,
-      alt         TEXT DEFAULT '',
-      caption     TEXT DEFAULT '',
-      wide        INTEGER DEFAULT 0,
-      sort_order  INTEGER DEFAULT 0,
-      created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-
-  // Admins
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS admins (
-      id            SERIAL PRIMARY KEY,
-      username      TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-
-  // ── Seed admin ─────────────────────────────────────────────
-  const adminUser = process.env.ADMIN_USERNAME || 'admin';
-  const adminPass = process.env.ADMIN_PASSWORD || 'Pinnacles2026!';
-  const existing  = await db.getAsync('SELECT id FROM admins WHERE username = ?', [adminUser]);
-  if (!existing) {
-    const hash = bcrypt.hashSync(adminPass, 10);
-    await db.runAsync('INSERT INTO admins (username, password_hash) VALUES (?, ?)', [adminUser, hash]);
-    console.log(`✅ Admin "${adminUser}" created.`);
+const supabase = createClient(
+  SUPABASE_URL  || 'https://placeholder.supabase.co',
+  SUPABASE_KEY  || 'placeholder',
+  {
+    auth:    { persistSession: false },
+    global:  { headers: { 'x-application-name': 'pinnacles-farm' } },
   }
+);
 
-  // ── Seed default products ──────────────────────────────────
-  const count = await db.getAsync('SELECT COUNT(*)::int AS c FROM products');
-  if (Number(count?.c) === 0) {
-    for (const [name,emoji,img,price,unit,description,category,tag] of DEFAULT_PRODUCTS) {
-      await db.runAsync(
-        'INSERT INTO products (name,emoji,img,price,unit,description,category,tag) VALUES (?,?,?,?,?,?,?,?)',
-        [name, emoji, img, price, unit, description, category, tag]
-      );
-    }
-    console.log('✅ Default products seeded.');
-  }
+console.log('[DB] Supabase JS client ready — using @supabase/supabase-js');
 
-  // ── Seed default gallery images ────────────────────────────
-  const galCount = await db.getAsync('SELECT COUNT(*)::int AS c FROM gallery');
-  if (Number(galCount?.c) === 0) {
-    const defaultGallery = [
-      ['images/farm_hero.png',   'Pinnacles Farm Fields', '', 1, 0],
-      ['images/tomatoes.png',    'Fresh Tomatoes',        '', 0, 1],
-      ['images/strawberry.png',  'Strawberries',          '', 0, 2],
-      ['images/pepper.png',      'Peppers',               '', 0, 3],
-      ['images/maize.png',       'Sweet Maize',           '', 0, 4],
-      ['images/carrots.png',     'Carrots',               '', 0, 5],
-    ];
-    for (const [img, alt, caption, wide, sort_order] of defaultGallery) {
-      await db.runAsync(
-        'INSERT INTO gallery (img, alt, caption, wide, sort_order) VALUES (?,?,?,?,?)',
-        [img, alt, caption, wide, sort_order]
-      );
-    }
-    console.log('✅ Default gallery seeded.');
-  }
-
-  console.log('✅ Supabase database ready.');
+// ── Convenience helper: throw a clean error from a Supabase response ──────
+function sbErr(error, context) {
+  if (!error) return;
+  const msg = error.message || error.details || JSON.stringify(error);
+  console.error(`[Supabase] ${context || ''}: ${msg}`);
+  throw new Error(msg);
 }
 
-initDB().catch(e => console.error('❌ DB init failed:', e.message));
-
-module.exports = db;
+module.exports = supabase;
+module.exports.sbErr = sbErr;

@@ -1,8 +1,8 @@
 // backend/routes/harvest_ai.js — Harvest AI endpoint
 // Inventory-aware assistant that builds carts, suggests baskets, answers questions
-const express = require('express');
-const router  = express.Router();
-const db      = require('../db');
+const express  = require('express');
+const router   = express.Router();
+const supabase = require('../db');
 
 // POINTS SYSTEM CONFIG
 const POINTS_PER_NGN = 1 / 100; // 1 point per ₦100 spent
@@ -11,15 +11,12 @@ const NGN_PER_POINT  = 0.5;     // Each point worth ₦0.50 on redemption
 // GET /api/harvest-ai/inventory — return live inventory summary for AI context
 router.get('/inventory', async (req, res) => {
   try {
-    const products = await db.allAsync(
-      "SELECT id, name, emoji, price, unit, in_stock, category, preorder_available, preorder_expected_date, preorder_note FROM products WHERE active IS NOT FALSE AND active != 0 ORDER BY name ASC",
-      []
-    );
-    const todayHarvest = await db.allAsync(
-      'SELECT p.id, p.name, p.emoji FROM products p WHERE p.today_harvest = 1 AND p.in_stock IS NOT FALSE',
-      []
-    ).catch(() => []);
-    
+    const { data: products } = await supabase.from('products')
+      .select('id, name, emoji, price, unit, in_stock, category, preorder_available, preorder_expected_date, preorder_note')
+      .neq('active', false).order('name');
+    const { data: todayHarvest } = await supabase.from('products')
+      .select('id, name, emoji').eq('today_harvest', 1).neq('in_stock', false);
+
     const normalised = (products || []).map(p => ({
       id:    p.id,
       name:  p.name,
@@ -32,10 +29,10 @@ router.get('/inventory', async (req, res) => {
       preorder_expected_date: p.preorder_expected_date,
       preorder_note: p.preorder_note,
     }));
-    
+
     res.json({
       products: normalised,
-      harvested_today: todayHarvest,
+      harvested_today: todayHarvest || [],
       timestamp: new Date().toISOString(),
     });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -49,10 +46,9 @@ router.post('/chat', async (req, res) => {
 
   try {
     // Load live inventory
-    const products = await db.allAsync(
-      "SELECT id, name, emoji, price, unit, in_stock, category, description, preorder_available, preorder_expected_date, preorder_note FROM products WHERE active IS NOT FALSE AND active != 0",
-      []
-    );
+    const { data: products } = await supabase.from('products')
+      .select('id, name, emoji, price, unit, in_stock, category, description, preorder_available, preorder_expected_date, preorder_note')
+      .neq('active', false);
     const normalised = (products || []).map(p => ({
       ...p,
       price:    Number(p.price || 0),
@@ -66,7 +62,7 @@ router.post('/chat', async (req, res) => {
     // Load customer loyalty points if logged in
     let loyaltyPoints = 0;
     if (customer_id) {
-      const c = await db.getAsync('SELECT loyalty_points FROM customers WHERE id=?', [customer_id]).catch(() => null);
+      const { data: c } = await supabase.from('customers').select('loyalty_points').eq('id', customer_id).single();
       loyaltyPoints = Number(c?.loyalty_points || 0);
     }
 

@@ -66,8 +66,8 @@ app.get('/receipt/:id/:token', async (req, res) => {
     return res.status(403).send('<h2 style="font-family:sans-serif;padding:40px;">Invalid or expired receipt link.</h2>');
   }
   try {
-    const db = require('./db');
-    const order = await db.getAsync('SELECT * FROM orders WHERE id = ?', [id]);
+    const supabase = require('./db');
+    const { data: order } = await supabase.from('orders').select('*').eq('id', id).single();
     if (!order) return res.status(404).send('<h2 style="font-family:sans-serif;padding:40px;">Order not found.</h2>');
     order.items = JSON.parse(order.items_json || '[]');
     return res.send(buildReceiptHtml(order));
@@ -83,8 +83,8 @@ app.get('/receipt/:id/:token/pdf', async (req, res) => {
     return res.status(403).send('Invalid or expired receipt link.');
   }
   try {
-    const db = require('./db');
-    const order = await db.getAsync('SELECT * FROM orders WHERE id = ?', [id]);
+    const supabase = require('./db');
+    const { data: order } = await supabase.from('orders').select('*').eq('id', id).single();
     if (!order) return res.status(404).send('Order not found.');
     order.items = JSON.parse(order.items_json || '[]');
     return streamReceiptPdf(order, res, req);
@@ -109,7 +109,7 @@ app.get('/api/health', async (req, res) => {
   const status = {
     ok: true,
     timestamp: new Date().toISOString(),
-    database_url_set: !!process.env.DATABASE_URL,
+    supabase_url_set: !!process.env.SUPABASE_URL,
     jwt_secret_set: !!process.env.JWT_SECRET,
     admin_username: process.env.ADMIN_USERNAME || '(not set)',
     db: 'not tested',
@@ -117,11 +117,11 @@ app.get('/api/health', async (req, res) => {
     products_count: 0,
   };
   try {
-    const db = require('./db');
-    const count = await db.getAsync('SELECT COUNT(*)::int AS c FROM products');
-    const admin = await db.getAsync('SELECT id, username FROM admins LIMIT 1');
+    const supabase = require('./db');
+    const { count } = await supabase.from('products').select('*', { count: 'exact', head: true });
+    const { data: admin } = await supabase.from('admins').select('id, username').limit(1).single();
     status.db = 'connected ✅';
-    status.products_count = Number(count?.c || 0);
+    status.products_count = count || 0;
     status.admin_exists = !!admin;
     status.admin_username_in_db = admin?.username || 'none';
   } catch (e) {

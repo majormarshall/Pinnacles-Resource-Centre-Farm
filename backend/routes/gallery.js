@@ -1,6 +1,6 @@
 // ── Gallery Routes ────────────────────────────────────────────
 const router      = require('express').Router();
-const db          = require('../db');
+const supabase    = require('../db');
 const { requireAuth } = require('../middleware/auth');
 const multer      = require('multer');
 
@@ -23,10 +23,13 @@ function resolveImageUrl(req) {
 // ── GET /api/gallery — public ─────────────────────────────────
 router.get('/', async (req, res) => {
   try {
-    const items = await db.allAsync(
-      'SELECT * FROM gallery ORDER BY sort_order ASC, id ASC'
-    );
-    res.json(items);
+    const { data: items, error } = await supabase
+      .from('gallery')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('id', { ascending: true });
+    if (error) throw new Error(error.message);
+    res.json(items || []);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -37,14 +40,24 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
     const imageUrl = resolveImageUrl(req);
     if (!imageUrl) return res.status(400).json({ error: 'Image file is required.' });
 
-    const maxOrder = await db.getAsync('SELECT MAX(sort_order) AS m FROM gallery');
-    const sortOrder = (maxOrder?.m ?? -1) + 1;
+    // Compute next sort_order by fetching the current max
+    const { data: maxRow, error: maxError } = await supabase
+      .from('gallery')
+      .select('sort_order')
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .single();
+    if (maxError && maxError.code !== 'PGRST116') throw new Error(maxError.message);
+    const sortOrder = ((maxRow?.sort_order) ?? -1) + 1;
 
-    const r = await db.runAsync(
-      'INSERT INTO gallery (img, alt, caption, wide, sort_order) VALUES (?,?,?,?,?)',
-      [imageUrl, alt || '', caption || '', wide === '1' ? 1 : 0, sortOrder]
-    );
-    res.status(201).json({ id: r.lastID, message: 'Gallery image added.' });
+    const { data, error } = await supabase
+      .from('gallery')
+      .insert({ img: imageUrl, alt: alt || '', caption: caption || '', wide: wide === '1' ? 1 : 0, sort_order: sortOrder })
+      .select('id')
+      .single();
+    if (error) throw new Error(error.message);
+
+    res.status(201).json({ id: data.id, message: 'Gallery image added.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -54,13 +67,19 @@ router.put('/:id', requireAuth, upload.single('image'), async (req, res) => {
     const { alt, caption, wide } = req.body;
     let imageUrl = resolveImageUrl(req);
     if (!imageUrl) {
-      const existing = await db.getAsync('SELECT img FROM gallery WHERE id = ?', [req.params.id]);
+      const { data: existing, error: fetchError } = await supabase
+        .from('gallery')
+        .select('img')
+        .eq('id', req.params.id)
+        .single();
+      if (fetchError && fetchError.code !== 'PGRST116') throw new Error(fetchError.message);
       imageUrl = existing ? existing.img : null;
     }
-    await db.runAsync(
-      'UPDATE gallery SET img=?, alt=?, caption=?, wide=? WHERE id=?',
-      [imageUrl, alt || '', caption || '', wide === '1' ? 1 : 0, req.params.id]
-    );
+    const { error } = await supabase
+      .from('gallery')
+      .update({ img: imageUrl, alt: alt || '', caption: caption || '', wide: wide === '1' ? 1 : 0 })
+      .eq('id', req.params.id);
+    if (error) throw new Error(error.message);
     res.json({ message: 'Gallery image updated.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -69,7 +88,11 @@ router.put('/:id', requireAuth, upload.single('image'), async (req, res) => {
 router.patch('/:id/order', requireAuth, async (req, res) => {
   try {
     const { sort_order } = req.body;
-    await db.runAsync('UPDATE gallery SET sort_order=? WHERE id=?', [sort_order, req.params.id]);
+    const { error } = await supabase
+      .from('gallery')
+      .update({ sort_order })
+      .eq('id', req.params.id);
+    if (error) throw new Error(error.message);
     res.json({ message: 'Order updated.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -77,7 +100,11 @@ router.patch('/:id/order', requireAuth, async (req, res) => {
 // ── DELETE /api/gallery/:id — remove image (admin only) ───────
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    await db.runAsync('DELETE FROM gallery WHERE id = ?', [req.params.id]);
+    const { error } = await supabase
+      .from('gallery')
+      .delete()
+      .eq('id', req.params.id);
+    if (error) throw new Error(error.message);
     res.json({ message: 'Gallery image deleted.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

@@ -2,21 +2,27 @@
 const router  = require('express').Router();
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
-const db      = require('../db');
+const supabase = require('../db');
 const { authLimiter } = require('../middleware/rateLimiter');
 const { requireAuth } = require('../middleware/auth');
 
-// Ensure role column exists on admins table (safe migration)
-db.runAsync('ALTER TABLE admins ADD COLUMN IF NOT EXISTS role TEXT DEFAULT \'ecomm_admin\'', [])
-  .catch(() => {});
+// NOTE: ALTER TABLE skipped — table schema managed in Supabase dashboard
 
 router.post('/login', authLimiter, async (req, res) => {
   try {
     const { username, password } = req.body || {};
     if (!username || !password) return res.status(400).json({ error: 'Username and password required.' });
-    const admin = await db.getAsync('SELECT * FROM admins WHERE username = ?', [username]);
+
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('username', username)
+      .single();
+    if (error && error.code !== 'PGRST116') throw new Error(error.message);
+
     if (!admin || !bcrypt.compareSync(password, admin.password_hash))
       return res.status(401).json({ error: 'Invalid credentials.' });
+
     const token = jwt.sign(
       {
         id:    admin.id,
@@ -34,11 +40,24 @@ router.post('/login', authLimiter, async (req, res) => {
 router.post('/change-password', requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body || {};
-    const admin = await db.getAsync('SELECT * FROM admins WHERE id = ?', [req.admin.id]);
-    if (!bcrypt.compareSync(currentPassword, admin.password_hash))
+
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('id', req.admin.id)
+      .single();
+    if (error && error.code !== 'PGRST116') throw new Error(error.message);
+
+    if (!admin || !bcrypt.compareSync(currentPassword, admin.password_hash))
       return res.status(401).json({ error: 'Current password is incorrect.' });
+
     const hash = bcrypt.hashSync(newPassword, 10);
-    await db.runAsync('UPDATE admins SET password_hash = ? WHERE id = ?', [hash, req.admin.id]);
+    const { error: updateError } = await supabase
+      .from('admins')
+      .update({ password_hash: hash })
+      .eq('id', req.admin.id);
+    if (updateError) throw new Error(updateError.message);
+
     res.json({ message: 'Password updated successfully.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

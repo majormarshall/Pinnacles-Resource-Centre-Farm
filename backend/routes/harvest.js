@@ -1,18 +1,21 @@
 // backend/routes/harvest.js — Today's Harvest API
 const express    = require('express');
 const router     = express.Router();
-const db         = require('../db');
+const supabase   = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
 // GET /api/harvest/today — public, returns today's harvested products
 router.get('/today', async (req, res) => {
   try {
-    // Products marked as harvested today (in_stock=1 AND harvested_today=1)
-    // We repurpose a products query — products with today_harvest flag
-    const products = await db.allAsync(
-      'SELECT id, name, description, price, unit, category, in_stock FROM products WHERE in_stock = 1 AND today_harvest = 1 ORDER BY name ASC',
-      []
-    );
+    // Products marked as harvested today (in_stock=1 AND today_harvest=1)
+    const { data: products, error } = await supabase
+      .from('products')
+      .select('id, name, description, price, unit, category, in_stock')
+      .eq('in_stock', 1)
+      .eq('today_harvest', 1)
+      .order('name');
+    if (error) throw new Error(error.message);
+
     if (!products || products.length === 0) {
       return res.json({ items: [] });
     }
@@ -40,10 +43,22 @@ router.get('/today', async (req, res) => {
 router.patch('/toggle/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await db.getAsync('SELECT today_harvest FROM products WHERE id = ?', [id]);
+
+    const { data: product, error: fetchError } = await supabase
+      .from('products')
+      .select('today_harvest')
+      .eq('id', id)
+      .single();
+    if (fetchError && fetchError.code !== 'PGRST116') throw new Error(fetchError.message);
     if (!product) return res.status(404).json({ error: 'Product not found' });
+
     const newVal = product.today_harvest ? 0 : 1;
-    await db.runAsync('UPDATE products SET today_harvest = ? WHERE id = ?', [newVal, id]);
+    const { error: updateError } = await supabase
+      .from('products')
+      .update({ today_harvest: newVal })
+      .eq('id', id);
+    if (updateError) throw new Error(updateError.message);
+
     res.json({ id: Number(id), today_harvest: newVal });
   } catch (err) {
     console.error('Toggle harvest:', err.message);
@@ -54,7 +69,11 @@ router.patch('/toggle/:id', requireAuth, async (req, res) => {
 // POST /api/harvest/clear — admin only, clear all today_harvest flags
 router.post('/clear', requireAuth, async (req, res) => {
   try {
-    await db.runAsync('UPDATE products SET today_harvest = 0', []);
+    const { error } = await supabase
+      .from('products')
+      .update({ today_harvest: 0 })
+      .neq('id', 0); // apply to all rows (Supabase requires a filter for updates)
+    if (error) throw new Error(error.message);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

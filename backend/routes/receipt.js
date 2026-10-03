@@ -3,7 +3,7 @@
 
 const router      = require('express').Router();
 const crypto      = require('crypto');
-const db          = require('../db');
+const supabase    = require('../db');
 const { requireAuth } = require('../middleware/auth');
 const nodemailer  = require('nodemailer');
 
@@ -362,7 +362,7 @@ function buildReceiptHtml(order) {
 // Returns the secure token and full receipt URL for this order
 router.get('/:id/receipt-token', requireAuth, async (req, res) => {
   try {
-    const order = await db.getAsync('SELECT id FROM orders WHERE id = ?', [req.params.id]);
+    const { data: order } = await supabase.from('orders').select('id').eq('id', req.params.id).single();
     if (!order) return res.status(404).json({ error: 'Order not found.' });
     const token = generateToken(order.id);
     const baseUrl = process.env.SITE_URL || '';
@@ -384,7 +384,7 @@ router.post('/:id/receipt/email', requireAuth, async (req, res) => {
       return res.status(503).json({ error: 'Email not configured on the server. Please use WhatsApp to send the receipt.' });
     }
 
-    const order = await db.getAsync('SELECT * FROM orders WHERE id = ?', [req.params.id]);
+    const { data: order } = await supabase.from('orders').select('*').eq('id', req.params.id).single();
     if (!order) return res.status(404).json({ error: 'Order not found.' });
 
     // Parse items
@@ -392,7 +392,7 @@ router.post('/:id/receipt/email', requireAuth, async (req, res) => {
 
     // Save email to order if not already set
     if (!order.customer_email && email) {
-      await db.runAsync('UPDATE orders SET customer_email = ? WHERE id = ?', [email, order.id]).catch(() => {});
+      await supabase.from('orders').update({ customer_email: email }).eq('id', order.id).catch(() => {});
     }
 
     const token = generateToken(order.id);
