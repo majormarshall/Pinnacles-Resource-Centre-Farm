@@ -382,4 +382,164 @@ router.get('/dashboard', requireAuth, async (req, res) => {
   } catch (e) { res.json({ error: e.message, fields:0, workers:0, plantings:0, harvests_30d:0, harvest_kg_30d:0, sprays_7d:0, recent_diary:[] }); }
 });
 
+
+// ── CROPS (full CRUD) ──────────────────────────────────────────────────────
+router.delete('/crops/:id', requireAuth, async (req, res) => {
+  await db.runAsync('DELETE FROM farm_crops WHERE id=?', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// ── GROWTH LOGS ────────────────────────────────────────────────────────────
+router.get('/growth-logs/:plantingId', requireAuth, async (req, res) => {
+  const rows = await db.allAsync(
+    'SELECT * FROM farm_growth_logs WHERE planting_id=? ORDER BY log_date DESC',
+    [req.params.plantingId]
+  );
+  res.json(rows);
+});
+router.post('/growth-logs', requireAuth, async (req, res) => {
+  const { planting_id, log_date, stage, health_rating, height_cm, observations, photo_b64 } = req.body;
+  if (!planting_id || !log_date) return res.status(400).json({ error: 'planting_id and log_date required' });
+  const r = await db.runAsync(
+    'INSERT INTO farm_growth_logs (planting_id,logged_by,log_date,stage,health_rating,height_cm,observations,photo_b64) VALUES (?,?,?,?,?,?,?,?) RETURNING id',
+    [planting_id, req.user?.name||'Admin', log_date, stage||'vegetative', health_rating||3, height_cm||null, observations||null, photo_b64||null]
+  );
+  res.json({ id: r.lastID || r.rows?.[0]?.id });
+});
+
+// ── INPUT USAGE ────────────────────────────────────────────────────────────
+router.get('/input-usage', requireAuth, async (req, res) => {
+  const rows = await db.allAsync(`
+    SELECT fu.*, fi.name AS input_name, fi.unit, ff.name AS field_name
+    FROM farm_input_usage fu
+    LEFT JOIN farm_inputs fi ON fu.input_id = fi.id
+    LEFT JOIN farm_fields ff ON fu.field_id = ff.id
+    ORDER BY fu.use_date DESC LIMIT 200
+  `, []);
+  res.json(rows);
+});
+router.post('/input-usage', requireAuth, async (req, res) => {
+  const { input_id, field_id, use_date, quantity_used, purpose, notes } = req.body;
+  if (!input_id || !quantity_used) return res.status(400).json({ error: 'input_id and quantity_used required' });
+  // Deduct from stock
+  await db.runAsync('UPDATE farm_inputs SET current_stock = GREATEST(0, current_stock - ?) WHERE id=?', [quantity_used, input_id]);
+  const r = await db.runAsync(
+    'INSERT INTO farm_input_usage (input_id,field_id,used_by,use_date,quantity_used,purpose,notes) VALUES (?,?,?,?,?,?,?) RETURNING id',
+    [input_id, field_id||null, req.user?.name||'Admin', use_date||new Date().toISOString().slice(0,10), quantity_used, purpose||null, notes||null]
+  );
+  res.json({ id: r.lastID || r.rows?.[0]?.id });
+});
+
+// ── PAYROLL ────────────────────────────────────────────────────────────────
+// GET /api/farm/payroll/calculate?month=10&year=2026
+router.get('/payroll/calculate', requireAuth, async (req, res) => {
+  const month = parseInt(req.query.month) || new Date().getMonth() + 1;
+  const year  = parseInt(req.query.year)  || new Date().getFullYear();
+  const start = new Date(year, month-1, 1).toISOString().slice(0,10);
+  const end   = new Date(year, month, 0).toISOString().slice(0,10);
+
+  try {
+    const workers = await db.allAsync('SELECT * FROM farm_workers WHERE status=\'active\'', []);
+    const result  = await Promise.all(workers.map(async w => {
+      const att = await db.allAsync(
+        'SELECT COUNT(*) as days, COALESCE(SUM(hours_worked),0) as total_hours FROM farm_attendance WHERE worker_id=? AND work_date BETWEEN ? AND ?',
+        [w.id, start, end]
+      );
+      const days  = Number(att[0]?.days || 0);
+      const hours = Number(att[0]?.total_hours || 0);
+      let gross   = 0;
+      if (w.pay_type === 'daily')   gross = days * Number(w.pay_rate);
+      else if (w.pay_type === 'weekly')  gross = Math.ceil(days/5) * Number(w.pay_rate);
+      else if (w.pay_type === 'monthly') gross = Number(w.pay_rate);
+      else gross = days * Number(w.pay_rate); // task-based treated as daily
+
+      // Check if already paid for this period
+      const paid = await db.allAsync('SELECT id, paid FROM farm_payroll WHERE worker_id=? AND period_start=?', [w.id, start]);
+      return {
+        worker_id: w.id, name: w.name, role: w.role, pay_type: w.pay_type,
+        pay_rate: Number(w.pay_rate), days, hours, gross,
+        net_pay: gross, // no deductions for now
+        already_paid: paid.length > 0 && paid[0].paid === 1,
+        payroll_id: paid[0]?.id || null,
+      };
+    }));
+    const total = result.reduce((s, r) => s + r.gross, 0);
+    res.json({ month, year, period_start: start, period_end: end, workers: result, total_gross: total });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/farm/payroll/pay — record payment for a worker-period
+router.post('/payroll/pay', requireAuth, async (req, res) => {
+  const { worker_id, period_start, period_end, days_worked, hours_worked, gross_pay, net_pay, notes } = req.body;
+  if (!worker_id || !period_start) return res.status(400).json({ error: 'worker_id and period_start required' });
+  // Upsert
+  const existing = await db.allAsync('SELECT id FROM farm_payroll WHERE worker_id=? AND period_start=?', [worker_id, period_start]);
+  if (existing.length) {
+    await db.runAsync('UPDATE farm_payroll SET paid=1, paid_date=?, paid_by=?, gross_pay=?, net_pay=?, days_worked=?, hours_worked=? WHERE id=?',
+      [new Date().toISOString().slice(0,10), req.user?.name||'Admin', gross_pay, net_pay, days_worked, hours_worked, existing[0].id]);
+    res.json({ id: existing[0].id, updated: true });
+  } else {
+    const r = await db.runAsync(
+      'INSERT INTO farm_payroll (worker_id,period_start,period_end,days_worked,hours_worked,gross_pay,net_pay,paid,paid_date,paid_by,notes) VALUES (?,?,?,?,?,?,?,1,?,?,?) RETURNING id',
+      [worker_id, period_start, period_end, days_worked||0, hours_worked||0, gross_pay, net_pay, new Date().toISOString().slice(0,10), req.user?.name||'Admin', notes||null]
+    );
+    res.json({ id: r.lastID || r.rows?.[0]?.id });
+  }
+});
+
+// ── REPORTS ────────────────────────────────────────────────────────────────
+router.get('/reports/harvest-summary', requireAuth, async (req, res) => {
+  const month = parseInt(req.query.month) || new Date().getMonth() + 1;
+  const year  = parseInt(req.query.year)  || new Date().getFullYear();
+  const start = new Date(year, month-1, 1).toISOString().slice(0,10);
+  const end   = new Date(year, month, 0).toISOString().slice(0,10);
+  const rows  = await db.allAsync(`
+    SELECT crop_name, quality_grade, unit,
+           COUNT(*) as harvest_count,
+           COALESCE(SUM(quantity),0) as total_qty
+    FROM farm_harvests
+    WHERE harvest_date BETWEEN ? AND ?
+    GROUP BY crop_name, quality_grade, unit
+    ORDER BY crop_name, quality_grade
+  `, [start, end]);
+  res.json({ month, year, rows });
+});
+
+router.get('/reports/costs', requireAuth, async (req, res) => {
+  const month = parseInt(req.query.month) || new Date().getMonth() + 1;
+  const year  = parseInt(req.query.year)  || new Date().getFullYear();
+  const start = new Date(year, month-1, 1).toISOString().slice(0,10);
+  const end   = new Date(year, month, 0).toISOString().slice(0,10);
+  try {
+    // Labour cost from payroll
+    const labour = await db.allAsync('SELECT COALESCE(SUM(gross_pay),0) as total FROM farm_payroll WHERE period_start=?', [start]);
+    // Input costs from usage
+    const inputs = await db.allAsync(`
+      SELECT COALESCE(SUM(fu.quantity_used * fi.cost_per_unit),0) as total
+      FROM farm_input_usage fu JOIN farm_inputs fi ON fu.input_id=fi.id
+      WHERE fu.use_date BETWEEN ? AND ?
+    `, [start, end]);
+    // Revenue from e-commerce orders
+    const revenue = await db.allAsync(`
+      SELECT COALESCE(SUM(total),0) as total, COUNT(*) as order_count
+      FROM orders WHERE created_at::date BETWEEN ? AND ? AND status != 'cancelled'
+    `, [start, end]).catch(() => [{ total: 0, order_count: 0 }]);
+    res.json({
+      month, year,
+      labour_cost:  Number(labour[0]?.total || 0),
+      inputs_cost:  Number(inputs[0]?.total || 0),
+      total_costs:  Number(labour[0]?.total || 0) + Number(inputs[0]?.total || 0),
+      revenue:      Number(revenue[0]?.total || 0),
+      order_count:  Number(revenue[0]?.order_count || 0),
+      profit:       Number(revenue[0]?.total || 0) - Number(labour[0]?.total || 0) - Number(inputs[0]?.total || 0),
+    });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── ADMIN USER MANAGEMENT (farm ops mirror) ───────────────────────────────
+router.get('/team', requireAuth, async (req, res) => {
+  const rows = await db.allAsync('SELECT id, name, email, role, created_at FROM admin_users ORDER BY name ASC', []).catch(() => []);
+  res.json(rows);
+});
+
 module.exports = router;

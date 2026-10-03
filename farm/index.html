@@ -49,8 +49,11 @@
       <a href="#" class="fo-nav-item" onclick="showFoTab('inputs',this)">🏪 Inputs & Supplies</a>
       <a href="#" class="fo-nav-item" onclick="showFoTab('equipment',this)">🚜 Equipment</a>
       <div class="fo-nav-group">RECORDS</div>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('crops',this)">🌾 Crop Varieties</a>
       <a href="#" class="fo-nav-item" onclick="showFoTab('diary',this)">📔 Farm Diary</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('payroll',this)">💰 Payroll</a>
       <a href="#" class="fo-nav-item" onclick="showFoTab('reports',this)">📈 Reports</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('team',this)">👤 Team / Users</a>
       <a href="../admin/" class="fo-nav-item" style="margin-top:auto;color:rgba(255,255,255,.4);font-size:.78rem">← E-commerce Admin</a>
     </div>
     <button class="fo-logout" onclick="doLogout()">🚪 Sign Out</button>
@@ -114,6 +117,7 @@
             <button onclick="showFoTab('diary',null); setTimeout(openDiaryForm,200)">+ Diary Entry</button>
             <button onclick="showFoTab('plantings',null); setTimeout(openPlantingForm,200)">+ New Planting</button>
             <button onclick="showFoTab('inputs',null)">📦 Check Supplies</button>
+            <button onclick="showFoTab('payroll',null); setTimeout(openPayrollModal,200)">💰 Run Payroll</button>
           </div>
         </div>
       </div>
@@ -207,7 +211,63 @@
       </div>
     </div>
 
-  </main>
+  
+    <!-- CROPS TAB -->
+    <div id="fotab-crops" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openCropForm()">+ Add Crop Variety</button>
+      </div>
+      <div id="crops-list" class="fo-list"></div>
+    </div>
+
+    <!-- PAYROLL TAB -->
+    <div id="fotab-payroll" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <select id="pr-month" class="fo-select" style="width:140px">
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+          <input type="number" id="pr-year" class="fo-input" style="width:100px" value="2026" min="2024" max="2030" />
+          <button class="fo-btn-primary" onclick="loadPayroll()">📊 Calculate Payroll</button>
+        </div>
+      </div>
+      <div id="payroll-summary" style="display:none;background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.25);border-radius:12px;padding:16px 20px;margin-bottom:16px">
+        <div style="display:flex;gap:32px;flex-wrap:wrap">
+          <div><div style="font-size:.75rem;color:rgba(255,255,255,.5)">Period</div><div id="pr-period" style="font-weight:700;color:#a3d9b8"></div></div>
+          <div><div style="font-size:.75rem;color:rgba(255,255,255,.5)">Active Workers</div><div id="pr-count" style="font-weight:700;color:#a3d9b8"></div></div>
+          <div><div style="font-size:.75rem;color:rgba(255,255,255,.5)">Total Payroll</div><div id="pr-total" style="font-size:1.3rem;font-weight:800;color:#52b788"></div></div>
+        </div>
+      </div>
+      <div id="payroll-list" class="fo-list">
+        <p class="fo-empty">Select a month and click Calculate Payroll</p>
+      </div>
+    </div>
+
+    <!-- TEAM / USER MANAGEMENT TAB -->
+    <div id="fotab-team" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openNewUserModal()">+ Add Team Member</button>
+      </div>
+      <div class="fo-card" style="max-width:700px;margin-bottom:20px">
+        <h4 style="color:#a3d9b8;margin-bottom:12px">Role Permissions</h4>
+        <div class="role-table">
+          <div class="role-row header"><span>Role</span><span>E-commerce</span><span>Farm Ops</span></div>
+          <div class="role-row"><span>🔑 super_admin</span><span class="rc-full">Full Access</span><span class="rc-full">Full Access</span></div>
+          <div class="role-row"><span>📦 ecomm_admin</span><span class="rc-full">Full Access</span><span class="rc-read">Read Only</span></div>
+          <div class="role-row"><span>🌾 farm_manager</span><span class="rc-read">Products + Harvest</span><span class="rc-full">Full Access</span></div>
+          <div class="role-row"><span>👷 farm_worker</span><span class="rc-none">No Access</span><span class="rc-limited">Log Tasks Only</span></div>
+          <div class="role-row"><span>💰 finance</span><span class="rc-read">Reports Only</span><span class="rc-read">Costs + Payroll</span></div>
+        </div>
+      </div>
+      <div id="team-list" class="fo-list"></div>
+    </div>
+
+</main>
 </div>
 
 <!-- MODALS -->
@@ -221,5 +281,6 @@
 </div>
 
 <script src="js/farm.js"></script>
+<script src="js/farm_phase2.js"></script>
 </body>
 </html>

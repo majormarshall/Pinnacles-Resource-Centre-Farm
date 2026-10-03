@@ -320,3 +320,59 @@ html, body { height: 100%; font-family: 'Outfit', sans-serif; background: var(--
 .harvest-toggle input:checked + .harvest-toggle-slider { background: var(--fo-green); }
 .harvest-toggle-slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .3s; }
 .harvest-toggle input:checked + .harvest-toggle-slider::before { transform: translateX(20px); }
+
+/* == PHASE 2 == */
+
+/* Role permissions table */
+.role-table { display: flex; flex-direction: column; gap: 0; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
+.role-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 10px 14px; font-size: .8rem; border-bottom: 1px solid rgba(255,255,255,.06); }
+.role-row:last-child { border-bottom: none; }
+.role-row.header { background: rgba(255,255,255,.05); font-weight: 700; color: rgba(255,255,255,.5); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+.rc-full    { color: #22c55e; font-weight: 700; }
+.rc-read    { color: #fbbf24; font-weight: 600; }
+.rc-limited { color: #60a5fa; font-weight: 600; }
+.rc-none    { color: rgba(255,255,255,.25); }
+
+/* Growth log */
+.growth-log-entry { background: var(--fo-bg1); border: 1px solid var(--fo-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
+.growth-log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.growth-stage { font-size: .75rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; background: rgba(82,183,136,.15); color: #52b788; }
+.health-stars { color: #fbbf24; font-size: .9rem; letter-spacing: 1px; }
+.growth-photo { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 8px; }
+
+/* Payroll row */
+.payroll-row { background: var(--fo-bg3); border: 1px solid var(--fo-border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
+.payroll-worker { flex: 1; }
+.payroll-worker-name { font-weight: 700; color: var(--fo-text); margin-bottom: 3px; }
+.payroll-worker-meta { font-size: .78rem; color: var(--fo-muted); }
+.payroll-amount { text-align: right; }
+.payroll-gross  { font-size: 1.2rem; font-weight: 800; color: #52b788; }
+.payroll-days   { font-size: .75rem; color: var(--fo-muted); margin-top: 2px; }
+.pay-btn { background: rgba(82,183,136,.15); border: 1px solid rgba(82,183,136,.3); color: #a3d9b8; padding: 6px 14px; border-radius: 8px; font-size: .78rem; font-weight: 700; cursor: pointer; font-family: Outfit,sans-serif; transition: .15s; margin-top: 6px; }
+.pay-btn:hover { background: rgba(82,183,136,.3); }
+.pay-btn.paid { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); color: rgba(255,255,255,.3); cursor: default; }
+
+/* Reports */
+.report-section { margin-bottom: 28px; }
+.report-section h4 { font-size: .9rem; font-weight: 700; color: #a3d9b8; margin-bottom: 14px; text-transform: uppercase; letter-spacing: .06em; }
+.report-kpi-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.report-kpi { flex: 1; min-width: 140px; background: var(--fo-bg3); border: 1px solid var(--fo-border); border-radius: 14px; padding: 16px 18px; }
+.report-kpi-val { font-size: 1.4rem; font-weight: 800; color: #52b788; margin-bottom: 4px; }
+.report-kpi-val.red { color: #f87171; }
+.report-kpi-lbl { font-size: .75rem; color: var(--fo-muted); }
+.report-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.report-table th { padding: 8px 12px; background: rgba(255,255,255,.05); color: rgba(255,255,255,.5); font-weight: 700; text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; }
+.report-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.05); color: var(--fo-text); }
+
+/* Team */
+.team-member-row { display: flex; align-items: center; gap: 14px; background: var(--fo-bg3); border: 1px solid var(--fo-border); border-radius: 12px; padding: 14px 18px; margin-bottom: 8px; }
+.team-avatar { width: 42px; height: 42px; border-radius: 50%; background: rgba(82,183,136,.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.team-info { flex: 1; }
+.team-name  { font-weight: 700; font-size: .9rem; color: var(--fo-text); }
+.team-email { font-size: .75rem; color: var(--fo-muted); margin-top: 2px; }
+.role-pill  { font-size: .7rem; font-weight: 700; padding: 3px 12px; border-radius: 20px; white-space: nowrap; }
+.role-super  { background: rgba(168,85,247,.15); color: #c084fc; }
+.role-ecomm  { background: rgba(59,130,246,.15);  color: #60a5fa; }
+.role-farm   { background: rgba(82,183,136,.15);  color: #52b788; }
+.role-worker { background: rgba(251,191,36,.12);  color: #fbbf24; }
+.role-finance{ background: rgba(239,68,68,.12);   color: #f87171; }
