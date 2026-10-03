@@ -261,7 +261,12 @@ async function loadHarvests() {
         <div class="fo-row-meta">Grade: ${h.quality_grade} · ${h.sent_to_store ? '🏪 Sent to store' : '📦 On-farm'}</div>
         ${h.notes ? `<div class="fo-row-meta" style="font-style:italic">${h.notes}</div>` : ''}
       </div>
-      ${badge('Grade ' + h.quality_grade, h.quality_grade === 'A' ? 'green' : h.quality_grade === 'B' ? 'yellow' : 'gray')}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        ${badge('Grade ' + h.quality_grade, h.quality_grade === 'A' ? 'green' : h.quality_grade === 'B' ? 'yellow' : 'gray')}
+        ${!h.sent_to_store
+          ? `<button onclick="sendHarvestToStore(${h.id})" style="font-size:.72rem;background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);color:#a3d9b8;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:Outfit,sans-serif;margin-top:2px">🏪 Send to Store</button>`
+          : `<span style="font-size:.7rem;color:#52b788;margin-top:2px">🏪 In Store</span>`}
+      </div>
     </div>`).join('');
 }
 
@@ -713,3 +718,174 @@ document.addEventListener('DOMContentLoaded', () => {
   // Enter key on login
   document.getElementById('l-pass')?.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 });
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// PHASE 3 — Equipment Maintenance + Harvest→Store + Export Downloads
+// Added to farm/js/farm.js
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── SEND HARVEST TO STORE ─────────────────────────────────────────────────
+async function sendHarvestToStore(harvestId) {
+  try {
+    const result = await foApi('POST', '/harvests/' + harvestId + '/send-to-store', {});
+    foToast('✅ ' + (result.message || 'Sent to store!'));
+    loadHarvests();
+  } catch(e) { foToast('❌ ' + e.message); }
+}
+
+// ── EQUIPMENT MAINTENANCE SCHEDULING ─────────────────────────────────────
+function scheduleMaintenance(equipId, equipName) {
+  openModal('🔧 Schedule Maintenance — ' + equipName,
+    '<div class="fo-form-group"><label class="fo-label">Maintenance Type</label>' +
+    '<select class="fo-select" id="mt-type">' +
+    '<option value="routine">Routine Service</option>' +
+    '<option value="repair">Repair</option>' +
+    '<option value="inspection">Inspection</option>' +
+    '<option value="cleaning">Cleaning</option>' +
+    '<option value="parts_replacement">Parts Replacement</option>' +
+    '<option value="oil_change">Oil Change</option>' +
+    '</select></div>' +
+    '<div class="fo-form-group"><label class="fo-label">Description</label>' +
+    '<input class="fo-input" id="mt-desc" placeholder="What needs to be done?" /></div>' +
+    '<div class="fo-form-row">' +
+    '<div class="fo-form-group"><label class="fo-label">Scheduled Date *</label>' +
+    '<input type="date" class="fo-input" id="mt-date" value="' + today() + '" /></div>' +
+    '<div class="fo-form-group"><label class="fo-label">Next Service Date</label>' +
+    '<input type="date" class="fo-input" id="mt-next" /></div>' +
+    '</div>' +
+    '<div class="fo-form-group"><label class="fo-label">Cost Estimate (NGN)</label>' +
+    '<input type="number" class="fo-input" id="mt-cost" placeholder="0" /></div>' +
+    '<div class="fo-form-group"><label class="fo-label">Notes</label>' +
+    '<textarea class="fo-textarea" id="mt-notes" rows="2" placeholder="Additional details..."></textarea></div>' +
+    '<div class="fo-modal-footer">' +
+    '<button class="fo-btn-secondary" onclick="closeFoModal()">Cancel</button>' +
+    '<button class="fo-btn-primary" onclick="saveMaintenance(' + equipId + ',\'' + (equipName||'').replace(/'/g,"\\'") + '\')">💾 Schedule</button>' +
+    '</div>'
+  );
+}
+
+async function saveMaintenance(equipId, equipName) {
+  const body = {
+    equipment_id:      equipId,
+    equipment_name:    equipName,
+    maintenance_type:  v('mt-type'),
+    description:       v('mt-desc'),
+    scheduled_date:    v('mt-date'),
+    next_service_date: v('mt-next') || null,
+    cost:              v('mt-cost') || 0,
+    notes:             v('mt-notes'),
+  };
+  if (!body.scheduled_date) { foToast('❌ Please set a scheduled date'); return; }
+  await fetch('/api/maintenance', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + foToken() },
+    body: JSON.stringify(body),
+  });
+  foToast('✅ Maintenance scheduled!');
+  closeFoModal();
+  loadEquipment();
+}
+
+async function completeMaintenance(id) {
+  const cost = prompt('Enter actual cost (NGN), or leave blank:') || 0;
+  await fetch('/api/maintenance/' + id + '/complete', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + foToken() },
+    body: JSON.stringify({ performed_by: foUser?.name || 'Admin', completed_date: today(), cost }),
+  });
+  foToast('✅ Maintenance marked complete!');
+  loadReports();
+}
+
+// ── EXPORT DOWNLOAD ───────────────────────────────────────────────────────
+function downloadExport(endpoint) {
+  const sep = endpoint.includes('?') ? '&' : '?';
+  const url = endpoint + sep + '_t=' + encodeURIComponent(foToken());
+  const a   = document.createElement('a');
+  a.href    = url;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  foToast('⬇️ Downloading...');
+}
+
+function downloadPayslip(workerId) {
+  const now   = new Date();
+  const month = now.getMonth() + 1;
+  const year  = now.getFullYear();
+  downloadExport('/api/exports/payslip/' + workerId + '?month=' + month + '&year=' + year);
+}
+
+// ── UPDATED loadReports — with download buttons + maintenance widget ───────
+async function loadReports() {
+  const el = document.getElementById('fotab-reports');
+  if (!el) return;
+  const now   = new Date();
+  const month = now.getMonth() + 1;
+  const year  = now.getFullYear();
+  const mn    = now.toLocaleString('en-NG', { month: 'long', year: 'numeric' });
+
+  el.innerHTML =
+    '<div style="padding:24px">' +
+    '<p style="color:rgba(255,255,255,.5);font-size:.88rem;margin-bottom:24px">Data for <strong style="color:#a3d9b8">' + mn + '</strong></p>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">' +
+    '<div class="fo-card"><div class="fo-card-header"><h3>📥 Download Reports</h3></div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px">' +
+    '<button class="fo-btn-primary" style="text-align:left;font-size:.82rem;padding:9px 14px" onclick="downloadExport(\'/api/exports/monthly/excel?month=' + month + '&year=' + year + '\')">📊 Monthly Summary (Excel)</button>' +
+    '<button class="fo-btn-primary" style="text-align:left;font-size:.82rem;padding:9px 14px" onclick="downloadExport(\'/api/exports/harvest/excel?month=' + month + '&year=' + year + '\')">🧺 Harvest Report (Excel)</button>' +
+    '<button class="fo-btn-primary" style="text-align:left;font-size:.82rem;padding:9px 14px" onclick="downloadExport(\'/api/exports/payroll/excel?month=' + month + '&year=' + year + '\')">💰 Payroll Report (Excel)</button>' +
+    '</div><p style="font-size:.72rem;color:rgba(255,255,255,.3);margin-top:10px">Individual payslips: Payroll tab → Download PDF per worker</p></div>' +
+    '<div class="fo-card"><div class="fo-card-header"><h3>🔧 Upcoming Maintenance</h3></div>' +
+    '<div id="rpt-maint"><p class="fo-empty">Loading...</p></div></div>' +
+    '</div>' +
+    '<div id="report-content"><div class="fo-empty">Loading...</div></div>' +
+    '</div>';
+
+  // Load upcoming maintenance
+  fetch('/api/maintenance/upcoming', { headers: { Authorization: 'Bearer ' + foToken() } })
+    .then(r => r.json()).then(rows => {
+      const mel = document.getElementById('rpt-maint');
+      if (!mel) return;
+      if (!rows.length) {
+        mel.innerHTML = '<p class="fo-empty" style="font-size:.78rem">No upcoming maintenance in next 30 days. ✅</p>';
+        return;
+      }
+      mel.innerHTML = rows.map(function(m) {
+        return '<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:10px 14px;margin-bottom:6px">' +
+          '<div style="font-weight:700;font-size:.82rem;color:#fbbf24">' + (m.equipment_name || 'Equipment') + '</div>' +
+          '<div style="font-size:.73rem;color:rgba(255,255,255,.5)">' + m.maintenance_type + ' · ' + fmtDate(m.scheduled_date) + '</div>' +
+          '<button onclick="completeMaintenance(' + m.id + ')" style="font-size:.68rem;margin-top:5px;background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);color:#a3d9b8;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:Outfit,sans-serif">✅ Mark Complete</button>' +
+          '</div>';
+      }).join('');
+    }).catch(function() {});
+
+  // Financial + harvest
+  try {
+    const [costs, harvests] = await Promise.all([
+      foApi('GET', '/reports/costs?month=' + month + '&year=' + year),
+      foApi('GET', '/reports/harvest-summary?month=' + month + '&year=' + year),
+    ]);
+    const profCol = costs.profit >= 0 ? '#52b788' : '#f87171';
+    const harvestTable = (harvests.rows && harvests.rows.length)
+      ? '<table class="report-table"><thead><tr><th>Crop</th><th>Grade</th><th>Total</th><th>Count</th></tr></thead><tbody>' +
+        harvests.rows.map(function(r) {
+          return '<tr><td>' + (r.crop_name||'—') + '</td><td>' + r.quality_grade + '</td><td>' + Number(r.total_qty).toFixed(1) + ' ' + r.unit + '</td><td>' + r.harvest_count + '</td></tr>';
+        }).join('') + '</tbody></table>'
+      : '<p class="fo-empty">No harvests this month.</p>';
+
+    document.getElementById('report-content').innerHTML =
+      '<div class="report-section"><h4>💰 Financial Overview</h4>' +
+      '<div class="report-kpi-row">' +
+      '<div class="report-kpi"><div class="report-kpi-val">NGN ' + Number(costs.revenue||0).toLocaleString('en-NG') + '</div><div class="report-kpi-lbl">Revenue</div></div>' +
+      '<div class="report-kpi"><div class="report-kpi-val">NGN ' + Number(costs.labour_cost||0).toLocaleString('en-NG') + '</div><div class="report-kpi-lbl">Labour</div></div>' +
+      '<div class="report-kpi"><div class="report-kpi-val">NGN ' + Number(costs.inputs_cost||0).toLocaleString('en-NG') + '</div><div class="report-kpi-lbl">Inputs</div></div>' +
+      '<div class="report-kpi"><div class="report-kpi-val" style="color:' + profCol + '">NGN ' + Number(costs.profit||0).toLocaleString('en-NG') + '</div><div class="report-kpi-lbl">' + (costs.profit >= 0 ? '✅ Profit' : '⚠️ Loss') + '</div></div>' +
+      '</div></div>' +
+      '<div class="report-section"><h4>🧺 Harvest Summary</h4>' + harvestTable + '</div>';
+  } catch(e) {
+    var rc = document.getElementById('report-content');
+    if (rc) rc.innerHTML = '<p class="fo-empty">Could not load: ' + e.message + '</p>';
+  }
+}

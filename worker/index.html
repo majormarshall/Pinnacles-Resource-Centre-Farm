@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0a1a0a" />
+  <title>Pinnacles — Worker Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/worker.css" />
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────────────────────────── -->
+<div id="w-login">
+  <div class="w-login-box">
+    <div style="font-size:3rem;margin-bottom:10px">🌾</div>
+    <h1>Pinnacles Farm</h1>
+    <p>Worker Portal</p>
+    <div id="w-err" class="w-err" style="display:none"></div>
+    <input type="email"    id="we" placeholder="Your email address" autocomplete="email" />
+    <input type="password" id="wp" placeholder="Password"           autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')wLogin()" />
+    <button onclick="wLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- ── MAIN APP ───────────────────────────────────────────────────────── -->
+<div id="w-app" style="display:none">
+
+  <header class="w-header">
+    <div>
+      <div class="w-greeting" id="w-greeting">Good morning!</div>
+      <div class="w-date"     id="w-date"></div>
+    </div>
+    <button class="w-logout" onclick="wLogout()">Sign Out</button>
+  </header>
+
+  <main class="w-main">
+
+    <!-- ATTENDANCE / CLOCK IN ─────────────────────────────────────────── -->
+    <div id="wtab-attendance" class="w-tab active">
+      <div class="w-card">
+        <h2>✅ Clock In / Attendance</h2>
+        <div class="w-field">
+          <label>Date</label>
+          <input type="date" id="wa-date" class="w-input" />
+        </div>
+        <div class="w-row">
+          <div class="w-field">
+            <label>Time In</label>
+            <input type="time" id="wa-in" class="w-input" />
+          </div>
+          <div class="w-field">
+            <label>Time Out</label>
+            <input type="time" id="wa-out" class="w-input" />
+          </div>
+        </div>
+        <div class="w-field">
+          <label>Task Today</label>
+          <input id="wa-task" class="w-input" placeholder="What are you working on?" />
+        </div>
+        <div class="w-field">
+          <label>Notes</label>
+          <textarea id="wa-notes" class="w-input" rows="2" placeholder="Any observations or reports..."></textarea>
+        </div>
+        <button class="w-btn" onclick="wSubmitAttendance()">✅ Submit Attendance</button>
+      </div>
+
+      <div class="w-card" style="margin-top:14px">
+        <h3 style="font-size:.85rem;color:rgba(255,255,255,.55);margin-bottom:12px">My Recent Attendance</h3>
+        <div id="w-my-att"><p class="w-empty">Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- TASKS ────────────────────────────────────────────────────────── -->
+    <div id="wtab-tasks" class="w-tab">
+      <div class="w-card">
+        <h2>📋 Log a Task</h2>
+        <div class="w-field">
+          <label>Date</label>
+          <input type="date" id="wt-date" class="w-input" />
+        </div>
+        <div class="w-field">
+          <label>Category</label>
+          <select id="wt-cat" class="w-input">
+            <option>Planting</option>
+            <option>Watering</option>
+            <option>Weeding</option>
+            <option>Harvesting</option>
+            <option>Spraying</option>
+            <option>Maintenance</option>
+            <option>Feeding</option>
+            <option>Cleaning</option>
+            <option>General</option>
+          </select>
+        </div>
+        <div class="w-field">
+          <label>Task Description *</label>
+          <textarea id="wt-desc" class="w-input" rows="4"
+                    placeholder="Describe what you did in detail..."></textarea>
+        </div>
+        <div class="w-field">
+          <label>Field / Area</label>
+          <input id="wt-area" class="w-input" placeholder="e.g. Block A, Greenhouse, Poultry House" />
+        </div>
+        <button class="w-btn" onclick="wSubmitTask()">📋 Log Task</button>
+      </div>
+    </div>
+
+    <!-- HARVEST ──────────────────────────────────────────────────────── -->
+    <div id="wtab-harvest" class="w-tab">
+      <div class="w-card">
+        <h2>🧺 Log a Harvest</h2>
+        <div class="w-field">
+          <label>Crop Name *</label>
+          <input id="wh-crop" class="w-input" placeholder="e.g. Tomatoes, Peppers, Eggs" />
+        </div>
+        <div class="w-field">
+          <label>Harvest Date</label>
+          <input type="date" id="wh-date" class="w-input" />
+        </div>
+        <div class="w-row">
+          <div class="w-field">
+            <label>Quantity *</label>
+            <input type="number" id="wh-qty" class="w-input" placeholder="0" step="0.1" min="0" />
+          </div>
+          <div class="w-field">
+            <label>Unit</label>
+            <select id="wh-unit" class="w-input">
+              <option>kg</option>
+              <option>basket</option>
+              <option>crate</option>
+              <option>bag</option>
+              <option>bunch</option>
+              <option>pieces</option>
+            </select>
+          </div>
+        </div>
+        <div class="w-field">
+          <label>Quality</label>
+          <select id="wh-grade" class="w-input">
+            <option value="A">A — Excellent</option>
+            <option value="B">B — Good</option>
+            <option value="C">C — Fair</option>
+          </select>
+        </div>
+        <div class="w-field">
+          <label>Notes / Observations</label>
+          <textarea id="wh-notes" class="w-input" rows="2"
+                    placeholder="Any issues, pests, damage, etc."></textarea>
+        </div>
+        <button class="w-btn" onclick="wSubmitHarvest()">🧺 Submit Harvest</button>
+      </div>
+    </div>
+
+    <!-- DIARY ────────────────────────────────────────────────────────── -->
+    <div id="wtab-diary" class="w-tab">
+      <div class="w-card">
+        <h2>📔 Daily Diary</h2>
+        <div class="w-field">
+          <label>Date</label>
+          <input type="date" id="wd-date" class="w-input" />
+        </div>
+        <div class="w-field">
+          <label>What happened today? *</label>
+          <textarea id="wd-note" class="w-input" rows="6"
+                    placeholder="Write your farm diary entry — tasks completed, observations, issues, progress..."></textarea>
+        </div>
+        <div class="w-field">
+          <label>Weather</label>
+          <input id="wd-weather" class="w-input" placeholder="e.g. Sunny 32°C, Rainy, Cloudy" />
+        </div>
+        <button class="w-btn" onclick="wSubmitDiary()">📔 Save Entry</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAV ────────────────────────────────────────────────────── -->
+  <nav class="w-nav">
+    <button class="w-nav-btn active" onclick="wTab('attendance',this)">✅<span>Clock In</span></button>
+    <button class="w-nav-btn"        onclick="wTab('tasks',this)">📋<span>Tasks</span></button>
+    <button class="w-nav-btn"        onclick="wTab('harvest',this)">🧺<span>Harvest</span></button>
+    <button class="w-nav-btn"        onclick="wTab('diary',this)">📔<span>Diary</span></button>
+  </nav>
+
+</div><!-- /#w-app -->
+
+<div id="w-toast" class="w-toast" style="display:none"></div>
+
+<script src="js/worker.js"></script>
+</body>
+</html>

@@ -542,4 +542,38 @@ router.get('/team', requireAuth, async (req, res) => {
   res.json(rows);
 });
 
+// ── HARVEST → STORE LINK ──────────────────────────────────────────────────
+// Marks a harvest as sent to store and auto-links to matching products'
+// today_harvest field so they appear in the Today's Harvest banner
+router.post('/harvests/:id/send-to-store', requireAuth, async (req, res) => {
+  const harvest = await db.getAsync('SELECT * FROM farm_harvests WHERE id=?', [req.params.id]);
+  if (!harvest) return res.status(404).json({ error: 'Harvest not found' });
+
+  await db.runAsync('UPDATE farm_harvests SET sent_to_store=1 WHERE id=?', [req.params.id]);
+
+  // Match product by name (case-insensitive first word match)
+  const cropName = (harvest.crop_name || '').toLowerCase();
+  const products = await db.allAsync('SELECT id, name FROM products', []);
+  const matched  = products.filter(p => {
+    const pn = p.name.toLowerCase();
+    const cn = cropName.split(' ')[0];
+    return pn.includes(cn) || cropName.includes(pn.split(' ')[0]);
+  });
+
+  const linkedProducts = [];
+  for (const p of matched) {
+    await db.runAsync('UPDATE products SET today_harvest=1, in_stock=1 WHERE id=?', [p.id]);
+    linkedProducts.push(p.name);
+  }
+
+  res.json({
+    ok: true,
+    sent_to_store:   true,
+    linked_products: linkedProducts,
+    message: linkedProducts.length
+      ? `Sent to store ✅ Linked to product${linkedProducts.length > 1 ? 's' : ''}: ${linkedProducts.join(', ')}`
+      : "Sent to store. No matching products found — link manually from Today's Harvest tab.",
+  });
+});
+
 module.exports = router;

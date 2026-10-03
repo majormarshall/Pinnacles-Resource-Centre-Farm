@@ -1,0 +1,321 @@
+/* ══════════════════════════════════════════════════════════════
+   Pinnacles Farm — Worker Portal Styles
+   Mobile-first, dark-green theme
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  --g:    #52b788;
+  --gd:   #1b4332;
+  --bg:   #0a1a0a;
+  --card: #111f11;
+  --brd:  rgba(255,255,255,.1);
+  --txt:  rgba(255,255,255,.9);
+  --muted: rgba(255,255,255,.5);
+  --nav-h: 66px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  height: 100%;
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior-y: contain;
+}
+
+body { min-height: 100%; position: relative; }
+
+/* ── LOGIN ──────────────────────────────────────────────────── */
+#w-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 24px 20px;
+  background: linear-gradient(160deg, #0a1a0a 0%, #1b4332 100%);
+}
+
+.w-login-box {
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--brd);
+  border-radius: 24px;
+  padding: 36px 28px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.w-login-box h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #a3d9b8;
+  margin-bottom: 4px;
+}
+
+.w-login-box p {
+  color: var(--muted);
+  font-size: .85rem;
+  margin-bottom: 28px;
+}
+
+.w-login-box input {
+  display: block;
+  width: 100%;
+  background: rgba(0,0,0,.35);
+  border: 1px solid var(--brd);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: var(--txt);
+  font-family: Outfit, sans-serif;
+  font-size: 1rem;
+  margin-bottom: 12px;
+  -webkit-appearance: none;
+}
+
+.w-login-box input:focus {
+  outline: none;
+  border-color: var(--g);
+}
+
+.w-login-box button {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  background: linear-gradient(135deg, var(--gd), #2d6a4f);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: Outfit, sans-serif;
+  letter-spacing: .02em;
+}
+
+.w-err {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  color: #f87171;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: .82rem;
+  text-align: left;
+}
+
+/* ── APP SHELL ──────────────────────────────────────────────── */
+#w-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.w-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--brd);
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.w-greeting {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #a3d9b8;
+  line-height: 1.3;
+}
+
+.w-date {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.w-logout {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.2);
+  color: #f87171;
+  border-radius: 20px;
+  padding: 7px 14px;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: Outfit, sans-serif;
+  white-space: nowrap;
+}
+
+/* ── MAIN CONTENT ───────────────────────────────────────────── */
+.w-main {
+  flex: 1;
+  padding: 16px 16px calc(var(--nav-h) + 16px);
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.w-tab { display: none; }
+.w-tab.active { display: block; }
+
+/* ── CARD ───────────────────────────────────────────────────── */
+.w-card {
+  background: var(--card);
+  border: 1px solid var(--brd);
+  border-radius: 20px;
+  padding: 22px 18px;
+  margin-bottom: 14px;
+}
+
+.w-card h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #a3d9b8;
+  margin-bottom: 18px;
+}
+
+/* ── FORM ELEMENTS ──────────────────────────────────────────── */
+.w-field { margin-bottom: 14px; }
+
+.w-field label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+
+.w-input {
+  display: block;
+  width: 100%;
+  background: rgba(0,0,0,.35);
+  border: 1px solid var(--brd);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--txt);
+  font-family: Outfit, sans-serif;
+  font-size: .95rem;
+  -webkit-appearance: none;
+  resize: vertical;
+}
+
+.w-input:focus {
+  outline: none;
+  border-color: var(--g);
+}
+
+select.w-input { cursor: pointer; }
+
+.w-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── SUBMIT BUTTON ──────────────────────────────────────────── */
+.w-btn {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  background: linear-gradient(135deg, var(--gd), #2d6a4f);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: Outfit, sans-serif;
+  transition: opacity .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.w-btn:active { opacity: .82; }
+
+/* ── ATTENDANCE LIST ────────────────────────────────────────── */
+.w-att-row {
+  background: rgba(82,183,136,.06);
+  border: 1px solid rgba(82,183,136,.15);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+
+.w-att-date { font-weight: 700; color: #a3d9b8; font-size: .85rem; margin-bottom: 2px; }
+.w-att-meta { color: var(--muted); font-size: .75rem; }
+
+.w-empty {
+  color: var(--muted);
+  font-size: .82rem;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ── BOTTOM NAV ─────────────────────────────────────────────── */
+.w-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  background: var(--card);
+  border-top: 1px solid var(--brd);
+  display: flex;
+  z-index: 50;
+  /* iOS safe area */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.w-nav-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  font-family: Outfit, sans-serif;
+  transition: color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.w-nav-btn span {
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.w-nav-btn.active { color: var(--g); }
+
+/* ── TOAST NOTIFICATION ─────────────────────────────────────── */
+.w-toast {
+  position: fixed;
+  bottom: calc(var(--nav-h) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--g);
+  color: #0a1a0a;
+  font-weight: 800;
+  padding: 12px 26px;
+  border-radius: 24px;
+  font-size: .88rem;
+  z-index: 200;
+  white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  pointer-events: none;
+}
+
+.w-toast.error { background: #f87171; }

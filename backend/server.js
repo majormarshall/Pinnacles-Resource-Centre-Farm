@@ -40,9 +40,20 @@ app.use('/api/orders',   require('./routes/orders'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/gallery',  require('./routes/gallery'));
 app.use('/api/payment',  require('./routes/payment'));
-app.use('/api/farm',     require('./routes/farm'));
+app.use('/api/harvest',     require('./routes/harvest'));
+app.use('/api/harvest-ai',  require('./routes/harvest_ai'));
+app.use('/api/maintenance', require('./routes/maintenance'));
+app.use('/api/exports',     require('./routes/exports'));
+app.use('/api/farm',        require('./routes/farm'));
 app.use('/api/admin-users', require('./routes/admin-users'));
 app.use('/api/customers',   require('./routes/customers').router);
+
+// Serve worker portal
+app.use('/worker', express.static(path.join(__dirname, '..', 'worker')));
+
+// Initialise Supabase JS client (logs on startup)
+require('./supabaseClient');
+
 
 // ── Receipt Routes ────────────────────────────────────────────
 const { router: receiptRouter, buildReceiptHtml, verifyToken, streamReceiptPdf } = require('./routes/receipt');
