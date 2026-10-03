@@ -2,7 +2,7 @@
 const express    = require('express');
 const router     = express.Router();
 const db         = require('../db');
-const { requireAuth } = require('./auth');
+const { requireAuth } = require('../middleware/auth');
 
 // GET /api/harvest/today — public, returns today's harvested products
 router.get('/today', async (req, res) => {

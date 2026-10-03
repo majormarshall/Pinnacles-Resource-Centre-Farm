@@ -5,7 +5,12 @@
       "src": "backend/server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["images/**"]
+        "includeFiles": [
+          "images/**",
+          "admin/**",
+          "farm/**",
+          "worker/**"
+        ]
       }
     },
     {
@@ -21,11 +26,15 @@
       "use": "@vercel/static"
     },
     {
-      "src": "admin/css/**",
+      "src": "admin/**",
       "use": "@vercel/static"
     },
     {
-      "src": "admin/js/**",
+      "src": "farm/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "worker/**",
       "use": "@vercel/static"
     }
   ],
@@ -43,12 +52,16 @@
       "dest": "/images/$1"
     },
     {
-      "src": "/admin/css/(.*)",
-      "dest": "/admin/css/$1"
+      "src": "/admin/(.*)",
+      "dest": "/admin/$1"
     },
     {
-      "src": "/admin/js/(.*)",
-      "dest": "/admin/js/$1"
+      "src": "/farm/(.*)",
+      "dest": "/farm/$1"
+    },
+    {
+      "src": "/worker/(.*)",
+      "dest": "/worker/$1"
     },
     {
       "src": "/(.*)",
