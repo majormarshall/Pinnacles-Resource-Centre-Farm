@@ -400,7 +400,10 @@
             <span class="ws-tag">🏫 Schools</span>
             <span class="ws-tag">🏪 Retailers</span>
           </div>
-          <a href="#" class="btn-primary" style="margin-top:24px;display:inline-flex" onclick="openWhatsApp('Hello Pinnacles Farm! I am interested in bulk/wholesale pricing for my business. Please send me your wholesale price list.')">📋 Request Wholesale Price List</a>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
+            <button onclick="openBulkModal()" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px">📋 Request Bulk Order</button>
+            <a href="#" onclick="openWhatsApp('Hello Pinnacles Farm! I am interested in bulk/wholesale pricing for my business. Please send me your wholesale price list.')" class="btn-outline" style="display:inline-flex;align-items:center;gap:8px;color:#fff;border-color:rgba(255,255,255,.3)">💬 Chat on WhatsApp</a>
+          </div>
         </div>
         <div class="wholesale-img">
           <div class="wholesale-card">
@@ -622,6 +625,66 @@
       <button onclick="closeAccountModal()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer">✕</button>
     </div>
     <div id="acc-modal-body"></div>
+  </div>
+</div>
+
+<!-- BULK ORDER MODAL -->
+<div id="bulk-modal" style="display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,.75);backdrop-filter:blur(6px)" onclick="if(event.target===this)closeBulkModal()">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#111f11;border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:32px;width:min(520px,94vw);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="font-size:1.15rem;font-weight:800;color:#a3d9b8">📦 Bulk / Wholesale Order</h3>
+      <button onclick="closeBulkModal()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer">✕</button>
+    </div>
+    <p style="font-size:.85rem;color:rgba(255,255,255,.55);margin-bottom:20px;line-height:1.6">Fill in your details and what you need. We'll contact you within 24 hours with pricing and availability.</p>
+    <div id="bulk-modal-body">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:.78rem;color:#52b788;font-weight:600;display:block;margin-bottom:6px">Your Name *</label>
+            <input id="bk-name" type="text" placeholder="Full name" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.88rem;outline:none;box-sizing:border-box" />
+          </div>
+          <div>
+            <label style="font-size:.78rem;color:#52b788;font-weight:600;display:block;margin-bottom:6px">Business Name</label>
+            <input id="bk-biz" type="text" placeholder="Restaurant, hotel, etc." style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.88rem;outline:none;box-sizing:border-box" />
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:.78rem;color:#52b788;font-weight:600;display:block;margin-bottom:6px">Phone Number *</label>
+            <input id="bk-phone" type="tel" placeholder="08XXXXXXXXX" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.88rem;outline:none;box-sizing:border-box" />
+          </div>
+          <div>
+            <label style="font-size:.78rem;color:#52b788;font-weight:600;display:block;margin-bottom:6px">Location / Town</label>
+            <input id="bk-location" type="text" placeholder="e.g. Offa, Ilorin" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.88rem;outline:none;box-sizing:border-box" />
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:#52b788;font-weight:600;display:block;margin-bottom:8px">What do you need? (add items below)</label>
+          <div id="bk-items-list" style="display:flex;flex-direction:column;gap:8px"></div>
+          <button onclick="addBulkItem()" style="margin-top:8px;background:rgba(82,183,136,.15);border:1px dashed rgba(82,183,136,.4);color:#52b788;border-radius:10px;padding:8px 16px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;width:100%">+ Add Another Product</button>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:#52b788;font-weight:600;display:block;margin-bottom:6px">Delivery needed?</label>
+          <div style="display:flex;gap:10px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;color:rgba(255,255,255,.75)"><input type="radio" name="bk-delivery" value="yes" style="accent-color:#52b788"> Yes, deliver to me</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;color:rgba(255,255,255,.75)"><input type="radio" name="bk-delivery" value="no" checked style="accent-color:#52b788"> I'll pick up from farm</label>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:#52b788;font-weight:600;display:block;margin-bottom:6px">Preferred delivery date (optional)</label>
+          <input id="bk-date" type="date" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.88rem;outline:none" />
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:#52b788;font-weight:600;display:block;margin-bottom:6px">Additional notes</label>
+          <textarea id="bk-notes" placeholder="Any special requirements, frequency of orders, etc." rows="2" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.88rem;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+        </div>
+        <div id="bk-error" style="display:none;color:#f87171;font-size:.82rem"></div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button onclick="submitBulkOrder()" style="flex:1;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;border:none;border-radius:12px;padding:13px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit">📋 Submit Bulk Request</button>
+          <button onclick="sendBulkWhatsApp()" style="display:flex;align-items:center;gap:6px;background:#25D366;color:#fff;border:none;border-radius:12px;padding:13px 16px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

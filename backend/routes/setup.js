@@ -68,18 +68,21 @@ router.post('/', async (req, res) => {
 // GET /api/setup/status — check DB connection and counts
 router.get('/status', async (req, res) => {
   try {
-    const [{ count: prodCount, error: p1 }, { count: adminCount, error: p2 }] = await Promise.all([
+    const [{ count: prodCount, error: p1 }, { count: adminCount, error: p2 }, { count: preorderCount, error: p3 }] = await Promise.all([
       supabase.from('products').select('*', { count: 'exact', head: true }),
       supabase.from('admins').select('*', { count: 'exact', head: true }),
+      supabase.from('preorders').select('*', { count: 'exact', head: true }),
     ]);
     res.json({
-      supabase_url_set: !!process.env.SUPABASE_URL,
-      supabase_key_set: !!process.env.SUPABASE_SERVICE_KEY,
-      db_connected:     !p1 && !p2,
-      products_count:   prodCount || 0,
-      admins_count:     adminCount || 0,
-      products_error:   p1?.message || null,
-      admins_error:     p2?.message || null,
+      supabase_url_set:  !!process.env.SUPABASE_URL,
+      supabase_key_set:  !!process.env.SUPABASE_SERVICE_KEY,
+      db_connected:      !p1 && !p2,
+      products_count:    prodCount  || 0,
+      admins_count:      adminCount || 0,
+      preorders_count:   preorderCount || 0,
+      products_error:    p1?.message  || null,
+      admins_error:      p2?.message  || null,
+      preorders_error:   p3?.message  || null,
     });
   } catch (e) {
     res.status(500).json({ error: e.message, supabase_url_set: !!process.env.SUPABASE_URL });
