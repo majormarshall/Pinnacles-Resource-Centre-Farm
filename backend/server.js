@@ -4,8 +4,8 @@
 require('dotenv').config();
 
 // Warn loudly if critical env vars are missing
-if (!process.env.DATABASE_URL) {
-  console.error('❌ FATAL: DATABASE_URL is not set! Set it in Vercel → Settings → Environment Variables');
+if (!process.env.SUPABASE_URL) {
+  console.error('❌ FATAL: SUPABASE_URL is not set! Set it in Vercel → Settings → Environment Variables');
 }
 if (!process.env.JWT_SECRET) {
   console.warn('⚠️  JWT_SECRET not set — using insecure default');
@@ -47,12 +47,10 @@ app.use('/api/exports',     require('./routes/exports'));
 app.use('/api/farm',        require('./routes/farm'));
 app.use('/api/admin-users', require('./routes/admin-users'));
 app.use('/api/customers',   require('./routes/customers').router);
+app.use('/api/setup',       require('./routes/setup'));
 
 // Serve worker portal
 app.use('/worker', express.static(path.join(__dirname, '..', 'worker')));
-
-// Initialise Supabase JS client (logs on startup)
-require('./supabaseClient');
 
 
 // ── Receipt Routes ────────────────────────────────────────────

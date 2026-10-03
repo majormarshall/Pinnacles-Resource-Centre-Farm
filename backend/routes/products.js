@@ -26,11 +26,11 @@ function resolveImageUrl(req) {
 // ── GET /api/products — public product listing ─────────────────
 router.get('/', async (req, res) => {
   try {
-    // Works whether 'active' is BOOLEAN or INTEGER in PostgreSQL
+    // Use .not('active','eq',0) — works for both BOOLEAN and INTEGER active columns
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .neq('active', false)
+      .not('active', 'eq', 0)
       .order('id');
     if (error) throw new Error(error.message);
     // Normalise numeric fields so frontend always gets numbers (not strings from PG)
