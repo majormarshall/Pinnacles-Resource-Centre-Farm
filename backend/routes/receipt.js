@@ -32,6 +32,37 @@ function statusLabel(s) {
 }
 
 // ── Build standalone receipt HTML ─────────────────────────────
+
+function buildStatusTimeline(status) {
+  const steps = ['pending', 'confirmed', 'processing', 'delivered'];
+  const labels = ['Order\nReceived', 'Payment\nConfirmed', 'Being\nPrepared', 'Delivered'];
+  const icons  = ['📋', '✅', '🔄', '🚚'];
+  
+  if (status === 'cancelled') {
+    return `<div style="text-align:center;padding:16px;color:#dc2626;font-weight:700;border-radius:8px;background:#fef2f2;border:1px solid #fecaca">❌ This order was cancelled</div>`;
+  }
+  
+  const currentIdx = steps.indexOf(status);
+  const doneCount  = currentIdx === -1 ? 0 : currentIdx;
+  const progress   = doneCount / (steps.length - 1) * 100;
+  
+  const stepHTML = steps.map((step, i) => {
+    const isDone   = i < currentIdx;
+    const isActive = i === currentIdx;
+    const cls      = isDone ? 'done' : isActive ? 'active' : '';
+    return `<div class="st-step">
+      <div class="st-dot ${cls}">${isDone ? '✓' : icons[i]}</div>
+      <div class="st-label ${cls}">${labels[i].replace('\\n','<br>')}</div>
+    </div>`;
+  }).join('');
+  
+  return `<div class="status-timeline">
+    <div class="st-line"></div>
+    <div class="st-line-done" style="width:${progress}%"></div>
+    ${stepHTML}
+  </div>`;
+}
+
 function buildReceiptHtml(order) {
   const items = typeof order.items === 'string' ? JSON.parse(order.items_json || order.items) : (order.items || JSON.parse(order.items_json || '[]'));
   const rows = items.map(i => `
@@ -283,6 +314,7 @@ function buildReceiptHtml(order) {
       </div>
     </div>
 
+        ${buildStatusTimeline(order.status||'pending')}
     <!-- Items Table -->
     <div class="items-section">
       <div class="items-heading">Items Purchased</div>

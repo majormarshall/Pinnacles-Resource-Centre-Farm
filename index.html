@@ -6,6 +6,36 @@
   <title>Pinnacles Resource Centre Farm | Fresh Farm Produce</title>
   <link rel="icon" type="image/svg+xml" href="images/logo.svg" />
   <meta name="description" content="Order fresh farm produce directly from Pinnacles Resource Centre Farm. Tomatoes, Pepper, Strawberries, Maize, Carrots, Eggs and more. Message us on WhatsApp!" />
+  <meta name="keywords" content="fresh farm produce Offa, vegetables Kwara, tomatoes Offa, peppers farm, eggs Offa, maize Kwara, farm delivery Nigeria, Pinnacles Resource Centre Farm" />
+  <meta name="author" content="Pinnacles Resource Centre Farm" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Pinnacles Resource Centre Farm | Fresh Farm Produce" />
+  <meta property="og:description" content="Shop fresh tomatoes, peppers, eggs, maize, carrots, strawberries and more — delivered from our farm in Offa, Kwara State." />
+  <meta property="og:image" content="/images/receipt-logo.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_NG" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pinnacles Farm | Fresh Farm Produce, Offa Kwara" />
+  <meta name="twitter:description" content="Fresh tomatoes, peppers, eggs, maize, strawberries and more. Order online and get delivered in Offa and beyond." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Pinnacles Resource Centre Farm",
+    "description": "Fresh farm produce grown and delivered from Offa, Kwara State Nigeria.",
+    "url": "https://farm.pinnaclescentre.ng",
+    "telephone": "+2349037505632",
+    "email": "agribusiness@pinnaclescentre.com",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Offa",
+      "addressRegion": "Kwara State",
+      "addressCountry": "NG"
+    },
+    "openingHours": "Mo-Sa 07:00-18:00",
+    "sameAs": ["https://pinnaclescentre.ng"]
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
@@ -80,6 +110,20 @@
       <span>🍅 Tomatoes</span><span>🫑 Peppers</span><span>🍓 Strawberries</span><span>🌽 Maize</span><span>🥕 Carrots</span><span>🥚 Eggs</span><span>🫛 Green Peas</span><span>🥬 Fresh Greens</span>
     </div>
   </div>
+
+  <!-- TODAY'S HARVEST BANNER -->
+  <section class="harvest-today" id="harvest-today" style="display:none">
+    <div class="container">
+      <div class="harvest-inner">
+        <div class="harvest-left">
+          <div class="harvest-title">🌱 Harvested Today</div>
+          <div class="harvest-subtitle">Fresh off the farm — available now</div>
+        </div>
+        <div class="harvest-items" id="harvest-items"></div>
+        <a href="#products" class="harvest-cta">🛒 Shop Now</a>
+      </div>
+    </div>
+  </section>
 
   <!-- PRODUCTS SECTION -->
   <section class="products-section" id="products">
@@ -336,6 +380,160 @@
           <button type="submit" class="btn-primary full-width">📲 Send via WhatsApp</button>
         </form>
       </div>
+    </div>
+  </section>
+
+  <!-- WHOLESALE / BULK ORDERING SECTION -->
+  <section class="wholesale-section" id="wholesale">
+    <div class="container">
+      <div class="wholesale-inner">
+        <div class="wholesale-text">
+          <span class="section-tag light">For Businesses</span>
+          <h2>Buying in Bulk? 📦</h2>
+          <p>We supply fresh farm produce to restaurants, hotels, supermarkets, caterers, schools and retailers across Kwara State and beyond. Get competitive wholesale prices direct from the farm.</p>
+          <div class="wholesale-types">
+            <span class="ws-tag">🍽️ Restaurants</span>
+            <span class="ws-tag">🏨 Hotels</span>
+            <span class="ws-tag">🛒 Supermarkets</span>
+            <span class="ws-tag">👨‍🍳 Caterers</span>
+            <span class="ws-tag">🏫 Schools</span>
+            <span class="ws-tag">🏪 Retailers</span>
+          </div>
+          <a href="#" class="btn-primary" style="margin-top:24px;display:inline-flex" onclick="openWhatsApp('Hello Pinnacles Farm! I am interested in bulk/wholesale pricing for my business. Please send me your wholesale price list.')">📋 Request Wholesale Price List</a>
+        </div>
+        <div class="wholesale-img">
+          <div class="wholesale-card">
+            <div style="font-size:3rem;margin-bottom:12px">🌾</div>
+            <h4>Why Buy from Us?</h4>
+            <ul class="ws-benefits">
+              <li>✅ Direct from farm — no middlemen</li>
+              <li>✅ Competitive bulk pricing</li>
+              <li>✅ Flexible delivery schedules</li>
+              <li>✅ Consistent quality &amp; freshness</li>
+              <li>✅ Regular supply agreements available</li>
+              <li>✅ Custom orders &amp; harvest pre-booking</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESTAURANT CONNECTION -->
+  <section class="restaurant-section" id="restaurant">
+    <div class="container">
+      <div class="restaurant-inner">
+        <div class="restaurant-content">
+          <span class="section-tag">Farm to Table</span>
+          <h2 class="section-title left">From Our Farm to Your Plate 🍽️</h2>
+          <p style="color:var(--text-muted);line-height:1.8;margin-bottom:20px">The same fresh produce you order from our farm is used in the <strong style="color:var(--green-light)">Pinnacles Resource Centre Restaurant</strong> — a true farm-to-table dining experience in Offa, Kwara State.</p>
+          <div class="restaurant-features">
+            <div class="rf-item">🌿 Ingredients grown on our farm</div>
+            <div class="rf-item">👨‍🍳 Freshly prepared daily</div>
+            <div class="rf-item">🥗 Healthy, organic dishes</div>
+            <div class="rf-item">📍 Located in Offa, Kwara</div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
+            <a href="https://www.pinnaclescentre.ng/facility/restaurant" target="_blank" class="btn-primary">🍽️ Visit Our Restaurant</a>
+            <a href="#" class="btn-outline" onclick="openWhatsApp('Hello! I would like to make a restaurant reservation at Pinnacles Resource Centre.')">📞 Make a Reservation</a>
+          </div>
+        </div>
+        <div class="restaurant-visual">
+          <div class="farm-to-plate">
+            <div class="ftp-step">🌱<span>Grown</span></div>
+            <div class="ftp-arrow">→</div>
+            <div class="ftp-step">🧺<span>Harvested</span></div>
+            <div class="ftp-arrow">→</div>
+            <div class="ftp-step">🍳<span>Prepared</span></div>
+            <div class="ftp-arrow">→</div>
+            <div class="ftp-step">🍽️<span>Served</span></div>
+          </div>
+          <p style="text-align:center;font-size:.8rem;color:var(--text-muted);margin-top:16px">All produce on your plate came from our farm</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FARM EXPERIENCE SECTION -->
+  <section class="experience-section" id="experience">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Visit Us</span>
+        <h2 class="section-title">🌾 Pinnacles Farm Experiences</h2>
+        <p class="section-sub">More than a farm — come and see where your food comes from. Connect with the land and enjoy Pinnacles Resource Centre.</p>
+      </div>
+      <div class="experience-grid">
+        <div class="exp-card">
+          <div class="exp-icon">🚜</div>
+          <h4>Farm Tours</h4>
+          <p>Walk through our working farm. See how we grow tomatoes, raise poultry, and harvest produce fresh daily.</p>
+          <a href="#" onclick="openWhatsApp('Hello Pinnacles Farm! I would like to book a farm tour.')">Book a Tour →</a>
+        </div>
+        <div class="exp-card">
+          <div class="exp-icon">🏫</div>
+          <h4>School Visits</h4>
+          <p>Educational farm trips for schools. Students learn about agriculture, food production, and sustainable farming.</p>
+          <a href="#" onclick="openWhatsApp('Hello Pinnacles Farm! I would like to arrange a school visit.')">Arrange a Visit →</a>
+        </div>
+        <div class="exp-card">
+          <div class="exp-icon">📚</div>
+          <h4>Agricultural Training</h4>
+          <p>Learn modern farming techniques at our Farm School. Practical training for aspiring farmers and agripreneurs.</p>
+          <a href="https://pinnaclescentre.ng" target="_blank">Learn More →</a>
+        </div>
+        <div class="exp-card">
+          <div class="exp-icon">👨‍👩‍👧</div>
+          <h4>Family Activities</h4>
+          <p>Bring the family for a fun, educational day out. Pick fresh produce and explore the farm.</p>
+          <a href="#" onclick="openWhatsApp('Hello Pinnacles Farm! I am interested in family activities at the farm.')">Find Out More →</a>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:32px">
+        <a href="https://pinnaclescentre.ng" target="_blank" class="btn-outline">🌐 Explore Pinnacles Resource Centre</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUBSCRIPTION BOXES -->
+  <section class="subs-section" id="subscribe">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Never Run Out</span>
+        <h2 class="section-title">🥬 Weekly Fresh Boxes</h2>
+        <p class="section-sub">Subscribe to a weekly box of whatever's freshest from our farm — delivered to your door, no hassle.</p>
+      </div>
+      <div class="subs-grid">
+        <div class="sub-card">
+          <div class="sub-emoji">👨‍👩‍👧‍👦</div>
+          <h4>Family Box</h4>
+          <p>A generous mix of vegetables, fruits and proteins to keep your family fed with fresh produce all week.</p>
+          <div class="sub-price">₦20,000 <span>/week</span></div>
+          <a href="#" class="btn-primary sub-btn" onclick="openWhatsApp('Hello! I would like to subscribe to the Pinnacles Family Box — weekly fresh produce delivery.')">Subscribe Now</a>
+        </div>
+        <div class="sub-card featured">
+          <div class="sub-badge">Most Popular</div>
+          <div class="sub-emoji">🥗</div>
+          <h4>Healthy Living Box</h4>
+          <p>Curated selection of leafy greens, colourful vegetables and seasonal fruits for a healthy lifestyle.</p>
+          <div class="sub-price">₦15,000 <span>/week</span></div>
+          <a href="#" class="btn-primary sub-btn" onclick="openWhatsApp('Hello! I would like to subscribe to the Pinnacles Healthy Living Box — weekly fresh produce delivery.')">Subscribe Now</a>
+        </div>
+        <div class="sub-card">
+          <div class="sub-emoji">🍽️</div>
+          <h4>Restaurant Box</h4>
+          <p>Bulk fresh produce for food businesses. Customisable to your menu needs — tomatoes, peppers, onions and more.</p>
+          <div class="sub-price">₦45,000 <span>/week</span></div>
+          <a href="#" class="btn-primary sub-btn" onclick="openWhatsApp('Hello! I am a food business interested in the Pinnacles Restaurant Box — weekly bulk fresh produce subscription.')">Get a Quote</a>
+        </div>
+        <div class="sub-card">
+          <div class="sub-emoji">🍓</div>
+          <h4>Fruit Box</h4>
+          <p>Seasonal fresh fruits — strawberries, pawpaw, watermelon and whatever's in season that week.</p>
+          <div class="sub-price">₦12,000 <span>/week</span></div>
+          <a href="#" class="btn-primary sub-btn" onclick="openWhatsApp('Hello! I would like to subscribe to the Pinnacles Fruit Box — weekly fresh fruit delivery.')">Subscribe Now</a>
+        </div>
+      </div>
+      <p style="text-align:center;margin-top:28px;font-size:.82rem;color:var(--text-muted)">📌 Prices are indicative and will be confirmed via WhatsApp after you subscribe.</p>
     </div>
   </section>
 

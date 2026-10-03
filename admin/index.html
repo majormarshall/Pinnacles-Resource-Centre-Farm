@@ -48,6 +48,7 @@
         <a href="#" class="nav-item active" onclick="showTab('overview', this)">📊 Overview</a>
         <a href="#" class="nav-item" onclick="showTab('orders', this)">🛒 Orders <span class="nav-badge" id="pending-badge">0</span></a>
         <a href="#" class="nav-item" onclick="showTab('products', this)">🌿 Products</a>
+        <a href="#" class="nav-item" onclick="showTab('harvest', this); loadHarvestAdmin()">🌱 Today's Harvest</a>
         <a href="#" class="nav-item" onclick="showTab('gallery', this)">🖼️ Gallery</a>
         <a href="#" class="nav-item" onclick="showTab('messages', this)">💬 Messages <span class="nav-badge" id="msg-badge">0</span></a>
         <a href="#" class="nav-item" onclick="showTab('settings', this)">⚙️ Settings</a>
@@ -194,7 +195,17 @@
         </div>
       </section>
 
-    </main>
+    
+  <div id="tab-harvest" class="tab-content">
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-bottom:8px">🌱 Today's Harvest</h2>
+      <p style="color:var(--text-muted);font-size:.88rem;line-height:1.6">Toggle products that were harvested today. They will appear in the live green banner on the customer website.</p>
+      <button class="btn-secondary" onclick="clearTodaysHarvest()" style="margin-top:12px">🗑️ Clear All Today's Harvest</button>
+    </div>
+    <div id="harvest-admin-list" style="display:flex;flex-direction:column;gap:12px;max-width:600px"></div>
+  </div>
+
+</main>
   </div>
 
   <!-- PRODUCT MODAL -->

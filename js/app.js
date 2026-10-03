@@ -684,3 +684,21 @@ document.querySelectorAll('.why-card, .product-card, .contact-card').forEach(el 
   el.style.opacity = '0'; el.style.transform = 'translateY(30px)'; el.style.transition = 'opacity .5s ease, transform .5s ease';
   observer.observe(el);
 });
+
+// ── Today's Harvest Banner ─────────────────────────────────────────────
+async function loadTodaysHarvest() {
+  try {
+    const res = await fetch('/api/harvest/today');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data || !data.items || data.items.length === 0) return;
+    const section   = document.getElementById('harvest-today');
+    const container = document.getElementById('harvest-items');
+    if (!section || !container) return;
+    container.innerHTML = data.items.map(item =>
+      `<div class="harvest-item${item.limited ? ' limited' : ''}">${item.emoji || '🌿'} ${item.name}${item.limited ? ' — Limited' : ' — Available'}</div>`
+    ).join('');
+    section.style.display = 'block';
+  } catch (_) { /* silent — endpoint may not be ready */ }
+}
+document.addEventListener('DOMContentLoaded', () => { loadTodaysHarvest(); });

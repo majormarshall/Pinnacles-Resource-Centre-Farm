@@ -95,7 +95,7 @@ function showTab(tab, el) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (el) el.classList.add('active');
   currentTab = tab;
-  const titles = { overview:'Dashboard Overview', orders:'Orders', products:'Products', gallery:'Farm Gallery', messages:'Messages', settings:'Settings' };
+  const titles = { overview:'Dashboard Overview', orders:'Orders', products:'Products', gallery:'Farm Gallery', messages:'Messages', settings:'Settings', harvest:"Today's Harvest" };
   document.getElementById('topbar-title').textContent = titles[tab] || tab;
   if (tab === 'overview') loadOverview();
   if (tab === 'orders')   loadOrders();
@@ -980,4 +980,55 @@ function _playNotifSound() {
 function _updatePendingBadge(count) {
   var badge = document.getElementById('pending-badge');
   if (badge) badge.textContent = count;
+}
+
+// -------------------------------------------------------------
+// TODAY'S HARVEST ADMIN
+// -------------------------------------------------------------
+async function loadHarvestAdmin() {
+  try {
+    const data = await api('GET', '/products');
+    const products = data.products || data || [];
+    const container = document.getElementById('harvest-admin-list');
+    if (!container) return;
+    const today = await fetch('/api/harvest/today').then(r => r.json()).catch(() => ({ items: [] }));
+    const todayIds = new Set((today.items || []).map(i => i.id));
+    container.innerHTML = products.map(p => {
+      const isHarvested = todayIds.has(p.id) || p.today_harvest;
+      return `
+        <div class="harvest-admin-row" id="har-${p.id}">
+          <span>${p.emoji || '??'} ${p.name}</span>
+          <label class="harvest-toggle">
+            <input type="checkbox" ${isHarvested ? 'checked' : ''} onchange="toggleHarvestItem(${p.id}, this)">
+            <span class="harvest-toggle-slider"></span>
+          </label>
+          <span class="harvest-status-label" id="har-lbl-${p.id}" style="font-size:.75rem;color:${isHarvested ? '#22c55e' : 'var(--text-muted)'}">
+            ${isHarvested ? 'In Today\'s Harvest' : 'Not harvested today'}
+          </span>
+        </div>`;
+    }).join('');
+  } catch (e) { console.error('loadHarvestAdmin:', e.message); }
+}
+
+async function toggleHarvestItem(id, checkbox) {
+  try {
+    const res = await api('PATCH', '/harvest/toggle/' + id);
+    const lbl = document.getElementById('har-lbl-' + id);
+    if (lbl) {
+      const isOn = res.today_harvest === 1;
+      lbl.textContent = isOn ? 'In Today\'s Harvest' : 'Not harvested today';
+      lbl.style.color  = isOn ? '#22c55e' : 'var(--text-muted)';
+    }
+    showToast((res.today_harvest ? '? Added to' : '? Removed from') + " Today's Harvest");
+  } catch (e) {
+    checkbox.checked = !checkbox.checked; // revert
+    showToast('Error: ' + e.message);
+  }
+}
+
+async function clearTodaysHarvest() {
+  if (!confirm("Clear all Today's Harvest flags?")) return;
+  await api('POST', '/harvest/clear');
+  showToast("Today's Harvest cleared");
+  loadHarvestAdmin();
 }
