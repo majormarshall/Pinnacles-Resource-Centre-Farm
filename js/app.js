@@ -6,18 +6,18 @@ const USE_BACKEND = true; // Set false to run without backend
 
 // ===== FALLBACK PRODUCTS (used if backend is offline) =====
 const fallbackProducts = [
-  { id:1, name:'Fresh Tomatoes', emoji:'🍅', img:'images/tomatoes.png', price:1500, unit:'per basket', description:'Sun-ripened, juicy tomatoes grown naturally on our farm.', category:'vegetables', tag:'Bestseller' },
-  { id:2, name:'Peppers', emoji:'🫑', img:'images/pepper.png', price:1200, unit:'per pack', description:'Fresh bell peppers and chili peppers. Vibrant and full of flavour.', category:'vegetables', tag:'Fresh' },
-  { id:3, name:'Strawberries', emoji:'🍓', img:'images/strawberry.png', price:3500, unit:'per punnet', description:'Sweet, juicy strawberries picked at peak ripeness.', category:'fruits', tag:'Premium' },
-  { id:4, name:'Sweet Maize', emoji:'🌽', img:'images/maize.png', price:800, unit:'per 3 cobs', description:'Golden sweet maize cobs freshly harvested.', category:'grains', tag:'Fresh' },
-  { id:5, name:'Carrots', emoji:'🥕', img:'images/carrots.png', price:1000, unit:'per bunch', description:'Crunchy sweet orange carrots. Great for juices and soups.', category:'vegetables', tag:'Organic' },
-  { id:6, name:'Farm Fresh Eggs', emoji:'🥚', img:null, price:2500, unit:'per crate (30)', description:'Free-range farm eggs — rich, healthy and full of protein.', category:'proteins', tag:'Popular' },
-  { id:7, name:'Green Peas', emoji:'🫛', img:null, price:1800, unit:'per kg', description:'Tender sweet green peas. Perfect for soups and rice dishes.', category:'vegetables', tag:'Fresh' },
-  { id:8, name:'Fresh Greens', emoji:'🥬', img:null, price:600, unit:'per bunch', description:'Assorted fresh leafy greens including spinach and ugwu.', category:'vegetables', tag:'Daily Harvest' },
-  { id:9, name:'Garden Cucumber', emoji:'🥒', img:null, price:700, unit:'per pack', description:'Cool crisp cucumbers perfect for salads and juicing.', category:'vegetables', tag:'Fresh' },
-  { id:10, name:'Spring Onions', emoji:'🧅', img:null, price:500, unit:'per bunch', description:'Fresh spring onions with a mild sweet flavour.', category:'vegetables', tag:'Fresh' },
-  { id:11, name:'Sweet Pepper', emoji:'🌶️', img:null, price:900, unit:'per pack', description:'Colourful sweet peppers — red, yellow and green.', category:'vegetables', tag:'Seasonal' },
-  { id:12, name:'Farm Honey', emoji:'🍯', img:null, price:4500, unit:'per jar', description:'Pure raw natural honey from our farm bees.', category:'fruits', tag:'Natural' },
+  { id:1, name:'Fresh Tomatoes', emoji:'🍅', img:'images/tomatoes.png', price:1500, unit:'per basket', description:'Sun-ripened, juicy tomatoes grown naturally on our farm.', category:'vegetables', tag:'Bestseller', in_stock:1 },
+  { id:2, name:'Peppers', emoji:'🫑', img:'images/pepper.png', price:1200, unit:'per pack', description:'Fresh bell peppers and chili peppers. Vibrant and full of flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:3, name:'Strawberries', emoji:'🍓', img:'images/strawberry.png', price:3500, unit:'per punnet', description:'Sweet, juicy strawberries picked at peak ripeness.', category:'fruits', tag:'Premium', in_stock:1 },
+  { id:4, name:'Sweet Maize', emoji:'🌽', img:'images/maize.png', price:800, unit:'per 3 cobs', description:'Golden sweet maize cobs freshly harvested.', category:'grains', tag:'Fresh', in_stock:1 },
+  { id:5, name:'Carrots', emoji:'🥕', img:'images/carrots.png', price:1000, unit:'per bunch', description:'Crunchy sweet orange carrots. Great for juices and soups.', category:'vegetables', tag:'Organic', in_stock:1 },
+  { id:6, name:'Farm Fresh Eggs', emoji:'🥚', img:null, price:2500, unit:'per crate (30)', description:'Free-range farm eggs — rich, healthy and full of protein.', category:'proteins', tag:'Popular', in_stock:1 },
+  { id:7, name:'Green Peas', emoji:'🫛', img:null, price:1800, unit:'per kg', description:'Tender sweet green peas. Perfect for soups and rice dishes.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:8, name:'Fresh Greens', emoji:'🥬', img:null, price:600, unit:'per bunch', description:'Assorted fresh leafy greens including spinach and ugwu.', category:'vegetables', tag:'Daily Harvest', in_stock:1 },
+  { id:9, name:'Garden Cucumber', emoji:'🥒', img:null, price:700, unit:'per pack', description:'Cool crisp cucumbers perfect for salads and juicing.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:10, name:'Spring Onions', emoji:'🧅', img:null, price:500, unit:'per bunch', description:'Fresh spring onions with a mild sweet flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:11, name:'Sweet Pepper', emoji:'🌶️', img:null, price:900, unit:'per pack', description:'Colourful sweet peppers — red, yellow and green.', category:'vegetables', tag:'Seasonal', in_stock:1 },
+  { id:12, name:'Farm Honey', emoji:'🍯', img:null, price:4500, unit:'per jar', description:'Pure raw natural honey from our farm bees.', category:'fruits', tag:'Natural', in_stock:1 },
 ];
 
 // ===== STATE =====

@@ -85,6 +85,16 @@ async function initDB() {
     )`);
   // Migration: add in_stock column if it doesn't exist yet (safe, no-op if already present)
   await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS in_stock INTEGER DEFAULT 1`).catch(() => {});
+  // Migration: add today_harvest column for Today's Harvest banner
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS today_harvest INTEGER DEFAULT 0`).catch(() => {});
+  // Migration: add preorder columns
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS preorder_available INTEGER DEFAULT 0`).catch(() => {});
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS preorder_expected_date DATE`).catch(() => {});
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS preorder_note TEXT`).catch(() => {});
+  // DATA FIX: set in_stock=1 for all active products that have NULL or 0 in_stock
+  // (covers the case where the column was added after products were inserted,
+  //  leaving them with DEFAULT value that Vercel didn't apply retroactively)
+  await pool.query(`UPDATE products SET in_stock = 1 WHERE active IS NOT FALSE AND active != 0 AND (in_stock IS NULL OR in_stock = 0 OR in_stock = false)`).catch(() => {});
 
   // Orders
   await pool.query(`
