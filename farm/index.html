@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pinnacles Farm Operations</title>
+  <link rel="icon" href="../images/logo.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/farm.css" />
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🌾</div>
+    <h1>Pinnacles Farm Ops</h1>
+    <p>Operations & Record-Keeping System</p>
+    <div id="login-error" class="login-error" style="display:none"></div>
+    <input type="email"    id="l-email" placeholder="Email address" autocomplete="email" />
+    <input type="password" id="l-pass"  placeholder="Password" autocomplete="current-password" />
+    <button onclick="doLogin()">Sign In →</button>
+    <a href="../admin/" style="display:block;text-align:center;margin-top:16px;color:rgba(255,255,255,.5);font-size:.8rem">← Back to E-commerce Admin</a>
+  </div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="main-app" style="display:none">
+  <!-- SIDEBAR -->
+  <nav class="fo-sidebar">
+    <div class="fo-brand">
+      <span>🌾</span>
+      <div>
+        <div class="fo-brand-name">Farm Ops</div>
+        <div class="fo-brand-sub">Pinnacles Resource Centre</div>
+      </div>
+    </div>
+    <div class="fo-user-info" id="fo-user-info"></div>
+    <div class="fo-nav">
+      <a href="#" class="fo-nav-item active" onclick="showFoTab('overview',this)">📊 Dashboard</a>
+      <div class="fo-nav-group">PRODUCTION</div>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('fields',this)">🗺️ Fields & Plots</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('plantings',this)">🌱 Planting Records</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('harvests',this)">🧺 Harvest Records</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('sprays',this)">💧 Spraying Log</a>
+      <div class="fo-nav-group">RESOURCES</div>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('workers',this)">👷 Workers</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('attendance',this)">✅ Attendance</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('inputs',this)">🏪 Inputs & Supplies</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('equipment',this)">🚜 Equipment</a>
+      <div class="fo-nav-group">RECORDS</div>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('diary',this)">📔 Farm Diary</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('reports',this)">📈 Reports</a>
+      <a href="../admin/" class="fo-nav-item" style="margin-top:auto;color:rgba(255,255,255,.4);font-size:.78rem">← E-commerce Admin</a>
+    </div>
+    <button class="fo-logout" onclick="doLogout()">🚪 Sign Out</button>
+  </nav>
+
+  <!-- CONTENT AREA -->
+  <main class="fo-main">
+    <div class="fo-topbar">
+      <h2 id="fo-topbar-title">Dashboard</h2>
+      <div id="fo-topbar-actions"></div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="fo-toast" class="fo-toast" style="display:none"></div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="fotab-overview" class="fo-tab active">
+      <div class="fo-stats-grid">
+        <div class="fo-stat-card">
+          <div class="fo-stat-icon">🗺️</div>
+          <div class="fo-stat-val" id="st-fields">–</div>
+          <div class="fo-stat-lbl">Active Fields</div>
+        </div>
+        <div class="fo-stat-card">
+          <div class="fo-stat-icon">🌱</div>
+          <div class="fo-stat-val" id="st-plantings">–</div>
+          <div class="fo-stat-lbl">Growing Crops</div>
+        </div>
+        <div class="fo-stat-card">
+          <div class="fo-stat-icon">🧺</div>
+          <div class="fo-stat-val" id="st-harvests">–</div>
+          <div class="fo-stat-lbl">Harvests (30 days)</div>
+        </div>
+        <div class="fo-stat-card">
+          <div class="fo-stat-icon">👷</div>
+          <div class="fo-stat-val" id="st-workers">–</div>
+          <div class="fo-stat-lbl">Active Workers</div>
+        </div>
+        <div class="fo-stat-card">
+          <div class="fo-stat-icon">⚖️</div>
+          <div class="fo-stat-val" id="st-harvest-kg">–</div>
+          <div class="fo-stat-lbl">Kg Harvested (30d)</div>
+        </div>
+        <div class="fo-stat-card">
+          <div class="fo-stat-icon">💧</div>
+          <div class="fo-stat-val" id="st-sprays">–</div>
+          <div class="fo-stat-lbl">Sprays (7 days)</div>
+        </div>
+      </div>
+      <div class="fo-two-col">
+        <div class="fo-card">
+          <div class="fo-card-header"><h3>📔 Recent Farm Diary</h3><button onclick="showFoTab('diary',null)">View All →</button></div>
+          <div id="recent-diary-list"><p class="fo-empty">No diary entries yet</p></div>
+        </div>
+        <div class="fo-card">
+          <div class="fo-card-header"><h3>⚡ Quick Actions</h3></div>
+          <div class="fo-quick-actions">
+            <button onclick="showFoTab('harvests',null); setTimeout(openHarvestForm,200)">+ Log Harvest</button>
+            <button onclick="showFoTab('attendance',null); setTimeout(openAttendanceForm,200)">+ Mark Attendance</button>
+            <button onclick="showFoTab('sprays',null); setTimeout(openSprayForm,200)">+ Log Spray</button>
+            <button onclick="showFoTab('diary',null); setTimeout(openDiaryForm,200)">+ Diary Entry</button>
+            <button onclick="showFoTab('plantings',null); setTimeout(openPlantingForm,200)">+ New Planting</button>
+            <button onclick="showFoTab('inputs',null)">📦 Check Supplies</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIELDS TAB -->
+    <div id="fotab-fields" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openFieldForm()">+ Add Field / Plot</button>
+      </div>
+      <div id="fields-list" class="fo-list"></div>
+    </div>
+
+    <!-- PLANTINGS TAB -->
+    <div id="fotab-plantings" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openPlantingForm()">+ Record Planting</button>
+      </div>
+      <div id="plantings-list" class="fo-list"></div>
+    </div>
+
+    <!-- HARVESTS TAB -->
+    <div id="fotab-harvests" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openHarvestForm()">+ Log Harvest</button>
+      </div>
+      <div id="harvests-list" class="fo-list"></div>
+    </div>
+
+    <!-- SPRAYS TAB -->
+    <div id="fotab-sprays" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openSprayForm()">+ Log Spraying</button>
+      </div>
+      <div id="sprays-list" class="fo-list"></div>
+    </div>
+
+    <!-- WORKERS TAB -->
+    <div id="fotab-workers" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openWorkerForm()">+ Add Worker</button>
+      </div>
+      <div id="workers-list" class="fo-list"></div>
+    </div>
+
+    <!-- ATTENDANCE TAB -->
+    <div id="fotab-attendance" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <label style="color:rgba(255,255,255,.7);font-size:.88rem">Date:</label>
+        <input type="date" id="att-date-filter" class="fo-input" style="width:160px" onchange="loadAttendance()" />
+        <button class="fo-btn-primary" onclick="openAttendanceForm()">+ Mark Attendance</button>
+      </div>
+      <div id="attendance-list" class="fo-list"></div>
+    </div>
+
+    <!-- INPUTS TAB -->
+    <div id="fotab-inputs" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openInputForm()">+ Add Input/Supply</button>
+      </div>
+      <div id="inputs-list" class="fo-list"></div>
+    </div>
+
+    <!-- EQUIPMENT TAB -->
+    <div id="fotab-equipment" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openEquipmentForm()">+ Add Equipment</button>
+      </div>
+      <div id="equipment-list" class="fo-list"></div>
+    </div>
+
+    <!-- DIARY TAB -->
+    <div id="fotab-diary" class="fo-tab">
+      <div class="fo-tab-toolbar">
+        <button class="fo-btn-primary" onclick="openDiaryForm()">+ New Entry</button>
+      </div>
+      <div id="diary-list" class="fo-list"></div>
+    </div>
+
+    <!-- REPORTS TAB -->
+    <div id="fotab-reports" class="fo-tab">
+      <div class="fo-card" style="max-width:700px">
+        <h3 style="margin-bottom:20px">📈 Farm Reports</h3>
+        <div class="fo-report-grid">
+          <button class="fo-report-btn" onclick="generateReport('harvest_summary')">🧺 Harvest Summary</button>
+          <button class="fo-report-btn" onclick="generateReport('worker_attendance')">👷 Worker Attendance</button>
+          <button class="fo-report-btn" onclick="generateReport('spray_log')">💧 Spray Log</button>
+          <button class="fo-report-btn" onclick="generateReport('inputs_usage')">📦 Inputs Usage</button>
+        </div>
+        <p style="color:rgba(255,255,255,.4);font-size:.8rem;margin-top:24px">More reports coming soon. Data exports (Excel) will be available here.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<div id="fo-modal-overlay" onclick="closeFoModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;backdrop-filter:blur(4px)"></div>
+<div id="fo-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:101;background:#1a2e1a;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;width:min(520px,90vw);max-height:85vh;overflow-y:auto">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h3 id="fo-modal-title" style="font-size:1.1rem;color:#a3d9b8"></h3>
+    <button onclick="closeFoModal()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:1.3rem;cursor:pointer">✕</button>
+  </div>
+  <div id="fo-modal-body"></div>
+</div>
+
+<script src="js/farm.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 // ── Messages Routes ──────────────────────────────────────────
 const router     = require('express').Router();
 const db         = require('../db');
-const requireAuth= require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 const { messageLimiter } = require('../middleware/rateLimiter');
 
 router.post('/', messageLimiter, async (req, res) => {

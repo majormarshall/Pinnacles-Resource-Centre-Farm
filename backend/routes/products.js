@@ -1,7 +1,7 @@
 // ── Products Routes ───────────────────────────────────────────
 const router      = require('express').Router();
 const db          = require('../db');
-const requireAuth = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 const multer      = require('multer');
 
 // ── Multer: memory storage + base64 stored in Supabase ────────

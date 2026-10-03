@@ -4,7 +4,7 @@
 const router      = require('express').Router();
 const crypto      = require('crypto');
 const db          = require('../db');
-const requireAuth = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 const nodemailer  = require('nodemailer');
 
 // ── Helpers ───────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 // ── Orders Routes ────────────────────────────────────────────
 const router      = require('express').Router();
 const db          = require('../db');
-const requireAuth = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 const nodemailer  = require('nodemailer');
 const { orderLimiter } = require('../middleware/rateLimiter');
 

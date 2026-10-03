@@ -40,6 +40,8 @@ app.use('/api/orders',   require('./routes/orders'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/gallery',  require('./routes/gallery'));
 app.use('/api/payment',  require('./routes/payment'));
+app.use('/api/farm',     require('./routes/farm'));
+app.use('/api/admin-users', require('./routes/admin-users'));
 
 // ── Receipt Routes ────────────────────────────────────────────
 const { router: receiptRouter, buildReceiptHtml, verifyToken, streamReceiptPdf } = require('./routes/receipt');

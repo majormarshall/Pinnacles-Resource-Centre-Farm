@@ -4,6 +4,11 @@ const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const db      = require('../db');
 const { authLimiter } = require('../middleware/rateLimiter');
+const { requireAuth } = require('../middleware/auth');
+
+// Ensure role column exists on admins table (safe migration)
+db.runAsync('ALTER TABLE admins ADD COLUMN IF NOT EXISTS role TEXT DEFAULT \'ecomm_admin\'', [])
+  .catch(() => {});
 
 router.post('/login', authLimiter, async (req, res) => {
   try {
@@ -12,12 +17,20 @@ router.post('/login', authLimiter, async (req, res) => {
     const admin = await db.getAsync('SELECT * FROM admins WHERE username = ?', [username]);
     if (!admin || !bcrypt.compareSync(password, admin.password_hash))
       return res.status(401).json({ error: 'Invalid credentials.' });
-    const token = jwt.sign({ id: admin.id, username: admin.username }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, username: admin.username });
+    const token = jwt.sign(
+      {
+        id:    admin.id,
+        name:  admin.username,
+        email: admin.email  || '',
+        role:  admin.role   || 'ecomm_admin',
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    res.json({ token, username: admin.username, role: admin.role || 'ecomm_admin' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-const requireAuth = require('../middleware/auth');
 router.post('/change-password', requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body || {};
@@ -30,4 +43,9 @@ router.post('/change-password', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+
+// GET /api/auth/me -- verify token and return current user
+router.get('/me', requireAuth, (req, res) => {
+  res.json({ id: req.user.id, name: req.user.name, email: req.user.email, role: req.user.role || 'ecomm_admin' });
+});
 module.exports = router;
