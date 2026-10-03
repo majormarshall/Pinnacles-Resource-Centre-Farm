@@ -44,7 +44,7 @@ async function loadProductsFromAPI() {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         // Map backend field 'description' to 'desc' used in frontend
-        products = data.map(p => ({ ...p, desc: p.description }));
+        products = data.map(p => ({ ...p, desc: p.description, price: Number(p.price||0), in_stock: (p.in_stock===true||p.in_stock===1||Number(p.in_stock)>0)?1:0 }));
       }
     }
   } catch { /* backend offline — use fallback */ }
@@ -63,22 +63,24 @@ function toggleNav() {
 
 // ===== PRODUCTS =====
 function renderProducts(filter) {
+  try {
   const grid = document.getElementById('products-grid');
   const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
-  grid.innerHTML = filtered.map(p => {
-    const inStock = p.in_stock !== 0;
-    const waMsg = encodeURIComponent(`Hello Pinnacles Farm! I'd like to order:\n\n${p.emoji} *${p.name}* — ₦${p.price.toLocaleString()} ${p.unit}\n\nPlease confirm availability and delivery cost.`);
+  if (!grid) return;
+  try { grid.innerHTML = filtered.map(p => {
+    const inStock = p.in_stock === true || p.in_stock === 1 || Number(p.in_stock) > 0;
+    const waMsg = encodeURIComponent(`Hello Pinnacles Farm! I'd like to order:\n\n${p.emoji} *${p.name}* — ₦${Number(p.price||0).toLocaleString()} ${p.unit}\n\nPlease confirm availability and delivery cost.`);
     return `
     <div class="product-card${inStock ? '' : ' out-of-stock'}" data-id="${p.id}">
       <div class="product-img-wrap" onclick="openModal(${p.id})" style="cursor:pointer">
         ${p.img ? `<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=product-emoji-placeholder>${p.emoji}</div>'" />` : `<div class="product-emoji-placeholder">${p.emoji}</div>`}
         <span class="product-tag">${p.tag}</span>
-        <span class="avail-badge ${inStock ? 'avail-in' : 'avail-out'}">${inStock ? '🟢 In Stock' : '🔴 Out of Stock'}</span>
+        ${inStock ? '<span class="avail-badge avail-in">🟢 In Stock</span>' : (p.preorder_available ? '<span class="avail-badge preorder-badge" onclick="event.stopPropagation();openPreorderModal('+p.id+',\''+p.name+'\',\''+( p.preorder_expected_date||'')+'\',\''+( p.preorder_note||'')+'\')">⏳ Pre-order</span>' : '<span class="avail-badge avail-out">🔴 Out of Stock</span>')}
       </div>
       <div class="product-info">
         <div class="product-name">${p.emoji} ${p.name}</div>
         <div class="product-price-row">
-          <div class="product-price">₦${p.price.toLocaleString()} <span>${p.unit}</span></div>
+          <div class="product-price">₦${Number(p.price||0).toLocaleString()} <span>${p.unit}</span></div>
         </div>
         <div class="product-qty-row">
           <button class="qty-btn" onclick="changeCardQty(${p.id},-1)" ${!inStock?'disabled':''}>−</button>
@@ -86,12 +88,13 @@ function renderProducts(filter) {
           <button class="qty-btn" onclick="changeCardQty(${p.id},1)" ${!inStock?'disabled':''}>+</button>
         </div>
         <div class="product-card-actions">
-          <button class="btn-cart" ${!inStock ? 'disabled' : ''} onclick="addToCartWithQty(${p.id})">🛒 Add to Cart</button>
+          ${inStock ? `<button class="btn-cart" onclick="addToCartWithQty(${p.id})">🛒 Add to Cart</button>` : (p.preorder_available ? `<button class="btn-cart" style="background:linear-gradient(135deg,#92400e,#b45309)" onclick="openPreorderModal(${p.id},'${p.name}','${p.preorder_expected_date||''}','${p.preorder_note||''}')">⏳ Pre-order</button>` : `<button class="btn-cart" disabled>🔴 Out of Stock</button>`)}
           <a class="btn-wa-card" href="https://wa.me/2349037505632?text=${waMsg}" target="_blank" ${!inStock?'style="opacity:.5;pointer-events:none"':''}>💬 WhatsApp</a>
         </div>
       </div>
     </div>`;
-  }).join('');
+  }).join(''); } catch(renderErr) { console.error('renderProducts error:', renderErr); grid.innerHTML = '<p style="color:red;padding:20px">Error loading products. Please refresh.</p>'; }
+  } catch(e) { console.error('renderProducts outer:', e); }
 }
 
 function changeCardQty(id, delta) {
@@ -124,7 +127,7 @@ function openModal(id) {
   content.innerHTML = `
     ${p.img ? `<img src="${p.img}" alt="${p.name}" class="modal-img" onerror="this.outerHTML='<div class=modal-emoji>${p.emoji}</div>'" />` : `<div class="modal-emoji">${p.emoji}</div>`}
     <div class="modal-name">${p.name}</div>
-    <div class="modal-price">₦${p.price.toLocaleString()} <small style="font-weight:400;color:var(--text-muted);font-size:.8rem">${p.unit}</small></div>
+    <div class="modal-price">₦${Number(p.price||0).toLocaleString()} <small style="font-weight:400;color:var(--text-muted);font-size:.8rem">${p.unit}</small></div>
     <div class="modal-desc">${p.desc}</div>
     <div class="modal-actions">
       ${p.in_stock !== 0

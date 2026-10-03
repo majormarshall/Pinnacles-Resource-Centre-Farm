@@ -42,6 +42,7 @@ app.use('/api/gallery',  require('./routes/gallery'));
 app.use('/api/payment',  require('./routes/payment'));
 app.use('/api/farm',     require('./routes/farm'));
 app.use('/api/admin-users', require('./routes/admin-users'));
+app.use('/api/customers',   require('./routes/customers').router);
 
 // ── Receipt Routes ────────────────────────────────────────────
 const { router: receiptRouter, buildReceiptHtml, verifyToken, streamReceiptPdf } = require('./routes/receipt');

@@ -273,7 +273,33 @@ const ChatBot = (() => {
   }
 
   // ── Handle a user message ──────────────────────────────────
-  async function handleUserMessage(text) {
+  async 
+// ── Harvest AI backend call ───────────────────────────────────────────────
+async function callHarvestAI(userMsg) {
+  try {
+    const cart = window._cartItems ? [...window._cartItems] : [];
+    const customerId = null; // TODO: link to customer account
+    const res  = await fetch('/api/harvest-ai/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMsg, cart, customer_id: customerId }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    // Handle actions from AI
+    if (data.actions?.length) {
+      data.actions.forEach(action => {
+        if (action.type === 'add_to_cart' && window.addToCart) {
+          for (let i = 0; i < (action.qty || 1); i++) window.addToCart(action.id);
+          setTimeout(() => { if (window.toggleCart) window.toggleCart(); }, 400);
+        }
+      });
+    }
+    return data.reply || null;
+  } catch { return null; }
+}
+
+async function handleUserMessage(text) {
     if (!text.trim()) return;
 
     // Show user bubble
@@ -286,6 +312,14 @@ const ChatBot = (() => {
     // Typing animation
     const typingDelay = 600 + Math.random() * 400;
     await addTyping(typingDelay);
+
+    // Try Harvest AI backend first (live inventory-aware responses)
+    const aiReply = await callHarvestAI(text);
+    if (aiReply) {
+      addBotMsg(aiReply.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'));
+      if (input) input.disabled = false;
+      return;
+    }
 
     const intent = matchIntent(text);
 

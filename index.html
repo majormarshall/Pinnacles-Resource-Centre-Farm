@@ -71,7 +71,8 @@
       </ul>
       <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()">☰</button>
     </div>
-  </nav>
+  
+    <button id="customer-account-btn" class="nav-account-btn" onclick="openAccountModal()">👤 Account</button></nav>
 
   <!-- HERO SECTION -->
   <section class="hero" id="home">
@@ -610,6 +611,30 @@
   </div>
 
   <script src="js/app.js"></script>
+  <script src="js/customer.js"></script>
   <script src="js/chatbot.js"></script>
+
+<!-- CUSTOMER ACCOUNT MODAL -->
+<div id="account-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.7);backdrop-filter:blur(6px)" onclick="if(event.target===this)closeAccountModal()">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#111f11;border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:32px;width:min(460px,92vw);max-height:88vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <h3 id="acc-modal-title" style="font-size:1.15rem;font-weight:800;color:#a3d9b8">👤 My Account</h3>
+      <button onclick="closeAccountModal()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer">✕</button>
+    </div>
+    <div id="acc-modal-body"></div>
+  </div>
+</div>
+
+<!-- PRE-ORDER MODAL -->
+<div id="preorder-modal" style="display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,.7);backdrop-filter:blur(6px)" onclick="if(event.target===this)closePreorderModal()">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#111f11;border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:32px;width:min(460px,92vw)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="font-size:1.1rem;font-weight:800;color:#a3d9b8">⏳ Pre-order</h3>
+      <button onclick="closePreorderModal()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer">✕</button>
+    </div>
+    <div id="preorder-modal-body"></div>
+  </div>
+</div>
+
 </body>
 </html>

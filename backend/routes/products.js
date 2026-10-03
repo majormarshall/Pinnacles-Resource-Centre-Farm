@@ -26,8 +26,19 @@ function resolveImageUrl(req) {
 // ── GET /api/products — public product listing ─────────────────
 router.get('/', async (req, res) => {
   try {
-    const products = await db.allAsync('SELECT * FROM products WHERE active = 1 ORDER BY id ASC');
-    res.json(products);
+    // Works whether 'active' is BOOLEAN or INTEGER in PostgreSQL
+    const products = await db.allAsync(
+      "SELECT * FROM products WHERE active IS NOT FALSE AND active != 0 ORDER BY id ASC", []
+    );
+    // Normalise numeric fields so frontend always gets numbers (not strings from PG)
+    const normalised = (products || []).map(prod => ({
+      ...prod,
+      price:              Number(prod.price    || 0),
+      in_stock:           (prod.in_stock === true || prod.in_stock === 1 || Number(prod.in_stock) > 0) ? 1 : 0,
+      active:             1,
+      preorder_available: (prod.preorder_available === true || prod.preorder_available === 1) ? 1 : 0,
+    }));
+    res.json(normalised);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

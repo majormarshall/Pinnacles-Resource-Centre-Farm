@@ -80,16 +80,33 @@ function sendAdminOrderEmail({ orderId, customer_name, customer_phone, items, to
 // ── POST /api/orders — place a new order ──────────────────────
 router.post('/', orderLimiter, async (req, res) => {
   try {
-    const { customer_name, customer_phone, items, total, notes, whatsapp_msg } = req.body;
+    const { customer_name, customer_phone, customer_id, items, total, notes, whatsapp_msg } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Order must contain items.' });
     if (!total || total <= 0) return res.status(400).json({ error: 'Invalid order total.' });
     const r = await db.runAsync(
-      'INSERT INTO orders (customer_name, customer_phone, items_json, total, notes, whatsapp_msg) VALUES (?,?,?,?,?,?)',
-      [customer_name||'Walk-in Customer', customer_phone||'', JSON.stringify(items), total, notes||'', whatsapp_msg||'']
+      'INSERT INTO orders (customer_name, customer_phone, customer_id, items_json, total, notes, whatsapp_msg) VALUES (?,?,?,?,?,?,?)',
+      [customer_name||'Walk-in Customer', customer_phone||'', customer_id||null, JSON.stringify(items), total, notes||'', whatsapp_msg||'']
     );
+    const newOrderId = r.lastID || (r.rows && r.rows[0] && r.rows[0].id);
     // Fire-and-forget admin email notification
-    sendAdminOrderEmail({ orderId: r.lastID, customer_name, customer_phone, items, total, notes });
-    res.status(201).json({ id: r.lastID, message: 'Order received! We will confirm via WhatsApp shortly.' });
+    sendAdminOrderEmail({ orderId: newOrderId, customer_name, customer_phone, items, total, notes });
+
+    // Award loyalty points if customer_id is provided — 1 point per ₦100 spent (rounded down)
+    const loyaltyPoints = Math.floor((total || 0) / 100);
+    if (customer_id && loyaltyPoints > 0) {
+      try {
+        await db.runAsync(
+          'UPDATE customers SET loyalty_points = loyalty_points + ?, total_orders = total_orders + 1, total_spent = total_spent + ? WHERE id=?',
+          [loyaltyPoints, total || 0, customer_id]
+        );
+        await db.runAsync(
+          'INSERT INTO loyalty_transactions (customer_id, order_id, points, type, description) VALUES (?,?,?,\'earn\',?)',
+          [customer_id, newOrderId, loyaltyPoints, 'Earned from order #' + newOrderId]
+        );
+      } catch(e) { console.error('Loyalty points error:', e.message); }
+    }
+
+    res.status(201).json({ id: newOrderId, message: 'Order received! We will confirm via WhatsApp shortly.' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -511,3 +511,39 @@ ul{list-style:none;}
 .sub-price{font-size:1.4rem;font-weight:800;color:var(--green-light);margin-bottom:18px}
 .sub-price span{font-size:.75rem;font-weight:400;color:var(--text-muted)}
 .sub-btn{display:block;width:100%;text-align:center;border-radius:12px;padding:10px;font-size:.85rem}
+
+/* ── Customer account nav button ─────────────────────────────────────── */
+.nav-account-btn {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.85);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: .2s;
+  white-space: nowrap;
+}
+.nav-account-btn:hover {
+  background: rgba(82,183,136,.15);
+  border-color: rgba(82,183,136,.4);
+  color: #a3d9b8;
+}
+
+/* ── Pre-order badge ─────────────────────────────────────────────────── */
+.preorder-badge {
+  background: rgba(251,191,36,.75) !important;
+  color: #0d2818 !important;
+  cursor: pointer;
+}
+.preorder-badge:hover { opacity: .9; }
+
+/* ── Account modal inputs ────────────────────────────────────────────── */
+#acc-modal-body input, #acc-modal-body textarea {
+  outline: none;
+}
+#acc-modal-body input:focus, #acc-modal-body textarea:focus {
+  border-color: rgba(82,183,136,.6) !important;
+}
