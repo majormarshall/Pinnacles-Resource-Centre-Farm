@@ -23,6 +23,10 @@ router.post('/login', authLimiter, async (req, res) => {
     if (!admin || !bcrypt.compareSync(password, admin.password_hash))
       return res.status(401).json({ error: 'Invalid credentials.' });
 
+    // Block pending worker accounts
+    if (admin.status === 'pending')
+      return res.status(403).json({ error: 'Your account is awaiting approval by the farm manager. Please wait or contact your supervisor.' });
+
     const token = jwt.sign(
       {
         id:    admin.id,

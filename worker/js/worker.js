@@ -272,3 +272,64 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(() => { /* Token invalid — stay on login screen */ });
 });
+
+// -- REGISTRATION ---------------------------------------------------------
+function wSwitchTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('w-tab-login').style.display = isLogin ? '' : 'none';
+  document.getElementById('w-tab-reg').style.display   = isLogin ? 'none' : '';
+  document.getElementById('tab-login-btn').style.cssText =
+    isLogin ? 'flex:1;background:none;border:none;color:#52b788;font-weight:700;font-size:.9rem;padding:8px 0;border-bottom:2px solid #52b788;cursor:pointer;font-family:inherit'
+            : 'flex:1;background:none;border:none;color:rgba(255,255,255,.4);font-weight:600;font-size:.9rem;padding:8px 0;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit';
+  document.getElementById('tab-reg-btn').style.cssText =
+    !isLogin ? 'flex:1;background:none;border:none;color:#52b788;font-weight:700;font-size:.9rem;padding:8px 0;border-bottom:2px solid #52b788;cursor:pointer;font-family:inherit'
+             : 'flex:1;background:none;border:none;color:rgba(255,255,255,.4);font-weight:600;font-size:.9rem;padding:8px 0;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit';
+  const errEl = document.getElementById(isLogin ? 'w-reg-err' : 'w-err');
+  if (errEl) errEl.style.display = 'none';
+}
+
+async function wRegister() {
+  const name  = (document.getElementById('wr-name')?.value  || '').trim();
+  const email = (document.getElementById('wr-email')?.value || '').trim();
+  const phone = (document.getElementById('wr-phone')?.value || '').trim();
+  const role  = (document.getElementById('wr-role')?.value  || '').trim();
+  const pass  = (document.getElementById('wr-pass')?.value  || '');
+  const pass2 = (document.getElementById('wr-pass2')?.value || '');
+  const errEl = document.getElementById('w-reg-err');
+
+  if (!name)              { errEl.textContent='Please enter your full name.';           errEl.style.display=''; return; }
+  if (!email)             { errEl.textContent='Please enter your email address.';       errEl.style.display=''; return; }
+  if (!pass)              { errEl.textContent='Please choose a password.';              errEl.style.display=''; return; }
+  if (pass.length < 6)    { errEl.textContent='Password must be at least 6 characters.'; errEl.style.display=''; return; }
+  if (pass !== pass2)     { errEl.textContent='Passwords do not match.';                errEl.style.display=''; return; }
+  errEl.style.display = 'none';
+
+  const btn = document.querySelector('#w-tab-reg button');
+  const origText = btn.innerHTML;
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/worker-register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, role, password: pass }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+    // Show success state
+    document.getElementById('w-tab-reg').innerHTML =
+      '<div style="text-align:center;padding:20px 0">' +
+      '<div style="font-size:3rem;margin-bottom:14px">&#x2705;</div>' +
+      '<h3 style="color:#a3d9b8;margin-bottom:10px">Registration Submitted!</h3>' +
+      '<p style="font-size:.85rem;color:rgba(255,255,255,.55);line-height:1.7">Your account is <strong style="color:#fbbf24">pending approval</strong>.<br>The farm manager will review and activate your account.<br><br>Once approved, come back here and sign in with your email and password.</p>' +
+      '<button onclick="wSwitchTab(\'login\')" style="margin-top:20px;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;border:none;border-radius:12px;padding:12px 24px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">Go to Sign In</button>' +
+      '</div>';
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.style.display = '';
+    btn.innerHTML = origText;
+    btn.disabled = false;
+  }
+}

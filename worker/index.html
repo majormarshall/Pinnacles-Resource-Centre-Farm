@@ -17,11 +17,33 @@
     <div style="margin-bottom:14px"><img src="../images/receipt-logo.jpg" alt="Pinnacles Logo" style="width:80px;height:auto;border-radius:10px;object-fit:contain" /></div>
     <h1>Pinnacles Farm</h1>
     <p>Worker Portal</p>
-    <div id="w-err" class="w-err" style="display:none"></div>
-    <input type="email"    id="we" placeholder="Your email address" autocomplete="email" />
-    <input type="password" id="wp" placeholder="Password"           autocomplete="current-password"
-           onkeydown="if(event.key==='Enter')wLogin()" />
-    <button onclick="wLogin()">Sign In â†’</button>
+
+    <!-- Tabs -->
+    <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.12);margin:16px 0 20px">
+      <button id="tab-login-btn" onclick="wSwitchTab('login')" style="flex:1;background:none;border:none;color:#52b788;font-weight:700;font-size:.9rem;padding:8px 0;border-bottom:2px solid #52b788;cursor:pointer;font-family:inherit">Sign In</button>
+      <button id="tab-reg-btn"   onclick="wSwitchTab('reg')"   style="flex:1;background:none;border:none;color:rgba(255,255,255,.4);font-weight:600;font-size:.9rem;padding:8px 0;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit">Register</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="w-tab-login">
+      <div id="w-err" class="w-err" style="display:none"></div>
+      <input type="email"    id="we" placeholder="Your email address" autocomplete="email" />
+      <input type="password" id="wp" placeholder="Password"           autocomplete="current-password" onkeydown="if(event.key==='Enter')wLogin()" />
+      <button onclick="wLogin()">Sign In &#x1F91D;</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="w-tab-reg" style="display:none">
+      <div id="w-reg-err" class="w-err" style="display:none"></div>
+      <input type="text"     id="wr-name"  placeholder="Your full name *"                     autocomplete="name" />
+      <input type="email"    id="wr-email" placeholder="Email address *"                      autocomplete="email" />
+      <input type="tel"      id="wr-phone" placeholder="Phone number" />
+      <input type="text"     id="wr-role"  placeholder="Your job (e.g. Field Worker, Driver)" />
+      <input type="password" id="wr-pass"  placeholder="Choose a password *"                  autocomplete="new-password" />
+      <input type="password" id="wr-pass2" placeholder="Confirm password *"                   autocomplete="new-password" onkeydown="if(event.key==='Enter')wRegister()" />
+      <button onclick="wRegister()" style="background:linear-gradient(135deg,#1b4332,#2d6a4f)">Submit Registration &#x1F331;</button>
+      <p style="font-size:.75rem;color:rgba(255,255,255,.35);margin-top:12px;line-height:1.5;text-align:center">Your account will be reviewed and activated by the farm manager before you can log in.</p>
+    </div>
   </div>
 </div>
 
@@ -191,4 +213,5 @@
 <script src="js/worker.js"></script>
 </body>
 </html>
+
 

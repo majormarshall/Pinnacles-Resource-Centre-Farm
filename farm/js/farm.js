@@ -889,3 +889,68 @@ async function loadReports() {
     if (rc) rc.innerHTML = '<p class="fo-empty">Could not load: ' + e.message + '</p>';
   }
 }
+
+// -- PENDING WORKER REGISTRATIONS ------------------------------------------
+async function loadPendingWorkers() {
+  try {
+    const res = await fetch('/api/worker-register/pending', {
+      headers: { Authorization: 'Bearer ' + localStorage.getItem('pinnacles_admin_token') }
+    });
+    const list = await res.json();
+    const box  = document.getElementById('pending-workers-box');
+    const cont = document.getElementById('pending-workers-list');
+    const cnt  = document.getElementById('pending-count');
+    if (!box || !cont) return;
+
+    if (!Array.isArray(list) || list.length === 0) {
+      box.style.display = 'none';
+      return;
+    }
+    box.style.display = '';
+    if (cnt) cnt.textContent = list.length;
+
+    cont.innerHTML = list.map(w => {
+      const joined = w.created_at ? new Date(w.created_at).toLocaleDateString('en-NG') : '';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);gap:12px;flex-wrap:wrap">' +
+        '<div>' +
+          '<div style="font-weight:700;color:#fff;font-size:.88rem">' + (w.full_name || w.username || 'Unknown') + '</div>' +
+          '<div style="font-size:.78rem;color:rgba(255,255,255,.5)">' + (w.email||'') + (w.phone ? ' &bull; ' + w.phone : '') + (w.job_title ? ' &bull; ' + w.job_title : '') + (joined ? ' &bull; Applied: ' + joined : '') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px">' +
+          '<button onclick="approveWorker(' + w.id + ', this)" style="background:rgba(82,183,136,.2);color:#52b788;border:none;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">&#x2705; Approve</button>' +
+          '<button onclick="rejectWorker(' + w.id + ', this)" style="background:rgba(248,113,113,.15);color:#f87171;border:none;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">&#x2716; Reject</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) { console.error('loadPendingWorkers:', e); }
+}
+
+async function approveWorker(id, btn) {
+  btn.textContent = 'Approving...'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/worker-register/' + id + '/approve', {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer ' + localStorage.getItem('pinnacles_admin_token') }
+    });
+    if (!res.ok) throw new Error('Failed');
+    showFoToast('Worker approved! They can now log in. ?');
+    loadPendingWorkers();
+  } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '? Approve'; btn.disabled = false; }
+}
+
+async function rejectWorker(id, btn) {
+  if (!confirm('Reject and delete this registration request?')) return;
+  btn.textContent = 'Rejecting...'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/worker-register/' + id + '/reject', {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer ' + localStorage.getItem('pinnacles_admin_token') }
+    });
+    if (!res.ok) throw new Error('Failed');
+    showFoToast('Registration rejected.');
+    loadPendingWorkers();
+  } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '? Reject'; btn.disabled = false; }
+}
+
+// Auto-load pending count on dashboard load
+setTimeout(() => { try { loadPendingWorkers(); } catch(_){} }, 2000);
