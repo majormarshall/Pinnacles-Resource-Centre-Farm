@@ -49,10 +49,10 @@
         <a href="#" class="nav-item" onclick="showTab('orders', this)">&#x1F6D2; Orders <span class="nav-badge" id="pending-badge">0</span></a>
         <a href="#" class="nav-item" onclick="showTab('products', this)">&#x1F33F; Products</a>
         <a href="#" class="nav-item" onclick="showTab('harvest', this); loadHarvestAdmin()">&#x1F331; Today's Harvest</a>
-        <a href="#" class="nav-item" onclick="showTab('preorders', this); loadPreorders()">&#xE2;&#x8F;&#xB3; Pre-orders <span class="nav-badge" id="preorder-badge">0</span></a>
-        <a href="#" class="nav-item" onclick="showTab('gallery', this)">&#x1F5BC;&#xEF;&#xB8;&#x8F; Gallery</a>
+        <a href="#" class="nav-item" onclick="showTab('preorders', this); loadPreorders()">&#x23F3; Pre-orders <span class="nav-badge" id="preorder-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('gallery', this)">&#x1F5BC;&#xFE0F; Gallery</a>
         <a href="#" class="nav-item" onclick="showTab('messages', this)">&#x1F4AC; Messages <span class="nav-badge" id="msg-badge">0</span></a>
-        <a href="#" class="nav-item" onclick="showTab('settings', this)">&#x2699;&#xEF;&#xB8;&#x8F; Settings</a>
+        <a href="#" class="nav-item" onclick="showTab('settings', this)">&#x2699;&#xFE0F; Settings</a>
       </nav>
       <div class="sidebar-footer">
         <span id="admin-name-display">admin</span>
@@ -67,7 +67,7 @@
       <div class="topbar">
         <div class="topbar-title" id="topbar-title">Dashboard Overview</div>
         <div class="topbar-right">
-          <a href="/" target="_blank" class="view-site-btn">&#xF0;&#x178;&#x152;&#x90; View Site</a>
+          <a href="/" target="_blank" class="view-site-btn">&#x1F310; View Site</a>
           <div class="admin-avatar">A</div>
         </div>
       </div>
@@ -75,7 +75,7 @@
       <!-- PRE-ORDERS TAB -->
       <section id="tab-preorders" class="tab-content" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
-          <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary)">&#xE2;&#x8F;&#xB3; Pre-orders</h2>
+          <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary)">&#x23F3; Pre-orders</h2>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <select id="preorder-filter" onchange="loadPreorders()" class="form-input" style="width:auto;padding:8px 14px;font-size:.85rem">
               <option value="all">All Pre-orders</option>
@@ -116,7 +116,7 @@
             </div>
           </div>
           <div class="stat-card yellow">
-            <div class="stat-icon">&#xE2;&#x8F;&#xB3;</div>
+            <div class="stat-icon">&#x23F3;</div>
             <div class="stat-info">
               <span class="stat-value" id="stat-pending">0</span>
               <span class="stat-label">Pending Orders</span>
@@ -204,7 +204,7 @@
       <section id="tab-settings" class="tab-content">
         <div class="settings-grid">
           <div class="card">
-            <div class="card-header"><h3>&#x2699;&#xEF;&#xB8;&#x8F; Farm Info</h3></div>
+            <div class="card-header"><h3>&#x2699;&#xFE0F; Farm Info</h3></div>
             <div class="settings-info">
               <div class="info-row"><span>WhatsApp</span><strong>+234 903 750 5632</strong></div>
               <div class="info-row"><span>Email</span><strong>agribusiness@pinnaclescentre.com</strong></div>
@@ -212,7 +212,7 @@
             <a href="https://wa.me/2349037505632" target="_blank" class="btn-primary mt-12">&#x1F4AC; Open WhatsApp</a>
           </div>
           <div class="card">
-            <div class="card-header"><h3>&#xF0;&#x178;&#x201D;&#x90; Change Password</h3></div>
+            <div class="card-header"><h3>&#x1F510; Change Password</h3></div>
             <form onsubmit="changePassword(event)">
               <div class="form-group"><label>Current Password</label><input type="password" id="cp-current" required /></div>
               <div class="form-group"><label>New Password</label><input type="password" id="cp-new" required /></div>
@@ -234,7 +234,7 @@
     <div style="margin-bottom:20px">
       <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-bottom:8px">&#x1F331; Today's Harvest</h2>
       <p style="color:var(--text-muted);font-size:.88rem;line-height:1.6">Toggle products that were harvested today. They will appear in the live green banner on the customer website.</p>
-      <button class="btn-secondary" onclick="clearTodaysHarvest()" style="margin-top:12px">&#x1F5D1;&#xEF;&#xB8;&#x8F; Clear All Today's Harvest</button>
+      <button class="btn-secondary" onclick="clearTodaysHarvest()" style="margin-top:12px">&#x1F5D1;&#xFE0F; Clear All Today's Harvest</button>
     </div>
     <div id="harvest-admin-list" style="display:flex;flex-direction:column;gap:12px;max-width:600px"></div>
   </div>
@@ -333,7 +333,7 @@
                     style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:.9rem;cursor:pointer;">&#x2715;</button>
           </div>
           <div id="gal-placeholder" style="color:var(--text-muted);font-size:.9rem;">
-            <div style="font-size:2rem;margin-bottom:6px;">&#x1F5BC;&#xEF;&#xB8;&#x8F;</div>
+            <div style="font-size:2rem;margin-bottom:6px;">&#x1F5BC;&#xFE0F;</div>
             <div>Click to upload a farm photo</div>
             <div style="font-size:.78rem;margin-top:4px;">JPG, PNG, WEBP &#x2014; max 5 MB</div>
           </div>
@@ -379,7 +379,7 @@
       <div style="display:flex;flex-direction:column;gap:10px;">
         <a id="receipt-download-btn" href="#" target="_blank"
            style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;padding:13px 20px;border-radius:50px;font-weight:700;font-size:.92rem;text-decoration:none;text-align:center;">
-          &#x2B07;&#xEF;&#xB8;&#x8F; Download / Print Receipt (PDF)
+          &#x2B07;&#xFE0F; Download / Print Receipt (PDF)
         </a>
         <button id="receipt-wa-btn" onclick="sendReceiptWhatsApp()"
            style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.4);color:#25D366;padding:13px 20px;border-radius:50px;font-weight:700;font-size:.92rem;cursor:pointer;width:100%;">
@@ -496,7 +496,7 @@
         <select id="wi-payment" class="form-input">
           <option value="cash">&#x1F4B5; Cash</option>
           <option value="pos">&#x1F4B3; POS / Card</option>
-          <option value="transfer">&#xF0;&#x178;&#x8F;&#xA6; Bank Transfer</option>
+          <option value="transfer">&#x1F3E6; Bank Transfer</option>
         </select>
       </div>
       <div class="form-group">
@@ -555,7 +555,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeReportModal()">Cancel</button>
-      <button class="btn-primary" onclick="downloadReport()">&#x2B07;&#xEF;&#xB8;&#x8F; Download Excel</button>
+      <button class="btn-primary" onclick="downloadReport()">&#x2B07;&#xFE0F; Download Excel</button>
     </div>
   </div>
 </div>
