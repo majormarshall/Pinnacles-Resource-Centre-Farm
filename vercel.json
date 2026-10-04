@@ -9,77 +9,17 @@
           "images/**",
           "admin/**",
           "farm/**",
-          "worker/**"
+          "worker/**",
+          "css/**",
+          "js/**"
         ]
       }
-    },
-    {
-      "src": "css/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "js/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "images/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "admin/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "farm/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "worker/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/css/(.*)",
-      "dest": "/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/js/$1"
-    },
-    {
-      "src": "/images/(.*)",
-      "dest": "/images/$1"
-    },
-    {
-      "src": "/admin/(.*)",
-      "dest": "/admin/$1"
-    },
-    {
-      "src": "/farm/(.*)",
-      "dest": "/farm/$1"
-    },
-    {
-      "src": "/worker/(.*)",
-      "dest": "/worker/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "backend/server.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)\\.html",
-      "headers": [{ "key": "Content-Type", "value": "text/html; charset=utf-8" }]
-    },
-    {
-      "source": "/(.*)\\.js",
-      "headers": [{ "key": "Content-Type", "value": "application/javascript; charset=utf-8" }]
-    },
-    {
-      "source": "/(.*)\\.css",
-      "headers": [{ "key": "Content-Type", "value": "text/css; charset=utf-8" }]
     }
   ]
 }
