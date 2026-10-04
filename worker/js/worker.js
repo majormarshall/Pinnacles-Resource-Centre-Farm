@@ -321,7 +321,7 @@ async function wRegister() {
     // Show success state
     document.getElementById('w-tab-reg').innerHTML =
       '<div style="text-align:center;padding:20px 0">' +
-      '<div style="font-size:3rem;margin-bottom:14px">&#x2705;</div>' +
+      '<div style="font-size:3rem;margin-bottom:14px">\u2705</div>' +
       '<h3 style="color:#a3d9b8;margin-bottom:10px">Registration Submitted!</h3>' +
       '<p style="font-size:.85rem;color:rgba(255,255,255,.55);line-height:1.7">Your account is <strong style="color:#fbbf24">pending approval</strong>.<br>The farm manager will review and activate your account.<br><br>Once approved, come back here and sign in with your email and password.</p>' +
       '<button onclick="wSwitchTab(\'login\')" style="margin-top:20px;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;border:none;border-radius:12px;padding:12px 24px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">Go to Sign In</button>' +

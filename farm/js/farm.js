@@ -917,8 +917,8 @@ async function loadPendingWorkers() {
           '<div style="font-size:.78rem;color:rgba(255,255,255,.5)">' + (w.email||'') + (w.phone ? ' &bull; ' + w.phone : '') + (w.job_title ? ' &bull; ' + w.job_title : '') + (joined ? ' &bull; Applied: ' + joined : '') + '</div>' +
         '</div>' +
         '<div style="display:flex;gap:8px">' +
-          '<button onclick="approveWorker(' + w.id + ', this)" style="background:rgba(82,183,136,.2);color:#52b788;border:none;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">&#x2705; Approve</button>' +
-          '<button onclick="rejectWorker(' + w.id + ', this)" style="background:rgba(248,113,113,.15);color:#f87171;border:none;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">&#x2716; Reject</button>' +
+          '<button onclick="approveWorker(' + w.id + ', this)" style="background:rgba(82,183,136,.2);color:#52b788;border:none;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">\u2705 Approve</button>' +
+          '<button onclick="rejectWorker(' + w.id + ', this)" style="background:rgba(248,113,113,.15);color:#f87171;border:none;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">\u2716 Reject</button>' +
         '</div>' +
       '</div>';
     }).join('');

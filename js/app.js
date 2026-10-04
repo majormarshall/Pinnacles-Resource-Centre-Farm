@@ -1,23 +1,23 @@
 // ===== CONFIG =====
-const WA_NUMBER  = '2349037505632'; // +234 903 750 5632 \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D primary
-const WA_NUMBER2 = '2347078210834'; // +234 707 821 0834 \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D secondary
+const WA_NUMBER  = '2349037505632'; // +234 903 750 5632 \u00E2\u20AC\u00E2\u20AC\u009D primary
+const WA_NUMBER2 = '2347078210834'; // +234 707 821 0834 \u00E2\u20AC\u00E2\u20AC\u009D secondary
 const API_BASE = '/api'; // Backend API base URL
 const USE_BACKEND = true; // Set false to run without backend
 
 // ===== FALLBACK PRODUCTS (used if backend is offline) =====
 const fallbackProducts = [
-  { id:1, name:'Fresh Tomatoes', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00E2\u20AC\u00A6', img:'images/tomatoes.png', price:1500, unit:'per basket', description:'Sun-ripened, juicy tomatoes grown naturally on our farm.', category:'vegetables', tag:'Bestseller', in_stock:1 },
-  { id:2, name:'Peppers', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u00AB\u00E2\u20AC\u02DC', img:'images/pepper.png', price:1200, unit:'per pack', description:'Fresh bell peppers and chili peppers. Vibrant and full of flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
-  { id:3, name:'Strawberries', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00E2\u20AC\u0153', img:'images/strawberry.png', price:3500, unit:'per punnet', description:'Sweet, juicy strawberries picked at peak ripeness.', category:'fruits', tag:'Premium', in_stock:1 },
-  { id:4, name:'Sweet Maize', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BD', img:'images/maize.png', price:800, unit:'per 3 cobs', description:'Golden sweet maize cobs freshly harvested.', category:'grains', tag:'Fresh', in_stock:1 },
-  { id:5, name:'Carrots', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00E2\u20AC\u00A2', img:'images/carrots.png', price:1000, unit:'per bunch', description:'Crunchy sweet orange carrots. Great for juices and soups.', category:'vegetables', tag:'Organic', in_stock:1 },
-  { id:6, name:'Farm Fresh Eggs', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00C5\u00A1', img:null, price:2500, unit:'per crate (30)', description:'Free-range farm eggs \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D rich, healthy and full of protein.', category:'proteins', tag:'Popular', in_stock:1 },
-  { id:7, name:'Green Peas', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u00AB\u00E2\u20AC\u00BA', img:null, price:1800, unit:'per kg', description:'Tender sweet green peas. Perfect for soups and rice dishes.', category:'vegetables', tag:'Fresh', in_stock:1 },
-  { id:8, name:'Fresh Greens', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00C2\u00AC', img:null, price:600, unit:'per bunch', description:'Assorted fresh leafy greens including spinach and ugwu.', category:'vegetables', tag:'Daily Harvest', in_stock:1 },
-  { id:9, name:'Garden Cucumber', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00E2\u20AC\u2122', img:null, price:700, unit:'per pack', description:'Cool crisp cucumbers perfect for salads and juicing.', category:'vegetables', tag:'Fresh', in_stock:1 },
-  { id:10, name:'Spring Onions', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u00A7\u00E2\u20AC\u00A6', img:null, price:500, unit:'per bunch', description:'Fresh spring onions with a mild sweet flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
-  { id:11, name:'Sweet Pepper', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00B6\u00C3\u00AF\u00C2\u00B8\u00C2\u008F', img:null, price:900, unit:'per pack', description:'Colourful sweet peppers \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D red, yellow and green.', category:'vegetables', tag:'Seasonal', in_stock:1 },
-  { id:12, name:'Farm Honey', emoji:'\u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00C2\u00AF', img:null, price:4500, unit:'per jar', description:'Pure raw natural honey from our farm bees.', category:'fruits', tag:'Natural', in_stock:1 },
+  { id:1, name:'Fresh Tomatoes', emoji:'\u00F0\u0178\u00C2\u008D\u2026', img:'images/tomatoes.png', price:1500, unit:'per basket', description:'Sun-ripened, juicy tomatoes grown naturally on our farm.', category:'vegetables', tag:'Bestseller', in_stock:1 },
+  { id:2, name:'Peppers', emoji:'\u00F0\u0178\u00AB\u2018', img:'images/pepper.png', price:1200, unit:'per pack', description:'Fresh bell peppers and chili peppers. Vibrant and full of flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:3, name:'Strawberries', emoji:'\u00F0\u0178\u00C2\u008D\u201C', img:'images/strawberry.png', price:3500, unit:'per punnet', description:'Sweet, juicy strawberries picked at peak ripeness.', category:'fruits', tag:'Premium', in_stock:1 },
+  { id:4, name:'Sweet Maize', emoji:'\u00F0\u0178\u0152\u00BD', img:'images/maize.png', price:800, unit:'per 3 cobs', description:'Golden sweet maize cobs freshly harvested.', category:'grains', tag:'Fresh', in_stock:1 },
+  { id:5, name:'Carrots', emoji:'\u00F0\u0178\u00A5\u2022', img:'images/carrots.png', price:1000, unit:'per bunch', description:'Crunchy sweet orange carrots. Great for juices and soups.', category:'vegetables', tag:'Organic', in_stock:1 },
+  { id:6, name:'Farm Fresh Eggs', emoji:'\u00F0\u0178\u00A5\u0161', img:null, price:2500, unit:'per crate (30)', description:'Free-range farm eggs \u00E2\u20AC\u00E2\u20AC\u009D rich, healthy and full of protein.', category:'proteins', tag:'Popular', in_stock:1 },
+  { id:7, name:'Green Peas', emoji:'\u00F0\u0178\u00AB\u203A', img:null, price:1800, unit:'per kg', description:'Tender sweet green peas. Perfect for soups and rice dishes.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:8, name:'Fresh Greens', emoji:'\u00F0\u0178\u00A5\u00AC', img:null, price:600, unit:'per bunch', description:'Assorted fresh leafy greens including spinach and ugwu.', category:'vegetables', tag:'Daily Harvest', in_stock:1 },
+  { id:9, name:'Garden Cucumber', emoji:'\u00F0\u0178\u00A5\u2019', img:null, price:700, unit:'per pack', description:'Cool crisp cucumbers perfect for salads and juicing.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:10, name:'Spring Onions', emoji:'\u00F0\u0178\u00A7\u2026', img:null, price:500, unit:'per bunch', description:'Fresh spring onions with a mild sweet flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:11, name:'Sweet Pepper', emoji:'\u00F0\u0178\u0152\u00B6\u00EF\u00B8\u00C2\u008F', img:null, price:900, unit:'per pack', description:'Colourful sweet peppers \u00E2\u20AC\u00E2\u20AC\u009D red, yellow and green.', category:'vegetables', tag:'Seasonal', in_stock:1 },
+  { id:12, name:'Farm Honey', emoji:'\u00F0\u0178\u00C2\u008D\u00AF', img:null, price:4500, unit:'per jar', description:'Pure raw natural honey from our farm bees.', category:'fruits', tag:'Natural', in_stock:1 },
 ];
 
 // ===== STATE =====
@@ -47,7 +47,7 @@ async function loadProductsFromAPI() {
         products = data.map(p => ({ ...p, desc: p.description, price: Number(p.price||0), in_stock: (p.in_stock===true||p.in_stock===1||Number(p.in_stock)>0)?1:0 }));
       }
     }
-  } catch { /* backend offline \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D use fallback */ }
+  } catch { /* backend offline \u00E2\u20AC\u00E2\u20AC\u009D use fallback */ }
 }
 
 // ===== NAVBAR =====
@@ -75,10 +75,10 @@ function renderProducts(filter) {
       priceStr + ' ' + p.unit + '\n\nPlease confirm availability and delivery cost.'
     );
     const badge = inStock
-      ? '<span class="avail-badge avail-in">&#x1F7E2; In Stock</span>'
+      ? '<span class="avail-badge avail-in">\u{1F7E2} In Stock</span>'
       : preorder
-        ? '<span class="avail-badge avail-pre" onclick="openPreorderModal(' + p.id + ')" style="cursor:pointer">&#x23F3; Pre-order</span>'
-        : '<span class="avail-badge avail-out">&#x1F534; Out of Stock</span>';
+        ? '<span class="avail-badge avail-pre" onclick="openPreorderModal(' + p.id + ')" style="cursor:pointer">\u23F3 Pre-order</span>'
+        : '<span class="avail-badge avail-out">\u{1F534} Out of Stock</span>';
     const imgHtml = p.img
       ? '<img src="' + p.img + '" alt="' + p.name + '" onerror="this.parentElement.innerHTML=\'<div class=product-emoji-placeholder>' + (p.emoji||'') + '</div>\'" />'
       : '<div class="product-emoji-placeholder">' + (p.emoji||'') + '</div>';
@@ -94,18 +94,18 @@ function renderProducts(filter) {
           '<div class="product-price">' + priceStr + ' <span>' + p.unit + '</span></div>' +
         '</div>' +
         '<div class="product-qty-row">' +
-          '<button class="qty-btn" onclick="changeCardQty(' + p.id + ',-1)"' + (!inStock ? ' disabled' : '') + '>&#x2212;</button>' +
+          '<button class="qty-btn" onclick="changeCardQty(' + p.id + ',-1)"' + (!inStock ? ' disabled' : '') + '>\u2212</button>' +
           '<span class="qty-val" id="card-qty-' + p.id + '">1</span>' +
           '<button class="qty-btn" onclick="changeCardQty(' + p.id + ',1)"' + (!inStock ? ' disabled' : '') + '>+</button>' +
         '</div>' +
         '<div class="product-card-actions">' +
           (inStock
-            ? '<button class="btn-cart" onclick="addToCartWithQty(' + p.id + ')">&#x1F6D2; Add to Cart</button>'
+            ? '<button class="btn-cart" onclick="addToCartWithQty(' + p.id + ')">\u{1F6D2} Add to Cart</button>'
             : preorder
-              ? '<button class="btn-cart" onclick="openPreorderModal(' + p.id + ')" style="background:linear-gradient(135deg,#92400e,#b45309)">&#x23F3; Pre-order</button>'
-              : '<button class="btn-cart" disabled>&#x1F534; Out of Stock</button>') +
+              ? '<button class="btn-cart" onclick="openPreorderModal(' + p.id + ')" style="background:linear-gradient(135deg,#92400e,#b45309)">\u23F3 Pre-order</button>'
+              : '<button class="btn-cart" disabled>\u{1F534} Out of Stock</button>') +
           '<a class="btn-wa-card" href="https://wa.me/2349037505632?text=' + waMsg.replace(/'/g, "\'") + '" target="_blank"' +
-            (!inStock ? ' style="opacity:.5;pointer-events:none"' : '') + '>&#x1F4AC; WhatsApp</a>' +
+            (!inStock ? ' style="opacity:.5;pointer-events:none"' : '') + '>\u{1F4AC} WhatsApp</a>' +
         '</div>' +
       '</div>' +
     '</div>';
@@ -141,12 +141,12 @@ function openModal(id) {
   content.innerHTML = `
     ${p.img ? `<img src="${p.img}" alt="${p.name}" class="modal-img" onerror="this.outerHTML='<div class=modal-emoji>${p.emoji}</div>'" />` : `<div class="modal-emoji">${p.emoji}</div>`}
     <div class="modal-name">${p.name}</div>
-    <div class="modal-price">\u00C3\u00A2\u00E2\u20AC\u0161\u00C2\u00A6${Number(p.price||0).toLocaleString()} <small style="font-weight:400;color:var(--text-muted);font-size:.8rem">${p.unit}</small></div>
+    <div class="modal-price">\u00E2\u201A\u00A6${Number(p.price||0).toLocaleString()} <small style="font-weight:400;color:var(--text-muted);font-size:.8rem">${p.unit}</small></div>
     <div class="modal-desc">${p.desc}</div>
     <div class="modal-actions">
       ${p.in_stock !== 0
-        ? '<button class="btn-primary" onclick="addToCart(' + p.id + '); closeModal()">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00BA\u00E2\u20AC\u2122 Add to Cart</button><button class="btn-outline" onclick="directOrder(' + p.id + ')">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00B2 Order Now</button>'
-        : '<button class="btn-primary" disabled style="opacity:.45;cursor:not-allowed;">\u00C3\u00A2\u00C2\u009D\u00C5\u2019 Out of Stock</button>'}
+        ? '<button class="btn-primary" onclick="addToCart(' + p.id + '); closeModal()">\u00F0\u0178\u203A\u2019 Add to Cart</button><button class="btn-outline" onclick="directOrder(' + p.id + ')">\u00F0\u0178\u201C\u00B2 Order Now</button>'
+        : '<button class="btn-primary" disabled style="opacity:.45;cursor:not-allowed;">\u00E2\u00C2\u009D\u0152 Out of Stock</button>'}
     </div>
   `;
   document.getElementById('modal-overlay').classList.add('open');
@@ -161,7 +161,7 @@ function closeModal() {
 function addToCart(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
-  if (p.in_stock === 0) { showCartToast('\u00C3\u00A2\u00C2\u009D\u00C5\u2019 ' + p.name + ' is out of stock'); return; }
+  if (p.in_stock === 0) { showCartToast('\u00E2\u00C2\u009D\u0152 ' + p.name + ' is out of stock'); return; }
   const existing = cart.find(x => x.id === id);
   if (existing) existing.qty++;
   else cart.push({ ...p, qty: 1 });
@@ -194,7 +194,7 @@ function renderCartItems() {
   const footer = document.getElementById('cart-footer');
   const empty = document.getElementById('cart-empty');
   if (cart.length === 0) {
-    container.innerHTML = `<div class="cart-empty" id="cart-empty"><div class="empty-icon">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00BA\u00E2\u20AC\u2122</div><p>Your cart is empty</p><span>Add some fresh produce!</span></div>`;
+    container.innerHTML = `<div class="cart-empty" id="cart-empty"><div class="empty-icon">\u00F0\u0178\u203A\u2019</div><p>Your cart is empty</p><span>Add some fresh produce!</span></div>`;
     footer.style.display = 'none';
     return;
   }
@@ -207,18 +207,18 @@ function renderCartItems() {
       </div>
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">\u00C3\u00A2\u00E2\u20AC\u0161\u00C2\u00A6${(item.price * item.qty).toLocaleString()}</div>
+        <div class="cart-item-price">\u00E2\u201A\u00A6${(item.price * item.qty).toLocaleString()}</div>
       </div>
       <div class="cart-item-controls">
-        <button class="qty-btn" onclick="changeQty(${item.id},-1)">\u00C3\u00A2\u00CB\u2020\u00E2\u20AC\u2122</button>
+        <button class="qty-btn" onclick="changeQty(${item.id},-1)">\u00E2\u02C6\u2019</button>
         <span class="qty-num">${item.qty}</span>
         <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
-        <button class="remove-item" onclick="removeFromCart(${item.id})">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u201D\u00E2\u20AC\u02DC\u00C3\u00AF\u00C2\u00B8\u00C2\u008F</button>
+        <button class="remove-item" onclick="removeFromCart(${item.id})">\u00F0\u0178\u2014\u2018\u00EF\u00B8\u00C2\u008F</button>
       </div>
     </div>
   `).join('');
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  document.getElementById('cart-total-price').textContent = `\u00C3\u00A2\u00E2\u20AC\u0161\u00C2\u00A6${total.toLocaleString()}`;
+  document.getElementById('cart-total-price').textContent = `\u00E2\u201A\u00A6${total.toLocaleString()}`;
   footer.style.display = 'block';
 }
 
@@ -230,7 +230,7 @@ function toggleCart() {
 function showCartToast(name) {
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;bottom:100px;right:32px;background:var(--green);color:#fff;padding:12px 20px;border-radius:50px;font-weight:600;font-size:.9rem;z-index:3000;animation:slideIn .3s ease';
-  toast.textContent = `\u00C3\u00A2\u00C5\u201C\u00E2\u20AC\u00A6 ${name} added!`;
+  toast.textContent = `\u00E2\u0153\u2026 ${name} added!`;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 2500);
 }
@@ -242,7 +242,7 @@ function openWhatsApp(message) {
   return false;
 }
 
-// \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC Order Checkout Modal \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC
+// \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC Order Checkout Modal \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC
 function sendOrderToWhatsApp() {
   if (cart.length === 0) return;
   showOrderModal();
@@ -256,9 +256,9 @@ function showOrderModal() {
         <div style="width:36px;height:36px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
           ${i.img ? `<img src="${i.img}" alt="${i.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />` : i.emoji}
         </div>
-        <span style="font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.name} \u00C3\u0192\u00E2\u20AC\u201D${i.qty}</span>
+        <span style="font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.name} \u00C3\u2014${i.qty}</span>
       </div>
-      <strong style="color:var(--green-light);flex-shrink:0;">\u00C3\u00A2\u00E2\u20AC\u0161\u00C2\u00A6${(i.price*i.qty).toLocaleString()}</strong>
+      <strong style="color:var(--green-light);flex-shrink:0;">\u00E2\u201A\u00A6${(i.price*i.qty).toLocaleString()}</strong>
     </div>`).join('');
 
   // Inject modal HTML
@@ -275,10 +275,10 @@ function showOrderModal() {
       <!-- Header (always visible) -->
       <div style="background:linear-gradient(135deg,#1b4332,#2d6a4f);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
         <div>
-          <h3 style="color:#fff;margin:0;font-size:1.1rem;">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00A6 Confirm Your Order</h3>
+          <h3 style="color:#fff;margin:0;font-size:1.1rem;">\u00F0\u0178\u201C\u00A6 Confirm Your Order</h3>
           <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:.82rem;">Review items &amp; enter your details</p>
         </div>
-        <button onclick="closeOrderModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">\u00C3\u00A2\u00C5\u201C\u00E2\u20AC\u00A2</button>
+        <button onclick="closeOrderModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">\u00E2\u0153\u2022</button>
       </div>
 
       <!-- Scrollable Body -->
@@ -289,10 +289,10 @@ function showOrderModal() {
           ${itemsSummary}
           <div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:4px;">
             <strong style="color:#fff;">Total</strong>
-            <strong style="color:var(--green-light);font-size:1.15rem;">\u00C3\u00A2\u00E2\u20AC\u0161\u00C2\u00A6${total.toLocaleString()}</strong>
+            <strong style="color:var(--green-light);font-size:1.15rem;">\u00E2\u201A\u00A6${total.toLocaleString()}</strong>
           </div>
           <p style="font-size:.75rem;color:var(--text-muted);margin:4px 0 0;line-height:1.6;">
-            \u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C5\u2019 Farm gate prices \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D delivery cost not included. Final delivery charge will be confirmed via WhatsApp.
+            \u00F0\u0178\u201C\u0152 Farm gate prices \u00E2\u20AC\u00E2\u20AC\u009D delivery cost not included. Final delivery charge will be confirmed via WhatsApp.
           </p>
         </div>
 
@@ -307,67 +307,67 @@ function showOrderModal() {
           <div style="display:flex;gap:8px;">
             <select id="oc-phone-code" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 8px;color:#fff;font-family:'Outfit',sans-serif;font-size:.85rem;flex-shrink:0;width:150px;cursor:pointer;">
               <optgroup label="Popular">
-                <option value="+234">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B3\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AC +234 Nigeria</option>
-                <option value="+233">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AC\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AD +233 Ghana</option>
-                <option value="+27">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BF\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A6 +27 S.Africa</option>
-                <option value="+254">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B0\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA +254 Kenya</option>
-                <option value="+44">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AC\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A7 +44 UK</option>
-                <option value="+1">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BA\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B8 +1 USA/Canada</option>
+                <option value="+234">\u00F0\u0178\u2021\u00B3\u00F0\u0178\u2021\u00AC +234 Nigeria</option>
+                <option value="+233">\u00F0\u0178\u2021\u00AC\u00F0\u0178\u2021\u00AD +233 Ghana</option>
+                <option value="+27">\u00F0\u0178\u2021\u00BF\u00F0\u0178\u2021\u00A6 +27 S.Africa</option>
+                <option value="+254">\u00F0\u0178\u2021\u00B0\u00F0\u0178\u2021\u00AA +254 Kenya</option>
+                <option value="+44">\u00F0\u0178\u2021\u00AC\u00F0\u0178\u2021\u00A7 +44 UK</option>
+                <option value="+1">\u00F0\u0178\u2021\u00BA\u00F0\u0178\u2021\u00B8 +1 USA/Canada</option>
               </optgroup>
               <optgroup label="Africa">
-                <option value="+20">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AC +20 Egypt</option>
-                <option value="+212">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B2\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A6 +212 Morocco</option>
-                <option value="+213">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A9\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BF +213 Algeria</option>
-                <option value="+216">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B9\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B3 +216 Tunisia</option>
-                <option value="+221">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B3 +221 Senegal</option>
-                <option value="+225">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AE +225 Ivory Coast</option>
-                <option value="+226">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A7\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AB +226 Burkina Faso</option>
-                <option value="+227">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B3\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA +227 Niger</option>
-                <option value="+228">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B9\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AC +228 Togo</option>
-                <option value="+229">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A7\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AF +229 Benin</option>
-                <option value="+237">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B2 +237 Cameroon</option>
-                <option value="+243">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A9 +243 DR Congo</option>
-                <option value="+244">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A6\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B4 +244 Angola</option>
-                <option value="+249">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A9 +249 Sudan</option>
-                <option value="+250">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B7\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BC +250 Rwanda</option>
-                <option value="+251">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B9 +251 Ethiopia</option>
-                <option value="+255">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B9\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BF +255 Tanzania</option>
-                <option value="+256">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BA\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AC +256 Uganda</option>
-                <option value="+260">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BF\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B2 +260 Zambia</option>
-                <option value="+263">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BF\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BC +263 Zimbabwe</option>
+                <option value="+20">\u00F0\u0178\u2021\u00AA\u00F0\u0178\u2021\u00AC +20 Egypt</option>
+                <option value="+212">\u00F0\u0178\u2021\u00B2\u00F0\u0178\u2021\u00A6 +212 Morocco</option>
+                <option value="+213">\u00F0\u0178\u2021\u00A9\u00F0\u0178\u2021\u00BF +213 Algeria</option>
+                <option value="+216">\u00F0\u0178\u2021\u00B9\u00F0\u0178\u2021\u00B3 +216 Tunisia</option>
+                <option value="+221">\u00F0\u0178\u2021\u00B8\u00F0\u0178\u2021\u00B3 +221 Senegal</option>
+                <option value="+225">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00AE +225 Ivory Coast</option>
+                <option value="+226">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00AB +226 Burkina Faso</option>
+                <option value="+227">\u00F0\u0178\u2021\u00B3\u00F0\u0178\u2021\u00AA +227 Niger</option>
+                <option value="+228">\u00F0\u0178\u2021\u00B9\u00F0\u0178\u2021\u00AC +228 Togo</option>
+                <option value="+229">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00AF +229 Benin</option>
+                <option value="+237">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00B2 +237 Cameroon</option>
+                <option value="+243">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00A9 +243 DR Congo</option>
+                <option value="+244">\u00F0\u0178\u2021\u00A6\u00F0\u0178\u2021\u00B4 +244 Angola</option>
+                <option value="+249">\u00F0\u0178\u2021\u00B8\u00F0\u0178\u2021\u00A9 +249 Sudan</option>
+                <option value="+250">\u00F0\u0178\u2021\u00B7\u00F0\u0178\u2021\u00BC +250 Rwanda</option>
+                <option value="+251">\u00F0\u0178\u2021\u00AA\u00F0\u0178\u2021\u00B9 +251 Ethiopia</option>
+                <option value="+255">\u00F0\u0178\u2021\u00B9\u00F0\u0178\u2021\u00BF +255 Tanzania</option>
+                <option value="+256">\u00F0\u0178\u2021\u00BA\u00F0\u0178\u2021\u00AC +256 Uganda</option>
+                <option value="+260">\u00F0\u0178\u2021\u00BF\u00F0\u0178\u2021\u00B2 +260 Zambia</option>
+                <option value="+263">\u00F0\u0178\u2021\u00BF\u00F0\u0178\u2021\u00BC +263 Zimbabwe</option>
               </optgroup>
               <optgroup label="Europe">
-                <option value="+33">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AB\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B7 +33 France</option>
-                <option value="+49">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A9\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA +49 Germany</option>
-                <option value="+39">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AE\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B9 +39 Italy</option>
-                <option value="+34">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B8 +34 Spain</option>
-                <option value="+31">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B3\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B1 +31 Netherlands</option>
-                <option value="+32">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A7\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA +32 Belgium</option>
-                <option value="+353">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AE\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA +353 Ireland</option>
-                <option value="+46">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA +46 Sweden</option>
-                <option value="+47">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B3\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B4 +47 Norway</option>
-                <option value="+45">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A9\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B0 +45 Denmark</option>
-                <option value="+41">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AD +41 Switzerland</option>
-                <option value="+7">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B7\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BA +7 Russia</option>
+                <option value="+33">\u00F0\u0178\u2021\u00AB\u00F0\u0178\u2021\u00B7 +33 France</option>
+                <option value="+49">\u00F0\u0178\u2021\u00A9\u00F0\u0178\u2021\u00AA +49 Germany</option>
+                <option value="+39">\u00F0\u0178\u2021\u00AE\u00F0\u0178\u2021\u00B9 +39 Italy</option>
+                <option value="+34">\u00F0\u0178\u2021\u00AA\u00F0\u0178\u2021\u00B8 +34 Spain</option>
+                <option value="+31">\u00F0\u0178\u2021\u00B3\u00F0\u0178\u2021\u00B1 +31 Netherlands</option>
+                <option value="+32">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00AA +32 Belgium</option>
+                <option value="+353">\u00F0\u0178\u2021\u00AE\u00F0\u0178\u2021\u00AA +353 Ireland</option>
+                <option value="+46">\u00F0\u0178\u2021\u00B8\u00F0\u0178\u2021\u00AA +46 Sweden</option>
+                <option value="+47">\u00F0\u0178\u2021\u00B3\u00F0\u0178\u2021\u00B4 +47 Norway</option>
+                <option value="+45">\u00F0\u0178\u2021\u00A9\u00F0\u0178\u2021\u00B0 +45 Denmark</option>
+                <option value="+41">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00AD +41 Switzerland</option>
+                <option value="+7">\u00F0\u0178\u2021\u00B7\u00F0\u0178\u2021\u00BA +7 Russia</option>
               </optgroup>
               <optgroup label="Americas">
-                <option value="+55">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A7\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B7 +55 Brazil</option>
-                <option value="+52">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B2\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BD +52 Mexico</option>
-                <option value="+54">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A6\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B7 +54 Argentina</option>
-                <option value="+57">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B4 +57 Colombia</option>
-                <option value="+58">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BB\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA +58 Venezuela</option>
+                <option value="+55">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00B7 +55 Brazil</option>
+                <option value="+52">\u00F0\u0178\u2021\u00B2\u00F0\u0178\u2021\u00BD +52 Mexico</option>
+                <option value="+54">\u00F0\u0178\u2021\u00A6\u00F0\u0178\u2021\u00B7 +54 Argentina</option>
+                <option value="+57">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00B4 +57 Colombia</option>
+                <option value="+58">\u00F0\u0178\u2021\u00BB\u00F0\u0178\u2021\u00AA +58 Venezuela</option>
               </optgroup>
               <optgroup label="Asia &amp; Middle East">
-                <option value="+91">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AE\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B3 +91 India</option>
-                <option value="+86">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B3 +86 China</option>
-                <option value="+81">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AF\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B5 +81 Japan</option>
-                <option value="+82">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B0\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B7 +82 S.Korea</option>
-                <option value="+966">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B8\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A6 +966 Saudi Arabia</option>
-                <option value="+971">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A6\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00AA +971 UAE</option>
-                <option value="+974">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B6\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A6 +974 Qatar</option>
-                <option value="+965">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B0\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00BC +965 Kuwait</option>
-                <option value="+92">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B5\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00B0 +92 Pakistan</option>
-                <option value="+880">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A7\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u00A1\u00C2\u00A9 +880 Bangladesh</option>
+                <option value="+91">\u00F0\u0178\u2021\u00AE\u00F0\u0178\u2021\u00B3 +91 India</option>
+                <option value="+86">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00B3 +86 China</option>
+                <option value="+81">\u00F0\u0178\u2021\u00AF\u00F0\u0178\u2021\u00B5 +81 Japan</option>
+                <option value="+82">\u00F0\u0178\u2021\u00B0\u00F0\u0178\u2021\u00B7 +82 S.Korea</option>
+                <option value="+966">\u00F0\u0178\u2021\u00B8\u00F0\u0178\u2021\u00A6 +966 Saudi Arabia</option>
+                <option value="+971">\u00F0\u0178\u2021\u00A6\u00F0\u0178\u2021\u00AA +971 UAE</option>
+                <option value="+974">\u00F0\u0178\u2021\u00B6\u00F0\u0178\u2021\u00A6 +974 Qatar</option>
+                <option value="+965">\u00F0\u0178\u2021\u00B0\u00F0\u0178\u2021\u00BC +965 Kuwait</option>
+                <option value="+92">\u00F0\u0178\u2021\u00B5\u00F0\u0178\u2021\u00B0 +92 Pakistan</option>
+                <option value="+880">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00A9 +880 Bangladesh</option>
               </optgroup>
             </select>
             <input id="oc-phone" type="tel" placeholder="e.g. 08012345678" style="flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;" />
@@ -386,7 +386,7 @@ function showOrderModal() {
         <div style="font-size:.78rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Choose Payment Method</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <button id="oc-pay-online-btn" onclick="submitOrderOnline()" style="width:100%;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;border:none;padding:14px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
-            \u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u2122\u00C2\u00B3 Pay Online (Card / Bank Transfer)
+            \u00F0\u0178\u2019\u00B3 Pay Online (Card / Bank Transfer)
           </button>
           <button id="oc-submit-btn" onclick="submitOrder()" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:14px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
             <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,255,255,0.2)"/><path d="M23.5 8.5A10.45 10.45 0 0 0 16 5.5C10.2 5.5 5.5 10.2 5.5 16c0 1.85.48 3.65 1.4 5.24L5.5 26.5l5.4-1.38A10.43 10.43 0 0 0 16 26.5c5.8 0 10.5-4.7 10.5-10.5 0-2.8-1.09-5.43-3-7.5z" fill="white"/></svg>
@@ -406,7 +406,7 @@ function closeOrderModal() {
   if (modal) modal.style.display = 'none';
 }
 
-// \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC Online Payment via PayIsland \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC
+// \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC Online Payment via PayIsland \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC
 async function submitOrderOnline() {
   const name  = (document.getElementById('oc-name').value  || '').trim() || 'Customer';
   const phoneCode = (document.getElementById('oc-phone-code') ? document.getElementById('oc-phone-code').value : '+234');
@@ -416,7 +416,7 @@ async function submitOrderOnline() {
   const errEl = document.getElementById('oc-error');
 
   if (!phone) {
-    errEl.textContent = '\u00C3\u00A2\u00C5\u00A1\u00C2\u00A0\u00C3\u00AF\u00C2\u00B8\u00C2\u008F Please enter your phone number so we can contact you about your order.';
+    errEl.textContent = '\u00E2\u0161\u00A0\u00EF\u00B8\u00C2\u008F Please enter your phone number so we can contact you about your order.';
     errEl.style.display = 'block';
     document.getElementById('oc-phone').focus();
     return;
@@ -426,7 +426,7 @@ async function submitOrderOnline() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const onlineBtn = document.getElementById('oc-pay-online-btn');
   const waBtn     = document.getElementById('oc-submit-btn');
-  onlineBtn.disabled = true; onlineBtn.style.opacity = '.6'; onlineBtn.textContent = '\u00C3\u00A2\u00C2\u008F\u00C2\u00B3 Connecting\u00C3\u00A2\u00E2\u201A\u00AC\u00C2\u00A6';
+  onlineBtn.disabled = true; onlineBtn.style.opacity = '.6'; onlineBtn.textContent = '\u00E2\u00C2\u008F\u00B3 Connecting\u00E2\u20AC\u00A6';
   if (waBtn) { waBtn.disabled = true; waBtn.style.opacity = '.6'; }
 
   try {
@@ -436,7 +436,7 @@ async function submitOrderOnline() {
       body: JSON.stringify({
         customer_name:  name,
         customer_phone: phone,
-        customer_email: '',           // optional \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D user can leave blank
+        customer_email: '',           // optional \u00E2\u20AC\u00E2\u20AC\u009D user can leave blank
         items: cart.map(i => ({ id: i.id, name: i.name, emoji: i.emoji, price: i.price, qty: i.qty })),
         total,
         notes,
@@ -457,14 +457,14 @@ async function submitOrderOnline() {
     window.location.href = data.checkoutUrl;
 
   } catch (err) {
-    onlineBtn.disabled = false; onlineBtn.style.opacity = '1'; onlineBtn.textContent = '\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u2122\u00C2\u00B3 Pay Online (Card / Bank Transfer)';
+    onlineBtn.disabled = false; onlineBtn.style.opacity = '1'; onlineBtn.textContent = '\u00F0\u0178\u2019\u00B3 Pay Online (Card / Bank Transfer)';
     if (waBtn) { waBtn.disabled = false; waBtn.style.opacity = '1'; }
-    errEl.textContent = '\u00C3\u00A2\u00C2\u009D\u00C5\u2019 ' + err.message;
+    errEl.textContent = '\u00E2\u00C2\u009D\u0152 ' + err.message;
     errEl.style.display = 'block';
   }
 }
 
-// \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC Handle PayIsland payment callback (check URL params on load) \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC
+// \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC Handle PayIsland payment callback (check URL params on load) \u00E2\u00E2\u20AC\u009D\u20AC
 function checkPaymentReturn() {
   const params = new URLSearchParams(window.location.search);
   const payStatus = params.get('payment');
@@ -477,10 +477,10 @@ function checkPaymentReturn() {
     const banner  = document.createElement('div');
     banner.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);padding:20px;';
     banner.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;max-width:420px;width:100%;padding:40px 28px;text-align:center;">
-      <div style="font-size:3.5rem;margin-bottom:12px;">\u00C3\u00A2\u00C5\u201C\u00E2\u20AC\u00A6</div>
+      <div style="font-size:3.5rem;margin-bottom:12px;">\u00E2\u0153\u2026</div>
       <h3 style="color:#fff;font-size:1.2rem;margin-bottom:8px;">Payment Confirmed!</h3>
       <p style="color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:24px;">
-        Thank you, ${name}! Your payment was successful and order ${orderId ? '#' + orderId : ''} is now confirmed.<br>We'll be in touch shortly via WhatsApp. \u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF
+        Thank you, ${name}! Your payment was successful and order ${orderId ? '#' + orderId : ''} is now confirmed.<br>We'll be in touch shortly via WhatsApp. \u00F0\u0178\u0152\u00BF
       </p>
       <button onclick="this.closest('div[style*=fixed]').remove()" style="background:var(--green);color:#fff;border:none;padding:12px 32px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;">Done</button>
     </div>`;
@@ -488,7 +488,7 @@ function checkPaymentReturn() {
   } else if (payStatus === 'failed') {
     const toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#e76f51;color:#fff;padding:14px 24px;border-radius:50px;font-weight:600;font-size:.9rem;z-index:3000;';
-    toast.textContent = '\u00C3\u00A2\u00C2\u009D\u00C5\u2019 Payment was not completed. Please try again or use WhatsApp checkout.';
+    toast.textContent = '\u00E2\u00C2\u009D\u0152 Payment was not completed. Please try again or use WhatsApp checkout.';
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 5000);
   }
@@ -504,7 +504,7 @@ async function submitOrder() {
   const btn   = document.getElementById('oc-submit-btn');
 
   if (!phone) {
-    errEl.textContent = '\u00C3\u00A2\u00C5\u00A1\u00C2\u00A0\u00C3\u00AF\u00C2\u00B8\u00C2\u008F Please enter your WhatsApp/phone number so we can confirm your order.';
+    errEl.textContent = '\u00E2\u0161\u00A0\u00EF\u00B8\u00C2\u008F Please enter your WhatsApp/phone number so we can confirm your order.';
     errEl.style.display = 'block';
     document.getElementById('oc-phone').focus();
     return;
@@ -514,9 +514,9 @@ async function submitOrder() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   btn.disabled = true;
   btn.style.opacity = '.6';
-  btn.innerHTML = '\u00C3\u00A2\u00C2\u008F\u00C2\u00B3 Sending...';
+  btn.innerHTML = '\u00E2\u00C2\u008F\u00B3 Sending...';
 
-  // 2 \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC Build WhatsApp message to farm (plain text \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D no emoji to avoid diamond symbols)
+  // 2 \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC Build WhatsApp message to farm (plain text \u00E2\u20AC\u00E2\u20AC\u009D no emoji to avoid diamond symbols)
   let msg = `Hello Pinnacles Resource Centre Farm!\n\n*NEW ORDER*\n\n`;
   cart.forEach(item => {
     msg += `- *${item.name}* x${item.qty} -- N${(item.price * item.qty).toLocaleString()}\n`;
@@ -527,7 +527,7 @@ async function submitOrder() {
   if (notes) msg += `\n*Notes:* ${notes}`;
   msg += `\n\nPlease confirm availability and delivery. Thank you!`;
 
-  // 1 \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC Save to backend (and trigger admin email)
+  // 1 \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC Save to backend (and trigger admin email)
   if (USE_BACKEND) {
     try {
       await fetch(API_BASE + '/orders', {
@@ -542,13 +542,13 @@ async function submitOrder() {
           whatsapp_msg: msg
         })
       });
-    } catch { /* backend offline \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D still open WhatsApp */ }
+    } catch { /* backend offline \u00E2\u20AC\u00E2\u20AC\u009D still open WhatsApp */ }
   }
 
-  // 3 \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC Show success with two send buttons
+  // 3 \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC Show success with two send buttons
   showOrderSuccess(name, msg);
 
-  // 4 \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC Clear cart
+  // 4 \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC Clear cart
   cart = [];
   updateCartBadge();
   renderCartItems();
@@ -562,15 +562,15 @@ function showOrderSuccess(name, msg) {
   const wa2 = `https://wa.me/${WA_NUMBER2}?text=${encodeURIComponent(msg)}`;
   modal.innerHTML = `
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;width:100%;max-width:420px;padding:40px 28px;text-align:center;animation:slideIn .3s ease;">
-      <div style="font-size:3.5rem;margin-bottom:12px;">\u00C3\u00A2\u00C5\u201C\u00E2\u20AC\u00A6</div>
+      <div style="font-size:3.5rem;margin-bottom:12px;">\u00E2\u0153\u2026</div>
       <h3 style="color:#fff;font-size:1.2rem;margin-bottom:8px;">Order Recorded!</h3>
       <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:24px;line-height:1.6;">Hi ${name}! Tap the buttons below to send your order to us on WhatsApp.</p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
         <a href="${wa1}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:14px 20px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;">
-          \u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00B2 Send to +234 903 750 5632
+          \u00F0\u0178\u201C\u00B2 Send to +234 903 750 5632
         </a>
         <a href="${wa2}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:14px 20px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;opacity:.85;">
-          \u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00B2 Send to +234 707 821 0834
+          \u00F0\u0178\u201C\u00B2 Send to +234 707 821 0834
         </a>
       </div>
       <button onclick="closeOrderModal()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text-muted);padding:10px 28px;border-radius:50px;font-size:.88rem;font-weight:600;cursor:pointer;">Done</button>
@@ -587,7 +587,7 @@ function directOrder(id) {
 
 // ===== SHARE =====
 function shareOnWhatsApp() {
-  const msg = `\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF *Pinnacles Resource Centre Farm*\n\nGet fresh farm produce delivered to you!\n\n\u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00E2\u20AC\u00A6 Tomatoes  \u00C3\u00B0\u00C5\u00B8\u00C2\u00AB\u00E2\u20AC\u02DC Peppers  \u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00E2\u20AC\u0153 Strawberries\n\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BD Maize  \u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00E2\u20AC\u00A2 Carrots  \u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00C5\u00A1 Eggs  \u00C3\u00B0\u00C5\u00B8\u00C2\u00AB\u00E2\u20AC\u00BA Green Peas\n\n\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00B2 Order directly on WhatsApp!\n#PinnaclesFarm #FreshProduce #FarmToTable`;
+  const msg = `\u00F0\u0178\u0152\u00BF *Pinnacles Resource Centre Farm*\n\nGet fresh farm produce delivered to you!\n\n\u00F0\u0178\u00C2\u008D\u2026 Tomatoes  \u00F0\u0178\u00AB\u2018 Peppers  \u00F0\u0178\u00C2\u008D\u201C Strawberries\n\u00F0\u0178\u0152\u00BD Maize  \u00F0\u0178\u00A5\u2022 Carrots  \u00F0\u0178\u00A5\u0161 Eggs  \u00F0\u0178\u00AB\u203A Green Peas\n\n\u00F0\u0178\u201C\u00B2 Order directly on WhatsApp!\n#PinnaclesFarm #FreshProduce #FarmToTable`;
   openWhatsApp(msg);
 }
 
@@ -601,24 +601,24 @@ function copyLink() {
 
 // ===== GENERATE ADVERT =====
 function generateAdvert() {
-  const advertText = `\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF *PINNACLES RESOURCE CENTRE FARM* \u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF\n\n\u00C3\u00A2\u00C5\u201C\u00E2\u20AC\u00A6 Fresh Farm Produce Available NOW!\n\n\u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00E2\u20AC\u00A6 Tomatoes\n\u00C3\u00B0\u00C5\u00B8\u00C2\u00AB\u00E2\u20AC\u02DC Peppers\n\u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00E2\u20AC\u0153 Strawberries\n\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BD Maize\n\u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00E2\u20AC\u00A2 Carrots\n\u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00C5\u00A1 Farm Fresh Eggs\n\u00C3\u00B0\u00C5\u00B8\u00C2\u00AB\u00E2\u20AC\u00BA Green Peas\n\u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00C2\u00AC And Much More!\n\n\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u2122\u00C2\u00AF 100% Organically Grown\n\u00C3\u00B0\u00C5\u00B8\u00C5\u00A1\u00C5\u00A1 Fast Delivery Available\n\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u2122\u00C2\u00B0 Fair & Affordable Prices\n\n\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00B2 Order via WhatsApp Now!\nDon't miss out \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D get your fresh produce today!\n\n#PinnaclesFarm #FreshProduce #OrganicFood #FarmToTable #NigeriaFarms`;
+  const advertText = `\u00F0\u0178\u0152\u00BF *PINNACLES RESOURCE CENTRE FARM* \u00F0\u0178\u0152\u00BF\n\n\u00E2\u0153\u2026 Fresh Farm Produce Available NOW!\n\n\u00F0\u0178\u00C2\u008D\u2026 Tomatoes\n\u00F0\u0178\u00AB\u2018 Peppers\n\u00F0\u0178\u00C2\u008D\u201C Strawberries\n\u00F0\u0178\u0152\u00BD Maize\n\u00F0\u0178\u00A5\u2022 Carrots\n\u00F0\u0178\u00A5\u0161 Farm Fresh Eggs\n\u00F0\u0178\u00AB\u203A Green Peas\n\u00F0\u0178\u00A5\u00AC And Much More!\n\n\u00F0\u0178\u2019\u00AF 100% Organically Grown\n\u00F0\u0178\u0161\u0161 Fast Delivery Available\n\u00F0\u0178\u2019\u00B0 Fair & Affordable Prices\n\n\u00F0\u0178\u201C\u00B2 Order via WhatsApp Now!\nDon't miss out \u00E2\u20AC\u00E2\u20AC\u009D get your fresh produce today!\n\n#PinnaclesFarm #FreshProduce #OrganicFood #FarmToTable #NigeriaFarms`;
 
   document.getElementById('advert-modal-content').innerHTML = `
-    <h3>\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00A2 Your WhatsApp Advert</h3>
+    <h3>\u00F0\u0178\u201C\u00A2 Your WhatsApp Advert</h3>
     <p>Copy and share this advert on WhatsApp, Facebook, or any platform!</p>
     <div class="advert-text-box">${advertText}</div>
     <div class="advert-modal-actions">
-      <button class="share-btn wa" onclick="sendAdvertOnWhatsApp()">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00B2 Share on WhatsApp</button>
-      <button class="share-btn copy" onclick="copyAdvert()">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00E2\u20AC\u00B9 Copy Text</button>
+      <button class="share-btn wa" onclick="sendAdvertOnWhatsApp()">\u00F0\u0178\u201C\u00B2 Share on WhatsApp</button>
+      <button class="share-btn copy" onclick="copyAdvert()">\u00F0\u0178\u201C\u2039 Copy Text</button>
     </div>
-    <div id="advert-copy-msg" class="copy-msg" style="display:none;margin-top:10px">\u00C3\u00A2\u00C5\u201C\u00E2\u20AC\u00A6 Advert copied!</div>
+    <div id="advert-copy-msg" class="copy-msg" style="display:none;margin-top:10px">\u00E2\u0153\u2026 Advert copied!</div>
   `;
   document.getElementById('advert-modal-overlay').classList.add('open');
   document.getElementById('advert-modal').classList.add('open');
 }
 
 function sendAdvertOnWhatsApp() {
-  const msg = `\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF *PINNACLES RESOURCE CENTRE FARM* \u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF\n\n\u00C3\u00A2\u00C5\u201C\u00E2\u20AC\u00A6 Fresh Farm Produce Available NOW!\n\n\u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00E2\u20AC\u00A6 Tomatoes | \u00C3\u00B0\u00C5\u00B8\u00C2\u00AB\u00E2\u20AC\u02DC Peppers | \u00C3\u00B0\u00C5\u00B8\u00C2\u008D\u00E2\u20AC\u0153 Strawberries\n\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BD Maize | \u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00E2\u20AC\u00A2 Carrots | \u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00C5\u00A1 Farm Fresh Eggs\n\u00C3\u00B0\u00C5\u00B8\u00C2\u00AB\u00E2\u20AC\u00BA Green Peas | \u00C3\u00B0\u00C5\u00B8\u00C2\u00A5\u00C2\u00AC And Much More!\n\n\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u2122\u00C2\u00AF 100% Organically Grown\n\u00C3\u00B0\u00C5\u00B8\u00C5\u00A1\u00C5\u00A1 Fast Delivery Available\n\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u2122\u00C2\u00B0 Fair & Affordable Prices\n\n\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00C2\u00B2 Order via WhatsApp Now!\n\n#PinnaclesFarm #FreshProduce #FarmToTable`;
+  const msg = `\u00F0\u0178\u0152\u00BF *PINNACLES RESOURCE CENTRE FARM* \u00F0\u0178\u0152\u00BF\n\n\u00E2\u0153\u2026 Fresh Farm Produce Available NOW!\n\n\u00F0\u0178\u00C2\u008D\u2026 Tomatoes | \u00F0\u0178\u00AB\u2018 Peppers | \u00F0\u0178\u00C2\u008D\u201C Strawberries\n\u00F0\u0178\u0152\u00BD Maize | \u00F0\u0178\u00A5\u2022 Carrots | \u00F0\u0178\u00A5\u0161 Farm Fresh Eggs\n\u00F0\u0178\u00AB\u203A Green Peas | \u00F0\u0178\u00A5\u00AC And Much More!\n\n\u00F0\u0178\u2019\u00AF 100% Organically Grown\n\u00F0\u0178\u0161\u0161 Fast Delivery Available\n\u00F0\u0178\u2019\u00B0 Fair & Affordable Prices\n\n\u00F0\u0178\u201C\u00B2 Order via WhatsApp Now!\n\n#PinnaclesFarm #FreshProduce #FarmToTable`;
   openWhatsApp(msg);
 }
 
@@ -677,12 +677,12 @@ async function renderGallery() {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) items = data;
       }
-    } catch { /* backend offline \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D use fallback */ }
+    } catch { /* backend offline \u00E2\u20AC\u00E2\u20AC\u009D use fallback */ }
   }
   document.getElementById('gallery-grid').innerHTML = items.map(item => `
     <div class="gallery-item${item.wide ? ' wide' : ''}">
       <img src="${item.img}" alt="${item.alt || 'Farm photo'}"
-           onerror="this.outerHTML='<div class=gallery-emoji>\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF</div>'" />
+           onerror="this.outerHTML='<div class=gallery-emoji>\u00F0\u0178\u0152\u00BF</div>'" />
       ${item.caption ? `<div class="gallery-caption">${item.caption}</div>` : ''}
     </div>
   `).join('');
@@ -702,7 +702,7 @@ document.querySelectorAll('.why-card, .product-card, .contact-card').forEach(el 
   observer.observe(el);
 });
 
-// \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC Today's Harvest Banner \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC
+// \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC Today's Harvest Banner \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC
 async function loadTodaysHarvest() {
   try {
     const res = await fetch('/api/harvest/today');
@@ -713,15 +713,15 @@ async function loadTodaysHarvest() {
     const container = document.getElementById('harvest-items');
     if (!section || !container) return;
     container.innerHTML = data.items.map(item =>
-      `<div class="harvest-item${item.limited ? ' limited' : ''}">${item.emoji || '\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF'} ${item.name}${item.limited ? ' \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D Limited' : ' \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D Available'}</div>`
+      `<div class="harvest-item${item.limited ? ' limited' : ''}">${item.emoji || '\u00F0\u0178\u0152\u00BF'} ${item.name}${item.limited ? ' \u00E2\u20AC\u00E2\u20AC\u009D Limited' : ' \u00E2\u20AC\u00E2\u20AC\u009D Available'}</div>`
     ).join('');
     section.style.display = 'block';
-  } catch (_) { /* silent \u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u009D endpoint may not be ready */ }
+  } catch (_) { /* silent \u00E2\u20AC\u00E2\u20AC\u009D endpoint may not be ready */ }
 }
 document.addEventListener('DOMContentLoaded', () => { loadTodaysHarvest(); });
 
 
-// \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC PRE-ORDER SYSTEM \u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC\u00C3\u00A2\u00E2\u20AC\u009D\u00E2\u201A\u00AC
+// \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC PRE-ORDER SYSTEM \u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC\u00E2\u00E2\u20AC\u009D\u20AC
 function openPreorderModal(productId, productName, expectedDate, note) {
   const modal = document.getElementById('preorder-modal');
   const body  = document.getElementById('preorder-modal-body');
@@ -732,9 +732,9 @@ function openPreorderModal(productId, productName, expectedDate, note) {
 
   body.innerHTML = `
     <div style="margin-bottom:16px">
-      <div style="font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:4px">${p.emoji || '\u00C3\u00B0\u00C5\u00B8\u00C5\u2019\u00C2\u00BF'} ${productName}</div>
-      <div style="font-size:.85rem;color:#52b788">\u00C3\u00A2\u00E2\u20AC\u0161\u00C2\u00A6${Number(p.price||0).toLocaleString()} ${p.unit||''}</div>
-      ${expectedDate ? `<div style="margin-top:10px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:10px 14px;font-size:.82rem;color:#fbbf24">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u0153\u00E2\u20AC\u00A6 Expected availability: <strong>${new Date(expectedDate).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'})}</strong></div>` : ''}
+      <div style="font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:4px">${p.emoji || '\u00F0\u0178\u0152\u00BF'} ${productName}</div>
+      <div style="font-size:.85rem;color:#52b788">\u00E2\u201A\u00A6${Number(p.price||0).toLocaleString()} ${p.unit||''}</div>
+      ${expectedDate ? `<div style="margin-top:10px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:10px 14px;font-size:.82rem;color:#fbbf24">\u00F0\u0178\u201C\u2026 Expected availability: <strong>${new Date(expectedDate).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'})}</strong></div>` : ''}
       ${note ? `<div style="margin-top:8px;font-size:.8rem;color:rgba(255,255,255,.5)">${note}</div>` : ''}
     </div>
 
@@ -752,8 +752,8 @@ function openPreorderModal(productId, productName, expectedDate, note) {
     <div id="po-error" style="display:none;color:#f87171;font-size:.82rem;margin-top:10px"></div>
 
     <div style="display:flex;gap:10px;margin-top:20px">
-      <button onclick="submitPreorder(${productId},'${productName}','${(p.unit||'').replace(/'/g,"\\'")}')" style="flex:1;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;border:none;border-radius:12px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">\u00C3\u00A2\u00C2\u008F\u00C2\u00B3 Reserve This Now</button>
-      <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello Pinnacles Farm! I want to pre-order: '+productName+(expectedDate?' (expected '+expectedDate+')':'')+'.')}" target="_blank" style="display:flex;align-items:center;gap:6px;background:#25D366;color:#fff;border-radius:12px;padding:12px 16px;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap">\u00C3\u00B0\u00C5\u00B8\u00E2\u20AC\u2122\u00C2\u00AC WhatsApp</a>
+      <button onclick="submitPreorder(${productId},'${productName}','${(p.unit||'').replace(/'/g,"\\'")}')" style="flex:1;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;border:none;border-radius:12px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">\u00E2\u00C2\u008F\u00B3 Reserve This Now</button>
+      <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello Pinnacles Farm! I want to pre-order: '+productName+(expectedDate?' (expected '+expectedDate+')':'')+'.')}" target="_blank" style="display:flex;align-items:center;gap:6px;background:#25D366;color:#fff;border-radius:12px;padding:12px 16px;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap">\u00F0\u0178\u2019\u00AC WhatsApp</a>
     </div>
   `;
 
@@ -797,7 +797,7 @@ async function submitPreorder(productId, productName, unit) {
     const waConfirm = encodeURIComponent('Hello Pinnacles Farm! I just pre-ordered ' + productName + ' on your website. My name is ' + name + ' and phone is ' + phone + '.');
     document.getElementById('preorder-modal-body').innerHTML =
       '<div style="text-align:center;padding:20px 0">' +
-      '<div style="font-size:3rem;margin-bottom:16px">\u00E2\u0153\u2026</div>' +
+      '<div style="font-size:3rem;margin-bottom:16px">\u2705</div>' +
       '<h4 style="font-size:1.1rem;color:#a3d9b8;margin-bottom:10px">Pre-order Reserved!</h4>' +
       '<p style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">Thank you <strong style="color:#fff">' + name + '</strong>! We\'ll contact you on <strong style="color:#fff">' + phone + '</strong> when <strong style="color:#52b788">' + productName + '</strong> is ready.</p>' +
       '<a href="https://wa.me/2349037505632?text=' + waConfirm + '" target="_blank" style="display:inline-block;margin-top:20px;background:#25D366;color:#fff;border-radius:50px;padding:10px 24px;font-weight:700;font-size:.85rem;text-decoration:none">&#128172; Confirm on WhatsApp</a>' +
