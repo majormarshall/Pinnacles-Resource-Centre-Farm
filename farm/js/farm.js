@@ -1,3 +1,21 @@
+
+// ?? TOAST HELPER ??????????????????????????????????????????
+function showFoToast(msg, isError = false) {
+  let t = document.getElementById('fo-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'fo-toast';
+    t.className = 'fo-toast';
+    t.style.cssText = 'position:fixed;bottom:32px;right:32px;padding:12px 24px;border-radius:50px;font-weight:600;font-size:.9rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);transition:opacity 0.3s;';
+    document.body.appendChild(t);
+  }
+  t.style.background = isError ? 'var(--red)' : 'var(--green)';
+  t.style.color = '#fff';
+  t.textContent = (isError ? '❌ ' : '✅ ') + msg.replace('?', '');
+  t.style.display = 'block';
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.style.display = 'none', 300); }, 3000);
+}
 // Farm Operations Dashboard \u2014 farm/js/farm.js
 'use strict';
 
@@ -935,7 +953,7 @@ async function approveWorker(id, btn) {
     if (!res.ok) throw new Error('Failed');
     showFoToast('Worker approved! They can now log in. ?');
     loadPendingWorkers();
-  } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '? Approve'; btn.disabled = false; }
+  } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '\u2705 Approve'; btn.disabled = false; }
 }
 
 async function rejectWorker(id, btn) {
@@ -949,7 +967,7 @@ async function rejectWorker(id, btn) {
     if (!res.ok) throw new Error('Failed');
     showFoToast('Registration rejected.');
     loadPendingWorkers();
-  } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '? Reject'; btn.disabled = false; }
+  } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '\u2716 Reject'; btn.disabled = false; }
 }
 
 // Auto-load pending count on dashboard load
