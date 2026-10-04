@@ -125,7 +125,7 @@ async function loadMyAttendance() {
     attEl.innerHTML = mine.map(r => `
       <div class="w-att-row">
         <div class="w-att-date">${fmtDate(r.work_date)}</div>
-        <div class="w-att-meta">${r.time_in || '\u2014'} \u2192 ${r.time_out || '\u2014'} · ${r.hours_worked || 8} hrs${r.task ? ' · ' + r.task : ''}</div>
+        <div class="w-att-meta">${r.time_in || '\u2014'} \u2192 ${r.time_out || '\u2014'} \u00B7 ${r.hours_worked || 8} hrs${r.task ? ' \u00B7 ' + r.task : ''}</div>
       </div>`).join('');
   } catch {
     attEl.innerHTML = '<p class="w-empty">Could not load attendance.</p>';

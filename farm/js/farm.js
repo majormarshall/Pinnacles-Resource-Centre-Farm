@@ -8,13 +8,13 @@ let foState = { fields: [], crops: [], workers: [] }; // cached reference data
 
 // \u2500\u2500 Auth \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function doLogin() {
-  const email = document.getElementById('l-email').value.trim();
-  const pass  = document.getElementById('l-pass').value;
-  const errEl = document.getElementById('login-error');
+  const username = (document.getElementById('l-email') || document.getElementById('l-user'))?.value.trim();
+  const pass     = document.getElementById('l-pass').value;
+  const errEl    = document.getElementById('login-error');
   errEl.style.display = 'none';
-  if (!email || !pass) { errEl.textContent = 'Please enter email and password'; errEl.style.display = 'block'; return; }
+  if (!username || !pass) { errEl.textContent = 'Please enter username and password'; errEl.style.display = 'block'; return; }
   try {
-    const res  = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password:pass}) });
+    const res  = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username, password:pass}) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed');
     localStorage.setItem(AUTH_TOKEN_KEY, data.token);
@@ -145,7 +145,7 @@ async function loadFields() {
     <div class="fo-row">
       <div class="fo-row-main">
         <div class="fo-row-title">\u{1F5FA}\uFE0F ${f.name}</div>
-        <div class="fo-row-meta">${f.type} · ${f.size_sqm ? f.size_sqm + ' m²' : 'Size not set'} · ${f.location || 'No location'} · Soil: ${f.soil_type || '\u2013'}</div>
+        <div class="fo-row-meta">${f.type} \u00B7 ${f.size_sqm ? f.size_sqm + ' m\u00B2' : 'Size not set'} \u00B7 ${f.location || 'No location'} \u00B7 Soil: ${f.soil_type || '\u2013'}</div>
         ${f.notes ? `<div class="fo-row-meta" style="margin-top:4px;font-style:italic">${f.notes}</div>` : ''}
       </div>
       ${statusBadge(f.status)}
@@ -168,7 +168,7 @@ function openFieldForm() {
           <option value="poultry">Poultry House</option>
         </select>
       </div>
-      <div class="fo-form-group"><label class="fo-label">Size (m²)</label><input type="number" class="fo-input" id="ff-size" placeholder="e.g. 500" /></div>
+      <div class="fo-form-group"><label class="fo-label">Size (m\u00B2)</label><input type="number" class="fo-input" id="ff-size" placeholder="e.g. 500" /></div>
     </div>
     <div class="fo-form-row">
       <div class="fo-form-group"><label class="fo-label">Location</label><input class="fo-input" id="ff-loc" placeholder="e.g. North side" /></div>
@@ -200,7 +200,7 @@ async function loadPlantings() {
     <div class="fo-row">
       <div class="fo-row-main">
         <div class="fo-row-title">\u{1F331} ${p.crop_name || 'Unknown crop'} \u2014 ${p.field_name || 'No field'}</div>
-        <div class="fo-row-meta">Planted: ${fmtDate(p.date_planted)} · Qty: ${p.quantity || '\u2013'} ${p.unit} · By: ${p.planted_by || '\u2013'}</div>
+        <div class="fo-row-meta">Planted: ${fmtDate(p.date_planted)} \u00B7 Qty: ${p.quantity || '\u2013'} ${p.unit} \u00B7 By: ${p.planted_by || '\u2013'}</div>
         ${p.expected_harvest_date ? `<div class="fo-row-meta">Expected harvest: ${fmtDate(p.expected_harvest_date)}</div>` : ''}
         ${p.notes ? `<div class="fo-row-meta" style="font-style:italic">${p.notes}</div>` : ''}
       </div>
@@ -257,8 +257,8 @@ async function loadHarvests() {
     <div class="fo-row">
       <div class="fo-row-main">
         <div class="fo-row-title">\u{1F9FA} ${h.crop_name || 'Unknown'} \u2014 ${h.quantity} ${h.unit}</div>
-        <div class="fo-row-meta">Harvested: ${fmtDate(h.harvest_date)} · Field: ${h.field_name || '\u2013'} · By: ${h.harvested_by || '\u2013'}</div>
-        <div class="fo-row-meta">Grade: ${h.quality_grade} · ${h.sent_to_store ? '\u{1F3EA} Sent to store' : '\u{1F4E6} On-farm'}</div>
+        <div class="fo-row-meta">Harvested: ${fmtDate(h.harvest_date)} \u00B7 Field: ${h.field_name || '\u2013'} \u00B7 By: ${h.harvested_by || '\u2013'}</div>
+        <div class="fo-row-meta">Grade: ${h.quality_grade} \u00B7 ${h.sent_to_store ? '\u{1F3EA} Sent to store' : '\u{1F4E6} On-farm'}</div>
         ${h.notes ? `<div class="fo-row-meta" style="font-style:italic">${h.notes}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
@@ -310,8 +310,8 @@ async function loadSprays() {
     <div class="fo-row">
       <div class="fo-row-main">
         <div class="fo-row-title">\u{1F4A7} ${s.chemical_name} \u2014 ${s.field_name || 'All fields'}</div>
-        <div class="fo-row-meta">Date: ${fmtDate(s.spray_date)} · Dosage: ${s.dosage || '\u2013'} · Area: ${s.area_sprayed || '\u2013'}</div>
-        <div class="fo-row-meta">By: ${s.sprayed_by || '\u2013'} · Weather: ${s.weather_conditions || '\u2013'} · PHI: ${s.pre_harvest_interval ? s.pre_harvest_interval + ' days' : '\u2013'}</div>
+        <div class="fo-row-meta">Date: ${fmtDate(s.spray_date)} \u00B7 Dosage: ${s.dosage || '\u2013'} \u00B7 Area: ${s.area_sprayed || '\u2013'}</div>
+        <div class="fo-row-meta">By: ${s.sprayed_by || '\u2013'} \u00B7 Weather: ${s.weather_conditions || '\u2013'} \u00B7 PHI: ${s.pre_harvest_interval ? s.pre_harvest_interval + ' days' : '\u2013'}</div>
         ${s.notes ? `<div class="fo-row-meta" style="font-style:italic">${s.notes}</div>` : ''}
       </div>
       ${badge('Spray Record', 'blue')}
@@ -362,7 +362,7 @@ async function loadWorkers() {
     <div class="fo-row">
       <div class="fo-row-main">
         <div class="fo-row-title">\u{1F477} ${w.name}</div>
-        <div class="fo-row-meta">${w.role?.replace('_',' ')} · Phone: ${w.phone || '\u2013'} · Hire date: ${fmtDate(w.hire_date)}</div>
+        <div class="fo-row-meta">${w.role?.replace('_',' ')} \u00B7 Phone: ${w.phone || '\u2013'} \u00B7 Hire date: ${fmtDate(w.hire_date)}</div>
         <div class="fo-row-meta">Pay: NGN ${Number(w.pay_rate||0).toLocaleString()} / ${w.pay_type}</div>
       </div>
       ${statusBadge(w.status)}
@@ -427,7 +427,7 @@ async function loadAttendance() {
     <div class="fo-row">
       <div class="fo-row-main">
         <div class="fo-row-title">\u{1F477} ${a.worker_name}</div>
-        <div class="fo-row-meta">${fmtDate(a.work_date)} · ${a.time_in || '\u2013'} \u2192 ${a.time_out || '\u2013'} · ${a.hours_worked || 8} hrs</div>
+        <div class="fo-row-meta">${fmtDate(a.work_date)} \u00B7 ${a.time_in || '\u2013'} \u2192 ${a.time_out || '\u2013'} \u00B7 ${a.hours_worked || 8} hrs</div>
         ${a.task ? `<div class="fo-row-meta">Task: ${a.task}</div>` : ''}
       </div>
       ${badge(a.hours_worked + 'h', 'green')}
@@ -475,8 +475,8 @@ async function loadInputs() {
     return `<div class="fo-row">
       <div class="fo-row-main">
         <div class="fo-row-title">\u{1F4E6} ${i.name}</div>
-        <div class="fo-row-meta">${i.type} · Stock: ${i.current_stock} ${i.unit} · Reorder at: ${i.reorder_level} ${i.unit}</div>
-        <div class="fo-row-meta">Supplier: ${i.supplier||'\u2013'} · Cost: NGN ${Number(i.cost_per_unit||0).toLocaleString()}/${i.unit}</div>
+        <div class="fo-row-meta">${i.type} \u00B7 Stock: ${i.current_stock} ${i.unit} \u00B7 Reorder at: ${i.reorder_level} ${i.unit}</div>
+        <div class="fo-row-meta">Supplier: ${i.supplier||'\u2013'} \u00B7 Cost: NGN ${Number(i.cost_per_unit||0).toLocaleString()}/${i.unit}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         ${low ? badge('Low Stock \u26A0\uFE0F','red') : badge('In Stock','green')}
@@ -559,7 +559,7 @@ async function loadEquipment() {
     <div class="fo-row">
       <div class="fo-row-main">
         <div class="fo-row-title">\u{1F69C} ${e.name}</div>
-        <div class="fo-row-meta">${e.type||'\u2013'} · S/N: ${e.serial_number||'\u2013'} · Purchased: ${fmtDate(e.purchase_date)}</div>
+        <div class="fo-row-meta">${e.type||'\u2013'} \u00B7 S/N: ${e.serial_number||'\u2013'} \u00B7 Purchased: ${fmtDate(e.purchase_date)}</div>
         <div class="fo-row-meta">Last maintenance: ${fmtDate(e.last_maintenance_date)}</div>
         ${e.notes ? `<div class="fo-row-meta" style="font-style:italic">${e.notes}</div>` : ''}
       </div>
@@ -629,7 +629,7 @@ async function loadDiary() {
   el.innerHTML = rows.map(e => `
     <div class="diary-entry">
       <div class="diary-entry-header">
-        <span class="diary-entry-date">${fmtDate(e.entry_date)} · ${e.written_by || '\u2013'} ${e.weather ? '· \u{1F324} ' + e.weather : ''}</span>
+        <span class="diary-entry-date">${fmtDate(e.entry_date)} \u00B7 ${e.written_by || '\u2013'} ${e.weather ? '\u00B7 \u{1F324} ' + e.weather : ''}</span>
         <span class="diary-entry-cat">${e.category}</span>
       </div>
       ${e.title ? `<div class="diary-entry-title">${e.title}</div>` : ''}
@@ -658,7 +658,7 @@ function openDiaryForm() {
     </div>
     <div class="fo-form-row">
       <div class="fo-form-group"><label class="fo-label">Title (optional)</label><input class="fo-input" id="fd-title" placeholder="Brief title" /></div>
-      <div class="fo-form-group"><label class="fo-label">Weather</label><input class="fo-input" id="fd-weather" placeholder="e.g. Sunny 32°C" /></div>
+      <div class="fo-form-group"><label class="fo-label">Weather</label><input class="fo-input" id="fd-weather" placeholder="e.g. Sunny 32\u00B0C" /></div>
     </div>
     <div class="fo-form-group"><label class="fo-label">Entry *</label><textarea class="fo-textarea" id="fd-content" rows="5" placeholder="Describe what happened on the farm today..."></textarea></div>
     <div class="fo-modal-footer">
@@ -855,7 +855,7 @@ async function loadReports() {
       mel.innerHTML = rows.map(function(m) {
         return '<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:10px 14px;margin-bottom:6px">' +
           '<div style="font-weight:700;font-size:.82rem;color:#fbbf24">' + (m.equipment_name || 'Equipment') + '</div>' +
-          '<div style="font-size:.73rem;color:rgba(255,255,255,.5)">' + m.maintenance_type + ' · ' + fmtDate(m.scheduled_date) + '</div>' +
+          '<div style="font-size:.73rem;color:rgba(255,255,255,.5)">' + m.maintenance_type + ' \u00B7 ' + fmtDate(m.scheduled_date) + '</div>' +
           '<button onclick="completeMaintenance(' + m.id + ')" style="font-size:.68rem;margin-top:5px;background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);color:#a3d9b8;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:Outfit,sans-serif">\u2705 Mark Complete</button>' +
           '</div>';
       }).join('');

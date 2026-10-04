@@ -361,9 +361,9 @@ async function handleUserMessage(text) {
       } else {
         if (typeof window !== 'undefined' && typeof window.addToCart === 'function') {
           for (let i = 0; i < qty; i++) window.addToCart(p.id);
-          await addBubble(`\u2705 Added **${qty}× ${p.name}** to your cart! \u{1F6D2}\n\nYour cart has been updated. Open the \u{1F6D2} cart icon to review your order.`, 'bot');
+          await addBubble(`\u2705 Added **${qty}\u00D7 ${p.name}** to your cart! \u{1F6D2}\n\nYour cart has been updated. Open the \u{1F6D2} cart icon to review your order.`, 'bot');
         } else {
-          await addBubble(`I'd love to add **${qty}× ${p.name}** to your cart! Tap the product card below then use **\u{1F6D2} Add to Cart** on the page.`, 'bot');
+          await addBubble(`I'd love to add **${qty}\u00D7 ${p.name}** to your cart! Tap the product card below then use **\u{1F6D2} Add to Cart** on the page.`, 'bot');
           await addProductCard(p, 100);
         }
         await addChips(['\u{1F6D2} Browse More', '\u{1F4AC} WhatsApp Us'], 200);

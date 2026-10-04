@@ -1,5 +1,5 @@
 // ============================================================
-// Pinnacles Farm â\u20AC\u201D Admin Dashboard JavaScript
+// Pinnacles Farm \u00E2\u20AC\u201D Admin Dashboard JavaScript
 // ============================================================
 const API = '/api';
 let authToken = localStorage.getItem('pinnacles_admin_token');
@@ -17,7 +17,7 @@ function imgSrc(url) {
   return '/' + url;
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Boot â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Boot \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 window.addEventListener('DOMContentLoaded', () => {
   if (authToken) showDashboard();
   else showLogin();
@@ -42,12 +42,12 @@ function parseToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); } catch { return null; }
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Login â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Login \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 async function handleLogin(e) {
   e.preventDefault();
   const btn = document.getElementById('login-btn');
   const errEl = document.getElementById('login-error');
-  btn.textContent = 'Signing inâ\u20AC¦';
+  btn.textContent = 'Signing in\u00E2\u20AC\u00A6';
   btn.disabled = true;
   errEl.style.display = 'none';
   try {
@@ -78,7 +78,7 @@ function logout() {
   showLogin();
 }
 
-// â\u201D\u20ACâ\u201D\u20AC API Helper â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC API Helper \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 async function api(method, path, body = null, auth = true) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth && authToken) headers['Authorization'] = `Bearer ${authToken}`;
@@ -89,7 +89,7 @@ async function api(method, path, body = null, auth = true) {
   return res.json();
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Tabs â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Tabs \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 function showTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -105,7 +105,7 @@ function showTab(tab, el) {
   if (tab === 'messages') loadMessages();
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Overview â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Overview \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 async function loadOverview() {
   const [ordersData, msgsData] = await Promise.all([
     api('GET', '/orders'),
@@ -114,7 +114,7 @@ async function loadOverview() {
   const s = ordersData.stats || {};
   setText('stat-total-orders', s.total || 0);
   setText('stat-pending', s.pending || 0);
-  setText('stat-revenue', `â\u201A¦${Number(s.revenue || 0).toLocaleString()}`);
+  setText('stat-revenue', `\u00E2\u201A\u00A6${Number(s.revenue || 0).toLocaleString()}`);
   setText('stat-msgs', msgsData.unread || 0);
   document.getElementById('pending-badge').textContent = s.pending || 0;
   document.getElementById('msg-badge').textContent = msgsData.unread || 0;
@@ -129,7 +129,7 @@ async function loadOverview() {
             <div style="font-size:.75rem;color:var(--text-muted)">${formatDate(o.created_at)}</div>
           </div>
           <div style="text-align:right">
-            <div style="font-weight:700;color:var(--green-light)">â\u201A¦${Number(o.total).toLocaleString()}</div>
+            <div style="font-weight:700;color:var(--green-light)">\u00E2\u201A\u00A6${Number(o.total).toLocaleString()}</div>
             <span class="status-badge status-${o.status}">${o.status}</span>
           </div>
         </div>`).join('')
@@ -140,13 +140,13 @@ async function loadOverview() {
   document.getElementById('recent-messages-list').innerHTML = recentMsgs.length
     ? recentMsgs.map(m => `
         <div class="recent-msg-row">
-          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">â\u2014 NEW</span>'}</div>
-          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'â\u20AC¦':''}</div>
+          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">\u00E2\u2014\u008F NEW</span>'}</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'\u00E2\u20AC\u00A6':''}</div>
         </div>`).join('')
     : '<p style="color:var(--text-muted);font-size:.88rem;padding:20px 0;text-align:center">No messages yet</p>';
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Orders â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Orders \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 async function loadOrders() {
   const status = document.getElementById('order-status-filter')?.value || '';
   const data = await api('GET', `/orders${status ? '?status=' + status : ''}`);
@@ -155,11 +155,11 @@ async function loadOrders() {
     ? orders.map(o => `
         <div class="order-item">
           <div class="order-info">
-            <div class="order-id">#${o.id} Â· ${formatDate(o.created_at)}</div>
+            <div class="order-id">#${o.id} \u00C2\u00B7 ${formatDate(o.created_at)}</div>
             <div class="order-name">${o.customer_name || 'Customer'}</div>
-            <div class="order-meta">ð\u0178\u201C± ${o.customer_phone || 'No phone'}</div>
+            <div class="order-meta">\u00F0\u0178\u201C\u00B1 ${o.customer_phone || 'No phone'}</div>
             <div class="order-meta" style="margin-top:4px">
-              ${o.items.map(i => `${i.emoji||''} ${i.name} Ã\u2014${i.qty}`).join(' Â· ')}
+              ${o.items.map(i => `${i.emoji||''} ${i.name} \u00C3\u2014${i.qty}`).join(' \u00C2\u00B7 ')}
             </div>
             <div class="order-actions">
               <span class="status-badge status-${o.status}">${o.status}</span>
@@ -168,12 +168,12 @@ async function loadOrders() {
                   `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
               </select>
               <button class="btn-outline btn-sm" onclick="openOrderModal(${o.id})">View</button>
-              <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">ð\u0178\u2019¬ WhatsApp</button>
-              <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">ð\u0178\u201C\u201E Receipt</button>
+              <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">\u00F0\u0178\u2019\u00AC WhatsApp</button>
+              <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">\u00F0\u0178\u201C\u201E Receipt</button>
               <button class="btn-outline btn-sm btn-danger" onclick="deleteOrder(${o.id})">Delete</button>
             </div>
           </div>
-          <div class="order-total">â\u201A¦${Number(o.total).toLocaleString()}</div>
+          <div class="order-total">\u00E2\u201A\u00A6${Number(o.total).toLocaleString()}</div>
         </div>`).join('')
     : '<div style="text-align:center;padding:60px;color:var(--text-muted)">No orders found</div>';
 }
@@ -200,19 +200,19 @@ async function openOrderModal(id) {
   if (!order) return;
   document.getElementById('order-modal-content').innerHTML = `
     <div style="margin-bottom:16px">
-      <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px">#${order.id} Â· ${formatDate(order.created_at)}</div>
+      <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px">#${order.id} \u00C2\u00B7 ${formatDate(order.created_at)}</div>
       <div style="font-weight:700;font-size:1.1rem">${order.customer_name || 'Customer'}</div>
-      <div style="color:var(--text-muted);font-size:.88rem">ð\u0178\u201C± ${order.customer_phone || 'No phone provided'}</div>
+      <div style="color:var(--text-muted);font-size:.88rem">\u00F0\u0178\u201C\u00B1 ${order.customer_phone || 'No phone provided'}</div>
     </div>
     <div style="margin-bottom:16px">
       ${order.items.map(i => `
         <div class="order-detail-item">
-          <span>${i.emoji||'ð\u0178\u0152¿'} ${i.name} Ã\u2014${i.qty}</span>
-          <span>â\u201A¦${Number(i.price * i.qty).toLocaleString()}</span>
+          <span>${i.emoji||'\u00F0\u0178\u0152\u00BF'} ${i.name} \u00C3\u2014${i.qty}</span>
+          <span>\u00E2\u201A\u00A6${Number(i.price * i.qty).toLocaleString()}</span>
         </div>`).join('')}
-      <div class="order-detail-total"><span>Total</span><span>â\u201A¦${Number(order.total).toLocaleString()}</span></div>
+      <div class="order-detail-total"><span>Total</span><span>\u00E2\u201A\u00A6${Number(order.total).toLocaleString()}</span></div>
     </div>
-    ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">ð\u0178\u201C ${order.notes}</div>` : ''}
+    ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">\u00F0\u0178\u201C\u009D ${order.notes}</div>` : ''}
     <span class="status-badge status-${order.status}" style="margin-bottom:16px;display:inline-block">${order.status}</span>
 
     ${order.whatsapp_msg ? `
@@ -220,17 +220,17 @@ async function openOrderModal(id) {
       <button id="wa-toggle-${order.id}"
         onclick="toggleWaMsg('${order.id}')"
         style="background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.35);color:#25D366;padding:9px 16px;border-radius:50px;font-size:.82rem;font-weight:700;cursor:pointer;width:100%;text-align:left;">
-        ð\u0178\u201C² Show WhatsApp Message Sent
+        \u00F0\u0178\u201C\u00B2 Show WhatsApp Message Sent
       </button>
       <div id="wa-box-${order.id}" style="display:none;margin-top:10px;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:14px 16px;">
         <div style="font-size:.72rem;font-weight:700;color:#25D366;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">Message sent to WhatsApp</div>
         <pre id="wa-pre-${order.id}" style="font-family:'Outfit',sans-serif;font-size:.83rem;color:var(--text-light);white-space:pre-wrap;word-break:break-word;margin:0;line-height:1.6"></pre>
         <button onclick="navigator.clipboard.writeText(document.getElementById('wa-pre-${order.id}').textContent).then(()=>showToast('Copied to clipboard!'))"
-          style="margin-top:10px;background:none;border:1px solid rgba(37,211,102,.4);color:#25D366;padding:6px 14px;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;">ð\u0178\u201C\u2039 Copy Message</button>
+          style="margin-top:10px;background:none;border:1px solid rgba(37,211,102,.4);color:#25D366;padding:6px 14px;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;">\u00F0\u0178\u201C\u2039 Copy Message</button>
       </div>
     </div>` : ''}
 
-    ${order.customer_phone ? `<a href="https://wa.me/${order.customer_phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+order.customer_name+'! Your Pinnacles Farm order #'+order.id+' has been received. We will confirm shortly. ð\u0178\u0152¿')}" target="_blank" class="btn-primary wa-order-btn">ð\u0178\u2019¬ Message Customer on WhatsApp</a>` : ''}
+    ${order.customer_phone ? `<a href="https://wa.me/${order.customer_phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+order.customer_name+'! Your Pinnacles Farm order #'+order.id+' has been received. We will confirm shortly. \u00F0\u0178\u0152\u00BF')}" target="_blank" class="btn-primary wa-order-btn">\u00F0\u0178\u2019\u00AC Message Customer on WhatsApp</a>` : ''}
   `;
   // Safely inject whatsapp_msg as text (avoids XSS)
   if (order.whatsapp_msg) {
@@ -248,7 +248,7 @@ function closeOrderModal() {
 
 function waOrderReply(id) { openOrderModal(id); }
 
-// â\u201D\u20ACâ\u201D\u20AC Products â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Products \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 let editingProductId = null;
 
 async function loadProducts() {
@@ -258,11 +258,11 @@ async function loadProducts() {
     const stockColor  = inStock ? 'rgba(82,183,136,.18)' : 'rgba(231,111,81,.15)';
     const stockText   = inStock ? 'rgba(82,183,136,1)'   : '#e76f51';
     const stockBorder = inStock ? 'rgba(82,183,136,.35)'  : 'rgba(231,111,81,.35)';
-    const stockLabel  = inStock ? 'â\u0153\u2026 In Stock'           : 'â\u0152 Out of Stock';
-    const toggleLabel = inStock ? 'â\u0152 Mark Out of Stock'  : 'â\u0153\u2026 Mark In Stock';
+    const stockLabel  = inStock ? '\u00E2\u0153\u2026 In Stock'           : '\u00E2\u009D\u0152 Out of Stock';
+    const toggleLabel = inStock ? '\u00E2\u009D\u0152 Mark Out of Stock'  : '\u00E2\u0153\u2026 Mark In Stock';
     const imgHtml = p.img
       ? '<img src="' + imgSrc(p.img) + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px" />'
-      : '<div style="font-size:2.5rem;line-height:1">' + (p.emoji || 'ð\u0178\u0152¿') + '</div>';
+      : '<div style="font-size:2.5rem;line-height:1">' + (p.emoji || '\u00F0\u0178\u0152\u00BF') + '</div>';
     return '<div class="admin-product-card ' + (p.active ? '' : 'inactive') + '">' +
       '<div class="apc-img">' + imgHtml + '</div>' +
       '<div class="apc-body">' +
@@ -270,11 +270,11 @@ async function loadProducts() {
         '<div class="apc-price">\u20a6' + Number(p.price).toLocaleString() + ' <small style="color:var(--text-muted);font-weight:400">' + p.unit + '</small></div>' +
         '<div class="apc-meta" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
           '<span style="background:' + stockColor + ';color:' + stockText + ';border:1px solid ' + stockBorder + ';border-radius:50px;padding:2px 10px;font-size:.72rem;font-weight:700;">' + stockLabel + '</span>' +
-          '<span style="color:var(--text-muted);font-size:.75rem;">' + p.category + ' Â· ' + p.tag + ' Â· Qty: ' + p.stock + '</span>' +
+          '<span style="color:var(--text-muted);font-size:.75rem;">' + p.category + ' \u00C2\u00B7 ' + p.tag + ' \u00C2\u00B7 Qty: ' + p.stock + '</span>' +
         '</div>' +
         '<div class="apc-actions">' +
           '<button class="btn-outline btn-sm" onclick="toggleProductStock(' + p.id + ',' + (inStock ? 0 : 1) + ')">' + toggleLabel + '</button>' +
-          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">â\u0153ï¸ Edit</button>' +
+          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">\u00E2\u0153\u008F\u00EF\u00B8\u008F Edit</button>' +
           '<button class="btn-outline btn-sm btn-danger" onclick="deleteProduct(' + p.id + ')">Delete</button>' +
         '</div>' +
       '</div>' +
@@ -284,7 +284,7 @@ async function loadProducts() {
 
 async function toggleProductStock(id, newVal) {
   await api('PATCH', '/products/' + id + '/stock', { in_stock: newVal });
-  showToast(newVal ? 'â\u0153\u2026 Marked In Stock' : 'â\u0152 Marked Out of Stock');
+  showToast(newVal ? '\u00E2\u0153\u2026 Marked In Stock' : '\u00E2\u009D\u0152 Marked Out of Stock');
   loadProducts();
 }
 
@@ -313,7 +313,7 @@ function openProductModal(product = null) {
   document.getElementById('prod-modal-title').textContent = product ? 'Edit Product' : 'Add Product';
   document.getElementById('prod-id').value = product?.id || '';
   document.getElementById('prod-name').value = product?.name || '';
-  document.getElementById('prod-emoji').value = product?.emoji || 'ð\u0178\u0152¿';
+  document.getElementById('prod-emoji').value = product?.emoji || '\u00F0\u0178\u0152\u00BF';
   document.getElementById('prod-price').value = product?.price || '';
   document.getElementById('prod-unit').value = product?.unit || 'per unit';
   document.getElementById('prod-category').value = product?.category || 'vegetables';
@@ -356,7 +356,7 @@ async function saveProduct(e) {
   e.preventDefault();
   const btn = document.getElementById('prod-save-btn');
   btn.disabled = true;
-  btn.textContent = 'Savingâ\u20AC¦';
+  btn.textContent = 'Saving\u00E2\u20AC\u00A6';
 
   try {
     // Build FormData so multer can receive the image file
@@ -399,7 +399,7 @@ async function saveProduct(e) {
     closeProductModal();
     loadProducts();
   } catch (err) {
-    showToast('â\u0152 Error: ' + err.message);
+    showToast('\u00E2\u009D\u0152 Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Product';
@@ -413,7 +413,7 @@ async function deleteProduct(id) {
   loadProducts();
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Messages â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Messages \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 async function loadMessages() {
   const data = await api('GET', '/messages');
   const messages = data.messages || [];
@@ -422,11 +422,11 @@ async function loadMessages() {
         <div class="message-item ${m.is_read ? '' : 'msg-unread'}">
           <div style="flex:1">
             <div class="msg-name">${m.name} ${m.is_read ? '' : '<span style="background:var(--green-light);color:#fff;font-size:.65rem;padding:2px 8px;border-radius:50px;margin-left:6px">NEW</span>'}</div>
-            <div class="msg-meta">ð\u0178\u201C± ${m.phone || 'No phone'} Â· ${formatDate(m.created_at)}</div>
+            <div class="msg-meta">\u00F0\u0178\u201C\u00B1 ${m.phone || 'No phone'} \u00C2\u00B7 ${formatDate(m.created_at)}</div>
             <div class="msg-text">${m.message}</div>
             <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-              ${!m.is_read ? `<button class="btn-outline btn-sm" onclick="markMsgRead(${m.id})">â\u0153\u2026 Mark Read</button>` : ''}
-              ${m.phone ? `<a href="https://wa.me/${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+m.name+'! Thank you for contacting Pinnacles Resource Centre Farm. ð\u0178\u0152¿')}" target="_blank" class="btn-outline btn-sm">ð\u0178\u2019¬ Reply via WhatsApp</a>` : ''}
+              ${!m.is_read ? `<button class="btn-outline btn-sm" onclick="markMsgRead(${m.id})">\u00E2\u0153\u2026 Mark Read</button>` : ''}
+              ${m.phone ? `<a href="https://wa.me/${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+m.name+'! Thank you for contacting Pinnacles Resource Centre Farm. \u00F0\u0178\u0152\u00BF')}" target="_blank" class="btn-outline btn-sm">\u00F0\u0178\u2019\u00AC Reply via WhatsApp</a>` : ''}
               <button class="btn-outline btn-sm btn-danger" onclick="deleteMsg(${m.id})">Delete</button>
             </div>
           </div>
@@ -448,7 +448,7 @@ async function deleteMsg(id) {
   loadMessages();
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Settings â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Settings \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 async function changePassword(e) {
   e.preventDefault();
   const msgEl = document.getElementById('cp-msg');
@@ -464,25 +464,25 @@ async function changePassword(e) {
 }
 
 function generateAdvert() {
-  const text = `ð\u0178\u0152¿ *PINNACLES RESOURCE CENTRE FARM* ð\u0178\u0152¿
+  const text = `\u00F0\u0178\u0152\u00BF *PINNACLES RESOURCE CENTRE FARM* \u00F0\u0178\u0152\u00BF
 
-â\u0153\u2026 Fresh Farm Produce Available NOW!
+\u00E2\u0153\u2026 Fresh Farm Produce Available NOW!
 
-ð\u0178\u2026 Tomatoes
-ð\u0178«\u2018 Peppers
-ð\u0178\u201C Strawberries
-ð\u0178\u0152½ Maize
-ð\u0178¥\u2022 Carrots
-ð\u0178¥\u0161 Farm Fresh Eggs
-ð\u0178«\u203A Green Peas
-ð\u0178¥¬ And Much More!
+\u00F0\u0178\u008D\u2026 Tomatoes
+\u00F0\u0178\u00AB\u2018 Peppers
+\u00F0\u0178\u008D\u201C Strawberries
+\u00F0\u0178\u0152\u00BD Maize
+\u00F0\u0178\u00A5\u2022 Carrots
+\u00F0\u0178\u00A5\u0161 Farm Fresh Eggs
+\u00F0\u0178\u00AB\u203A Green Peas
+\u00F0\u0178\u00A5\u00AC And Much More!
 
-ð\u0178\u2019¯ 100% Organically Grown
-ð\u0178\u0161\u0161 Fast Delivery Available
-ð\u0178\u2019° Fair & Affordable Prices
+\u00F0\u0178\u2019\u00AF 100% Organically Grown
+\u00F0\u0178\u0161\u0161 Fast Delivery Available
+\u00F0\u0178\u2019\u00B0 Fair & Affordable Prices
 
-ð\u0178\u201C² Order via WhatsApp: +234 903 750 5632
-ð\u0178\u201C§ agribusiness@pinnaclescentre.com
+\u00F0\u0178\u201C\u00B2 Order via WhatsApp: +234 903 750 5632
+\u00F0\u0178\u201C\u00A7 agribusiness@pinnaclescentre.com
 
 #PinnaclesFarm #FreshProduce #FarmToTable`;
   const box = document.getElementById('advert-output');
@@ -492,7 +492,7 @@ function generateAdvert() {
   navigator.clipboard.writeText(text).then(() => showToast('Advert copied to clipboard!'));
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Helpers â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Helpers \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 function setText(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
@@ -506,7 +506,7 @@ function formatDate(dt) {
 function showToast(msg) {
   const t = document.createElement('div');
   t.style.cssText = 'position:fixed;bottom:32px;right:32px;background:var(--green);color:#fff;padding:12px 24px;border-radius:50px;font-weight:600;font-size:.9rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)';
-  t.textContent = 'â\u0153\u2026 ' + msg;
+  t.textContent = '\u00E2\u0153\u2026 ' + msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2800);
 }
@@ -517,10 +517,10 @@ function toggleWaMsg(orderId) {
   if (!box) return;
   const isOpen = box.style.display === 'block';
   box.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? 'ð\u0178\u201C² Show WhatsApp Message Sent' : 'ð\u0178\u201C² Hide WhatsApp Message';
+  btn.textContent = isOpen ? '\u00F0\u0178\u201C\u00B2 Show WhatsApp Message Sent' : '\u00F0\u0178\u201C\u00B2 Hide WhatsApp Message';
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Gallery â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Gallery \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 let editingGalleryId = null;
 
 async function loadGallery() {
@@ -535,7 +535,7 @@ async function loadGallery() {
       <div class="gac-img">
         <img src="${imgSrc(item.img)}" alt="${item.alt || 'Farm photo'}"
              style="width:100%;height:100%;object-fit:cover;border-radius:12px;"
-             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>ð\u0178\u2013¼ï¸</div>'" />
+             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>\u00F0\u0178\u2013\u00BC\u00EF\u00B8\u008F</div>'" />
         ${item.wide ? '<span class="gac-wide-badge">WIDE</span>' : ''}
       </div>
       <div class="gac-body">
@@ -543,10 +543,10 @@ async function loadGallery() {
         ${item.caption ? `<div class="gac-caption">"${item.caption}"</div>` : ''}
         <div class="gac-order">Order: #${item.sort_order ?? idx}</div>
         <div class="gac-actions">
-          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">â\u0153ï¸ Edit</button>
-          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) - 1})" ${idx === 0 ? 'disabled' : ''}>â\u2020\u2018</button>
-          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) + 1})" ${idx === items.length - 1 ? 'disabled' : ''}>â\u2020\u201C</button>
-          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">ð\u0178\u2014\u2018ï¸ Delete</button>
+          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">\u00E2\u0153\u008F\u00EF\u00B8\u008F Edit</button>
+          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) - 1})" ${idx === 0 ? 'disabled' : ''}>\u00E2\u2020\u2018</button>
+          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) + 1})" ${idx === items.length - 1 ? 'disabled' : ''}>\u00E2\u2020\u201C</button>
+          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">\u00F0\u0178\u2014\u2018\u00EF\u00B8\u008F Delete</button>
         </div>
       </div>
     </div>
@@ -604,14 +604,14 @@ async function saveGalleryItem(e) {
   e.preventDefault();
   const btn = document.getElementById('gal-save-btn');
   btn.disabled = true;
-  btn.textContent = 'Savingâ\u20AC¦';
+  btn.textContent = 'Saving\u00E2\u20AC\u00A6';
 
   try {
     const fileInput = document.getElementById('gal-img-file');
     const isNew = !editingGalleryId;
 
     if (isNew && !fileInput.files[0]) {
-      showToast('â\u0152 Please select a photo to upload.');
+      showToast('\u00E2\u009D\u0152 Please select a photo to upload.');
       return;
     }
 
@@ -635,11 +635,11 @@ async function saveGalleryItem(e) {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    showToast(editingGalleryId ? 'Photo updated! ð\u0178\u2013¼ï¸' : 'Photo added to gallery! ð\u0178\u0152±');
+    showToast(editingGalleryId ? 'Photo updated! \u00F0\u0178\u2013\u00BC\u00EF\u00B8\u008F' : 'Photo added to gallery! \u00F0\u0178\u0152\u00B1');
     closeGalleryModal();
     loadGallery();
   } catch (err) {
-    showToast('â\u0152 Error: ' + err.message);
+    showToast('\u00E2\u009D\u0152 Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Photo';
@@ -664,7 +664,7 @@ async function deleteGalleryItem(id) {
   loadGallery();
 }
 
-// â\u201D\u20ACâ\u201D\u20AC Receipt Modal â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC Receipt Modal \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 let currentReceiptOrderId = null;
 let currentReceiptUrl     = null;
 let currentReceiptOrder   = null;
@@ -677,7 +677,7 @@ async function openReceiptModal(orderId) {
   document.getElementById('receipt-download-btn').href = '#';
   document.getElementById('receipt-email-input').value = '';
   document.getElementById('receipt-email-msg').style.display = 'none';
-  document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;">Loadingâ\u20AC¦</div>';
+  document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;">Loading\u00E2\u20AC\u00A6</div>';
 
   document.getElementById('receipt-modal-overlay').classList.add('open');
   document.getElementById('receipt-modal').classList.add('open');
@@ -689,15 +689,15 @@ async function openReceiptModal(orderId) {
       currentReceiptOrder = order;
       const itemsHtml = order.items.map(i =>
         '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">' +
-        '<span>' + (i.emoji || 'ð\u0178\u0152¿') + ' ' + i.name + ' Ã\u2014' + i.qty + '</span>' +
-        '<span style="font-weight:700;">â\u201A¦' + Number(i.price * i.qty).toLocaleString() + '</span></div>'
+        '<span>' + (i.emoji || '\u00F0\u0178\u0152\u00BF') + ' ' + i.name + ' \u00C3\u2014' + i.qty + '</span>' +
+        '<span style="font-weight:700;">\u00E2\u201A\u00A6' + Number(i.price * i.qty).toLocaleString() + '</span></div>'
       ).join('');
       document.getElementById('receipt-order-summary').innerHTML =
-        '<div style="font-weight:700;margin-bottom:10px;color:var(--text-light);">Order #' + order.id + ' â\u20AC\u201D ' + (order.customer_name || 'Customer') + '</div>' +
-        '<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px;">ð\u0178\u201C± ' + (order.customer_phone || 'No phone') + '</div>' +
+        '<div style="font-weight:700;margin-bottom:10px;color:var(--text-light);">Order #' + order.id + ' \u00E2\u20AC\u201D ' + (order.customer_name || 'Customer') + '</div>' +
+        '<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px;">\u00F0\u0178\u201C\u00B1 ' + (order.customer_phone || 'No phone') + '</div>' +
         itemsHtml +
         '<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:800;color:var(--green-light);">' +
-        '<span>Total</span><span>â\u201A¦' + Number(order.total).toLocaleString() + '</span></div>';
+        '<span>Total</span><span>\u00E2\u201A\u00A6' + Number(order.total).toLocaleString() + '</span></div>';
       if (order.customer_email) {
         document.getElementById('receipt-email-input').value = order.customer_email;
       }
@@ -725,34 +725,34 @@ function sendReceiptWhatsApp() {
   const dateStr = new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const receiptNo = String(o.id).padStart(4, '0');
 
-  // Build items rows â\u20AC\u201D padded to look tabular
+  // Build items rows \u00E2\u20AC\u201D padded to look tabular
   const itemLines = o.items.map(i => {
-    const name = (i.emoji || 'ð\u0178\u0152¿') + ' ' + i.name;
-    const qty  = 'Ã\u2014' + i.qty;
-    const amt  = 'â\u201A¦' + Number(i.price * i.qty).toLocaleString('en-NG');
+    const name = (i.emoji || '\u00F0\u0178\u0152\u00BF') + ' ' + i.name;
+    const qty  = '\u00C3\u2014' + i.qty;
+    const amt  = '\u00E2\u201A\u00A6' + Number(i.price * i.qty).toLocaleString('en-NG');
     return name + '   ' + qty + '   *' + amt + '*';
   }).join('\n');
 
-  const statusMap = { pending: 'â³ Pending', confirmed: 'â\u0153\u2026 Confirmed', processing: 'ð\u0178\u201D\u201E Processing', delivered: 'ð\u0178\u0161\u0161 Delivered', cancelled: 'â\u0152 Cancelled' };
+  const statusMap = { pending: '\u00E2\u008F\u00B3 Pending', confirmed: '\u00E2\u0153\u2026 Confirmed', processing: '\u00F0\u0178\u201D\u201E Processing', delivered: '\u00F0\u0178\u0161\u0161 Delivered', cancelled: '\u00E2\u009D\u0152 Cancelled' };
   const statusStr = statusMap[o.status] || o.status;
-  const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? 'ð\u0178\u2019³ Online Payment' : 'ð\u0178\u2019¬ WhatsApp Order';
+  const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? '\u00F0\u0178\u2019\u00B3 Online Payment' : '\u00F0\u0178\u2019\u00AC WhatsApp Order';
 
   const pdfLink = currentReceiptUrl ? currentReceiptUrl + '/pdf' : null;
-  const linkLine = pdfLink ? '\nð\u0178\u201C\u201E *Download PDF Receipt:*\n' + pdfLink : '';
+  const linkLine = pdfLink ? '\n\u00F0\u0178\u201C\u201E *Download PDF Receipt:*\n' + pdfLink : '';
 
-  const SEP  = 'â\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201D';
-  const LINE = 'â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC';
+  const SEP  = '\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081';
+  const LINE = '\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC';
 
   const msg =
-    'ð\u0178\u0152¿ *PINNACLES RESOURCE CENTRE FARM*\n' +
-    '_FRESH Â· ORGANIC Â· FARM TO TABLE_\n\n' +
+    '\u00F0\u0178\u0152\u00BF *PINNACLES RESOURCE CENTRE FARM*\n' +
+    '_FRESH \u00C2\u00B7 ORGANIC \u00C2\u00B7 FARM TO TABLE_\n\n' +
     SEP + '\n' +
     '       *OFFICIAL RECEIPT*\n' +
     'Receipt #' + receiptNo + '  |  ' + dateStr + '\n' +
     SEP + '\n\n' +
     '*BILLED TO*\n' +
     (o.customer_name || 'Customer') + '\n' +
-    'ð\u0178\u201C± ' + (o.customer_phone || 'â\u20AC\u201D') + '\n\n' +
+    '\u00F0\u0178\u201C\u00B1 ' + (o.customer_phone || '\u00E2\u20AC\u201D') + '\n\n' +
     '*ORDER DETAILS*\n' +
     'Order #' + o.id + '\n' +
     'Date: ' + dateStr + '\n\n' +
@@ -761,14 +761,14 @@ function sendReceiptWhatsApp() {
     LINE + '\n' +
     itemLines + '\n' +
     LINE + '\n' +
-    '*TOTAL          â\u201A¦' + Number(o.total).toLocaleString('en-NG') + '*\n' +
+    '*TOTAL          \u00E2\u201A\u00A6' + Number(o.total).toLocaleString('en-NG') + '*\n' +
     LINE + '\n\n' +
     'Status:  ' + statusStr + '\n' +
     'Payment: ' + payMethod + '\n\n' +
     SEP + '\n' +
-    'Thank you for shopping with us! ð\u0178\u0152±\n' +
-    'ð\u0178\u201C§ agribusiness@pinnaclescentre.com\n' +
-    'ð\u0178\u201C² +234 903 750 5632' +
+    'Thank you for shopping with us! \u00F0\u0178\u0152\u00B1\n' +
+    '\u00F0\u0178\u201C\u00A7 agribusiness@pinnaclescentre.com\n' +
+    '\u00F0\u0178\u201C\u00B2 +234 903 750 5632' +
     linkLine;
 
   const phone = (o.customer_phone || '').replace(/\D/g, '');
@@ -779,14 +779,14 @@ function sendReceiptWhatsApp() {
 }
 function copyReceiptLink() {
   if (!currentReceiptUrl) { showToast('Receipt link not ready yet.'); return; }
-  navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('ð\u0178\u201D\u2014 Receipt link copied!'));
+  navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('\u00F0\u0178\u201D\u2014 Receipt link copied!'));
 }
 
 
 
-// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 // WALK-IN / FARM ORDER
-// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 function openWalkinModal() {
   document.getElementById('wi-name').value    = '';
   document.getElementById('wi-phone').value   = '';
@@ -811,7 +811,7 @@ function addWalkinItem() {
     '<input type="number" placeholder="Price/unit" class="form-input wi-item-price" style="width:90px;flex-shrink:0" oninput="recalcWalkinTotal()" min="0">' +
     '<span class="wi-subtotal" style="width:80px;flex-shrink:0;text-align:right;font-weight:700;font-size:.8rem;color:#52b788;white-space:nowrap">NGN 0</span>' +
     '<button type="button" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;flex-shrink:0" ' +
-    'onclick="this.parentElement.remove();recalcWalkinTotal()">Ã\u2014</button>';
+    'onclick="this.parentElement.remove();recalcWalkinTotal()">\u00C3\u2014</button>';
   list.appendChild(div);
 }
 function recalcWalkinTotal() {
@@ -862,9 +862,9 @@ async function saveWalkinOrder() {
   } catch (e) { showToast('Error: ' + e.message); }
 }
 
-// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 // MONTHLY SALES REPORT
-// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 function openReportModal() {
   const now = new Date();
   document.getElementById('report-month').value = now.getMonth() + 1;
@@ -896,9 +896,9 @@ async function downloadReport() {
   } catch (e) { showToast('Error: ' + e.message); }
 }
 
-// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 // AUTO-REFRESH: poll for new orders every 30 seconds
-// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
+// \u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC\u00E2\u201D\u20AC
 function startOrderPolling() {
   stopOrderPolling();
   _initLastOrderId();
