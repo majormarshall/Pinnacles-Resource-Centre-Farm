@@ -26,7 +26,11 @@ app.use(express.urlencoded({ extended: true }));
 // Force UTF-8 charset on all text files (fixes emoji garbling in dashboards)
 const staticOpts = {
   setHeaders(res, fp) {
-    if (/\.html?$/i.test(fp)) res.setHeader("Content-Type", "text/html; charset=utf-8");
+    if (/\.html?$/i.test(fp)) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+      res.setHeader("Expires", "0");
+    }
     else if (/\.js$/i.test(fp)) res.setHeader("Content-Type", "application/javascript; charset=utf-8");
     else if (/\.css$/i.test(fp)) res.setHeader("Content-Type", "text/css; charset=utf-8");
   }
