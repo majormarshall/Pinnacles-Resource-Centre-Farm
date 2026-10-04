@@ -1,4 +1,4 @@
-﻿// backend/routes/worker-register.js
+// backend/routes/worker-register.js
 // Worker self-registration — pending admin approval
 const express  = require("express");
 const router   = express.Router();
@@ -12,13 +12,12 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ error: "Name, email and password are required." });
 
   try {
-    // Check if email already registered
-    const { data: existing } = await supabase
-      .from("admins")
-      .select("id")
-      .eq("email", email)
-      .single()
-      .catch(() => ({ data: null }));
+    // Check if email already registered (Supabase v2 — use try/catch not .catch())
+    let existing = null;
+    try {
+      const { data } = await supabase.from("admins").select("id").eq("email", email).single();
+      existing = data;
+    } catch (_) { /* PGRST116 = no row found — that's fine */ }
     if (existing) return res.status(409).json({ error: "An account with this email already exists." });
 
     // Create account with status=pending (not yet approved)

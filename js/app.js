@@ -1,4 +1,4 @@
-﻿// ===== CONFIG =====
+// ===== CONFIG =====
 const WA_NUMBER  = '2349037505632'; // +234 903 750 5632 Ã¢â‚¬â€ primary
 const WA_NUMBER2 = '2347078210834'; // +234 707 821 0834 Ã¢â‚¬â€ secondary
 const API_BASE = '/api'; // Backend API base URL
