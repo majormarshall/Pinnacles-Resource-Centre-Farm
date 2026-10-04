@@ -63,40 +63,54 @@ function toggleNav() {
 
 // ===== PRODUCTS =====
 function renderProducts(filter) {
-  try {
   const grid = document.getElementById('products-grid');
   const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
   if (!grid) return;
-  try { grid.innerHTML = filtered.map(p => {
+  grid.innerHTML = filtered.map(p => {
     const inStock = p.in_stock === true || p.in_stock === 1 || Number(p.in_stock) > 0;
-    const waMsg = encodeURIComponent(`Hello Pinnacles Farm! I'd like to order:\n\n${p.emoji} *${p.name}* Ã¢â\u201A¬â\u20AC Ã¢â\u20AC\u0161Â¦${Number(p.price||0).toLocaleString()} ${p.unit}\n\nPlease confirm availability and delivery cost.`);
-    return `
-    <div class="product-card${inStock ? '' : ' out-of-stock'}" data-id="${p.id}">
-      <div class="product-img-wrap" onclick="openModal(${p.id})" style="cursor:pointer">
-        ${p.img ? `<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=product-emoji-placeholder>${p.emoji}</div>'" />` : `<div class="product-emoji-placeholder">${p.emoji}</div>`}
-        <span class="product-tag">${p.tag}</span>
-        ${inStock ? '<span class="avail-badge avail-in">Ã°Å¸Å¸Â¢ In Stock</span>' : (p.preorder_available ? '<span class="avail-badge preorder-badge" onclick="event.stopPropagation();openPreorderModal('+p.id+',\''+p.name+'\',\''+( p.preorder_expected_date||'')+'\',\''+( p.preorder_note||'')+'\')">Ã¢ÂÂ³ Pre-order</span>' : '<span class="avail-badge avail-out">Ã°Å¸â\u20ACÂ´ Out of Stock</span>')}
-      </div>
-      <div class="product-info">
-        <div class="product-name">${p.emoji} ${p.name}</div>
-        <div class="product-price-row">
-          <div class="product-price">Ã¢â\u20AC\u0161Â¦${Number(p.price||0).toLocaleString()} <span>${p.unit}</span></div>
-        </div>
-        <div class="product-qty-row">
-          <button class="qty-btn" onclick="changeCardQty(${p.id},-1)" ${!inStock?'disabled':''}>Ã¢Ë\u2020â\u20AC\u2122</button>
-          <span class="qty-val" id="card-qty-${p.id}">1</span>
-          <button class="qty-btn" onclick="changeCardQty(${p.id},1)" ${!inStock?'disabled':''}>+</button>
-        </div>
-        <div class="product-card-actions">
-          ${inStock ? `<button class="btn-cart" onclick="addToCartWithQty(${p.id})">Ã°Å¸â\u20ACºâ\u20AC\u2122 Add to Cart</button>` : (p.preorder_available ? `<button class="btn-cart" style="background:linear-gradient(135deg,#92400e,#b45309)" onclick="openPreorderModal(${p.id},'${p.name}','${p.preorder_expected_date||''}','${p.preorder_note||''}')">Ã¢ÂÂ³ Pre-order</button>` : `<button class="btn-cart" disabled>Ã°Å¸â\u20ACÂ´ Out of Stock</button>`)}
-          <a class="btn-wa-card" href="https://wa.me/2349037505632?text=${waMsg}" target="_blank" ${!inStock?'style="opacity:.5;pointer-events:none"':''}>Ã°Å¸â\u20AC\u2122Â¬ WhatsApp</a>
-        </div>
-      </div>
-    </div>`;
-  }).join(''); } catch(renderErr) { console.error('renderProducts error:', renderErr); grid.innerHTML = '<p style="color:red;padding:20px">Error loading products. Please refresh.</p>'; }
-  } catch(e) { console.error('renderProducts outer:', e); }
+    const preorder = !inStock && p.preorder_available;
+    const priceStr = '\u20A6' + Number(p.price || 0).toLocaleString();
+    const waMsg = encodeURIComponent(
+      'Hello Pinnacles Farm! I\'d like to order:\n\n' + (p.emoji||'') + ' *' + p.name + '* \u2014 ' +
+      priceStr + ' ' + p.unit + '\n\nPlease confirm availability and delivery cost.'
+    );
+    const badge = inStock
+      ? '<span class="avail-badge avail-in">&#x1F7E2; In Stock</span>'
+      : preorder
+        ? '<span class="avail-badge avail-pre" onclick="openPreorderModal(' + p.id + ')" style="cursor:pointer">&#x23F3; Pre-order</span>'
+        : '<span class="avail-badge avail-out">&#x1F534; Out of Stock</span>';
+    const imgHtml = p.img
+      ? '<img src="' + p.img + '" alt="' + p.name + '" onerror="this.parentElement.innerHTML=\'<div class=product-emoji-placeholder>' + (p.emoji||'') + '</div>\'" />'
+      : '<div class="product-emoji-placeholder">' + (p.emoji||'') + '</div>';
+    return '<div class="product-card' + (inStock ? '' : ' out-of-stock') + '" data-id="' + p.id + '">' +
+      '<div class="product-img-wrap" onclick="openModal(' + p.id + ')" style="cursor:pointer">' +
+        imgHtml +
+        '<span class="product-tag">' + (p.tag||'') + '</span>' +
+        badge +
+      '</div>' +
+      '<div class="product-info">' +
+        '<div class="product-name">' + (p.emoji||'') + ' ' + p.name + '</div>' +
+        '<div class="product-price-row">' +
+          '<div class="product-price">' + priceStr + ' <span>' + p.unit + '</span></div>' +
+        '</div>' +
+        '<div class="product-qty-row">' +
+          '<button class="qty-btn" onclick="changeCardQty(' + p.id + ',-1)"' + (!inStock ? ' disabled' : '') + '>&#x2212;</button>' +
+          '<span class="qty-val" id="card-qty-' + p.id + '">1</span>' +
+          '<button class="qty-btn" onclick="changeCardQty(' + p.id + ',1)"' + (!inStock ? ' disabled' : '') + '>+</button>' +
+        '</div>' +
+        '<div class="product-card-actions">' +
+          (inStock
+            ? '<button class="btn-cart" onclick="addToCartWithQty(' + p.id + ')">&#x1F6D2; Add to Cart</button>'
+            : preorder
+              ? '<button class="btn-cart" onclick="openPreorderModal(' + p.id + ')" style="background:linear-gradient(135deg,#92400e,#b45309)">&#x23F3; Pre-order</button>'
+              : '<button class="btn-cart" disabled>&#x1F534; Out of Stock</button>') +
+          '<a class="btn-wa-card" href="https://wa.me/2349037505632?text=' + waMsg.replace(/'/g, "\'") + '" target="_blank"' +
+            (!inStock ? ' style="opacity:.5;pointer-events:none"' : '') + '>&#x1F4AC; WhatsApp</a>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
-
 function changeCardQty(id, delta) {
   const el = document.getElementById('card-qty-' + id);
   if (!el) return;
