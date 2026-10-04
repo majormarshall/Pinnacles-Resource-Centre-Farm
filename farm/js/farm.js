@@ -951,7 +951,9 @@ async function approveWorker(id, btn) {
       headers: { Authorization: 'Bearer ' + localStorage.getItem('pinnacles_admin_token') }
     });
     if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Failed'); }
-    showFoToast('Worker approved! They can now log in. ?');
+    const data = await res.json();
+      showFoToast('Worker approved! Username: ' + data.username);
+      alert('WORKER APPROVED!\n\nPlease tell the worker their new login username:\n\n' + data.username + '\n\n(You can also see this later in the Team / Users tab)');
     loadPendingWorkers();
   } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '\u2705 Approve'; btn.disabled = false; }
 }

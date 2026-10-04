@@ -54,7 +54,7 @@ async function wLogin() {
     const res  = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: pass }),
+      body: JSON.stringify({ username: email, password: pass }),
     });
     const data = await res.json();
     if (!data.token) throw new Error(data.error || 'Login failed');
