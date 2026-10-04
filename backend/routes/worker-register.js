@@ -67,11 +67,19 @@ router.patch('/:id/approve', async (req, res) => {
     const username = (reg.full_name || 'worker')
       .toLowerCase().replace(/\s+/g, '_') + '_' + Date.now().toString().slice(-4);
 
-    // Insert minimal record into admins (only guaranteed columns)
+// Insert minimal record into admins (only guaranteed columns)
     const { error: insertErr } = await supabase
       .from('admins')
       .insert({ username, password_hash: reg.password_hash, role: 'farm_worker' });
     if (insertErr) throw new Error(insertErr.message);
+
+    // ALSO add to farm_workers so they appear in Farm Ops attendance & payroll
+    await supabase.from('farm_workers').insert({
+      name: reg.full_name || username,
+      role: reg.job_title || 'farm_worker',
+      phone: reg.phone || null,
+      hire_date: new Date().toISOString().split('T')[0]
+    });
 
     // Mark registration as approved
     await supabase.from('worker_registrations')

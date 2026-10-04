@@ -475,7 +475,7 @@ router.get('/team', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase.from('admin_users').select('id, name, email, role, created_at').order('name');
     sb(error, 'team GET');
-    res.json(data || []);
+    res.json((data || []).map(u => ({ id: u.id, name: u.username, role: u.role, created_at: u.created_at })));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
