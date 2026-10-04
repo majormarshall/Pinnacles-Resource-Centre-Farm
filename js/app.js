@@ -14,10 +14,10 @@ const fallbackProducts = [
   { id:6, name:'Farm Fresh Eggs', emoji:'\u{1F95A}', img:null, price:2500, unit:'per crate (30)', description:'Free-range farm eggs \u2014 rich, healthy and full of protein.', category:'proteins', tag:'Popular', in_stock:1 },
   { id:7, name:'Green Peas', emoji:'\u{1FADB}', img:null, price:1800, unit:'per kg', description:'Tender sweet green peas. Perfect for soups and rice dishes.', category:'vegetables', tag:'Fresh', in_stock:1 },
   { id:8, name:'Fresh Greens', emoji:'\u{1F96C}', img:null, price:600, unit:'per bunch', description:'Assorted fresh leafy greens including spinach and ugwu.', category:'vegetables', tag:'Daily Harvest', in_stock:1 },
-  { id:9, name:'Garden Cucumber', emoji:'\u00F0\u0178\u00A5\u2019', img:null, price:700, unit:'per pack', description:'Cool crisp cucumbers perfect for salads and juicing.', category:'vegetables', tag:'Fresh', in_stock:1 },
-  { id:10, name:'Spring Onions', emoji:'\u00F0\u0178\u00A7\u2026', img:null, price:500, unit:'per bunch', description:'Fresh spring onions with a mild sweet flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
-  { id:11, name:'Sweet Pepper', emoji:'\u00F0\u0178\u0152\u00B6\u00EF\u00B8\u00C2\u008F', img:null, price:900, unit:'per pack', description:'Colourful sweet peppers \u2014 red, yellow and green.', category:'vegetables', tag:'Seasonal', in_stock:1 },
-  { id:12, name:'Farm Honey', emoji:'\u00F0\u0178\u00C2\u008D\u00AF', img:null, price:4500, unit:'per jar', description:'Pure raw natural honey from our farm bees.', category:'fruits', tag:'Natural', in_stock:1 },
+  { id:9, name:'Garden Cucumber', emoji:'\u{1F952}', img:null, price:700, unit:'per pack', description:'Cool crisp cucumbers perfect for salads and juicing.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:10, name:'Spring Onions', emoji:'\u{1F9C5}', img:null, price:500, unit:'per bunch', description:'Fresh spring onions with a mild sweet flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
+  { id:11, name:'Sweet Pepper', emoji:'\u{1F336}\u00EF\u00B8\u008F', img:null, price:900, unit:'per pack', description:'Colourful sweet peppers \u2014 red, yellow and green.', category:'vegetables', tag:'Seasonal', in_stock:1 },
+  { id:12, name:'Farm Honey', emoji:'\u00F0\u0178\u008D\u00AF', img:null, price:4500, unit:'per jar', description:'Pure raw natural honey from our farm bees.', category:'fruits', tag:'Natural', in_stock:1 },
 ];
 
 // ===== STATE =====
@@ -242,7 +242,7 @@ function openWhatsApp(message) {
   return false;
 }
 
-// \u00E2\u00E2\u20AC\u009D\u2500 Order Checkout Modal \u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500
+// \u00E2\u201D\u2500 Order Checkout Modal \u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500
 function sendOrderToWhatsApp() {
   if (cart.length === 0) return;
   showOrderModal();
@@ -256,7 +256,7 @@ function showOrderModal() {
         <div style="width:36px;height:36px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
           ${i.img ? `<img src="${i.img}" alt="${i.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />` : i.emoji}
         </div>
-        <span style="font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.name} \u00C3\u2014${i.qty}</span>
+        <span style="font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.name} \u00D7${i.qty}</span>
       </div>
       <strong style="color:var(--green-light);flex-shrink:0;">\u20A6${(i.price*i.qty).toLocaleString()}</strong>
     </div>`).join('');
@@ -275,10 +275,10 @@ function showOrderModal() {
       <!-- Header (always visible) -->
       <div style="background:linear-gradient(135deg,#1b4332,#2d6a4f);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
         <div>
-          <h3 style="color:#fff;margin:0;font-size:1.1rem;">\u00F0\u0178\u201C\u00A6 Confirm Your Order</h3>
+          <h3 style="color:#fff;margin:0;font-size:1.1rem;">\u{1F4E6} Confirm Your Order</h3>
           <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:.82rem;">Review items &amp; enter your details</p>
         </div>
-        <button onclick="closeOrderModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">\u00E2\u0153\u2022</button>
+        <button onclick="closeOrderModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">\u2715</button>
       </div>
 
       <!-- Scrollable Body -->
@@ -292,7 +292,7 @@ function showOrderModal() {
             <strong style="color:var(--green-light);font-size:1.15rem;">\u20A6${total.toLocaleString()}</strong>
           </div>
           <p style="font-size:.75rem;color:var(--text-muted);margin:4px 0 0;line-height:1.6;">
-            \u00F0\u0178\u201C\u0152 Farm gate prices \u2014 delivery cost not included. Final delivery charge will be confirmed via WhatsApp.
+            \u{1F4CC} Farm gate prices \u2014 delivery cost not included. Final delivery charge will be confirmed via WhatsApp.
           </p>
         </div>
 
@@ -307,67 +307,67 @@ function showOrderModal() {
           <div style="display:flex;gap:8px;">
             <select id="oc-phone-code" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 8px;color:#fff;font-family:'Outfit',sans-serif;font-size:.85rem;flex-shrink:0;width:150px;cursor:pointer;">
               <optgroup label="Popular">
-                <option value="+234">\u00F0\u0178\u2021\u00B3\u00F0\u0178\u2021\u00AC +234 Nigeria</option>
-                <option value="+233">\u00F0\u0178\u2021\u00AC\u00F0\u0178\u2021\u00AD +233 Ghana</option>
-                <option value="+27">\u00F0\u0178\u2021\u00BF\u00F0\u0178\u2021\u00A6 +27 S.Africa</option>
-                <option value="+254">\u00F0\u0178\u2021\u00B0\u00F0\u0178\u2021\u00AA +254 Kenya</option>
-                <option value="+44">\u00F0\u0178\u2021\u00AC\u00F0\u0178\u2021\u00A7 +44 UK</option>
-                <option value="+1">\u00F0\u0178\u2021\u00BA\u00F0\u0178\u2021\u00B8 +1 USA/Canada</option>
+                <option value="+234">\u{1F1F3}\u{1F1EC} +234 Nigeria</option>
+                <option value="+233">\u{1F1EC}\u{1F1ED} +233 Ghana</option>
+                <option value="+27">\u{1F1FF}\u{1F1E6} +27 S.Africa</option>
+                <option value="+254">\u{1F1F0}\u{1F1EA} +254 Kenya</option>
+                <option value="+44">\u{1F1EC}\u{1F1E7} +44 UK</option>
+                <option value="+1">\u{1F1FA}\u{1F1F8} +1 USA/Canada</option>
               </optgroup>
               <optgroup label="Africa">
-                <option value="+20">\u00F0\u0178\u2021\u00AA\u00F0\u0178\u2021\u00AC +20 Egypt</option>
-                <option value="+212">\u00F0\u0178\u2021\u00B2\u00F0\u0178\u2021\u00A6 +212 Morocco</option>
-                <option value="+213">\u00F0\u0178\u2021\u00A9\u00F0\u0178\u2021\u00BF +213 Algeria</option>
-                <option value="+216">\u00F0\u0178\u2021\u00B9\u00F0\u0178\u2021\u00B3 +216 Tunisia</option>
-                <option value="+221">\u00F0\u0178\u2021\u00B8\u00F0\u0178\u2021\u00B3 +221 Senegal</option>
-                <option value="+225">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00AE +225 Ivory Coast</option>
-                <option value="+226">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00AB +226 Burkina Faso</option>
-                <option value="+227">\u00F0\u0178\u2021\u00B3\u00F0\u0178\u2021\u00AA +227 Niger</option>
-                <option value="+228">\u00F0\u0178\u2021\u00B9\u00F0\u0178\u2021\u00AC +228 Togo</option>
-                <option value="+229">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00AF +229 Benin</option>
-                <option value="+237">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00B2 +237 Cameroon</option>
-                <option value="+243">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00A9 +243 DR Congo</option>
-                <option value="+244">\u00F0\u0178\u2021\u00A6\u00F0\u0178\u2021\u00B4 +244 Angola</option>
-                <option value="+249">\u00F0\u0178\u2021\u00B8\u00F0\u0178\u2021\u00A9 +249 Sudan</option>
-                <option value="+250">\u00F0\u0178\u2021\u00B7\u00F0\u0178\u2021\u00BC +250 Rwanda</option>
-                <option value="+251">\u00F0\u0178\u2021\u00AA\u00F0\u0178\u2021\u00B9 +251 Ethiopia</option>
-                <option value="+255">\u00F0\u0178\u2021\u00B9\u00F0\u0178\u2021\u00BF +255 Tanzania</option>
-                <option value="+256">\u00F0\u0178\u2021\u00BA\u00F0\u0178\u2021\u00AC +256 Uganda</option>
-                <option value="+260">\u00F0\u0178\u2021\u00BF\u00F0\u0178\u2021\u00B2 +260 Zambia</option>
-                <option value="+263">\u00F0\u0178\u2021\u00BF\u00F0\u0178\u2021\u00BC +263 Zimbabwe</option>
+                <option value="+20">\u{1F1EA}\u{1F1EC} +20 Egypt</option>
+                <option value="+212">\u{1F1F2}\u{1F1E6} +212 Morocco</option>
+                <option value="+213">\u{1F1E9}\u{1F1FF} +213 Algeria</option>
+                <option value="+216">\u{1F1F9}\u{1F1F3} +216 Tunisia</option>
+                <option value="+221">\u{1F1F8}\u{1F1F3} +221 Senegal</option>
+                <option value="+225">\u{1F1E8}\u{1F1EE} +225 Ivory Coast</option>
+                <option value="+226">\u{1F1E7}\u{1F1EB} +226 Burkina Faso</option>
+                <option value="+227">\u{1F1F3}\u{1F1EA} +227 Niger</option>
+                <option value="+228">\u{1F1F9}\u{1F1EC} +228 Togo</option>
+                <option value="+229">\u{1F1E7}\u{1F1EF} +229 Benin</option>
+                <option value="+237">\u{1F1E8}\u{1F1F2} +237 Cameroon</option>
+                <option value="+243">\u{1F1E8}\u{1F1E9} +243 DR Congo</option>
+                <option value="+244">\u{1F1E6}\u{1F1F4} +244 Angola</option>
+                <option value="+249">\u{1F1F8}\u{1F1E9} +249 Sudan</option>
+                <option value="+250">\u{1F1F7}\u{1F1FC} +250 Rwanda</option>
+                <option value="+251">\u{1F1EA}\u{1F1F9} +251 Ethiopia</option>
+                <option value="+255">\u{1F1F9}\u{1F1FF} +255 Tanzania</option>
+                <option value="+256">\u{1F1FA}\u{1F1EC} +256 Uganda</option>
+                <option value="+260">\u{1F1FF}\u{1F1F2} +260 Zambia</option>
+                <option value="+263">\u{1F1FF}\u{1F1FC} +263 Zimbabwe</option>
               </optgroup>
               <optgroup label="Europe">
-                <option value="+33">\u00F0\u0178\u2021\u00AB\u00F0\u0178\u2021\u00B7 +33 France</option>
-                <option value="+49">\u00F0\u0178\u2021\u00A9\u00F0\u0178\u2021\u00AA +49 Germany</option>
-                <option value="+39">\u00F0\u0178\u2021\u00AE\u00F0\u0178\u2021\u00B9 +39 Italy</option>
-                <option value="+34">\u00F0\u0178\u2021\u00AA\u00F0\u0178\u2021\u00B8 +34 Spain</option>
-                <option value="+31">\u00F0\u0178\u2021\u00B3\u00F0\u0178\u2021\u00B1 +31 Netherlands</option>
-                <option value="+32">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00AA +32 Belgium</option>
-                <option value="+353">\u00F0\u0178\u2021\u00AE\u00F0\u0178\u2021\u00AA +353 Ireland</option>
-                <option value="+46">\u00F0\u0178\u2021\u00B8\u00F0\u0178\u2021\u00AA +46 Sweden</option>
-                <option value="+47">\u00F0\u0178\u2021\u00B3\u00F0\u0178\u2021\u00B4 +47 Norway</option>
-                <option value="+45">\u00F0\u0178\u2021\u00A9\u00F0\u0178\u2021\u00B0 +45 Denmark</option>
-                <option value="+41">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00AD +41 Switzerland</option>
-                <option value="+7">\u00F0\u0178\u2021\u00B7\u00F0\u0178\u2021\u00BA +7 Russia</option>
+                <option value="+33">\u{1F1EB}\u{1F1F7} +33 France</option>
+                <option value="+49">\u{1F1E9}\u{1F1EA} +49 Germany</option>
+                <option value="+39">\u{1F1EE}\u{1F1F9} +39 Italy</option>
+                <option value="+34">\u{1F1EA}\u{1F1F8} +34 Spain</option>
+                <option value="+31">\u{1F1F3}\u{1F1F1} +31 Netherlands</option>
+                <option value="+32">\u{1F1E7}\u{1F1EA} +32 Belgium</option>
+                <option value="+353">\u{1F1EE}\u{1F1EA} +353 Ireland</option>
+                <option value="+46">\u{1F1F8}\u{1F1EA} +46 Sweden</option>
+                <option value="+47">\u{1F1F3}\u{1F1F4} +47 Norway</option>
+                <option value="+45">\u{1F1E9}\u{1F1F0} +45 Denmark</option>
+                <option value="+41">\u{1F1E8}\u{1F1ED} +41 Switzerland</option>
+                <option value="+7">\u{1F1F7}\u{1F1FA} +7 Russia</option>
               </optgroup>
               <optgroup label="Americas">
-                <option value="+55">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00B7 +55 Brazil</option>
-                <option value="+52">\u00F0\u0178\u2021\u00B2\u00F0\u0178\u2021\u00BD +52 Mexico</option>
-                <option value="+54">\u00F0\u0178\u2021\u00A6\u00F0\u0178\u2021\u00B7 +54 Argentina</option>
-                <option value="+57">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00B4 +57 Colombia</option>
-                <option value="+58">\u00F0\u0178\u2021\u00BB\u00F0\u0178\u2021\u00AA +58 Venezuela</option>
+                <option value="+55">\u{1F1E7}\u{1F1F7} +55 Brazil</option>
+                <option value="+52">\u{1F1F2}\u{1F1FD} +52 Mexico</option>
+                <option value="+54">\u{1F1E6}\u{1F1F7} +54 Argentina</option>
+                <option value="+57">\u{1F1E8}\u{1F1F4} +57 Colombia</option>
+                <option value="+58">\u{1F1FB}\u{1F1EA} +58 Venezuela</option>
               </optgroup>
               <optgroup label="Asia &amp; Middle East">
-                <option value="+91">\u00F0\u0178\u2021\u00AE\u00F0\u0178\u2021\u00B3 +91 India</option>
-                <option value="+86">\u00F0\u0178\u2021\u00A8\u00F0\u0178\u2021\u00B3 +86 China</option>
-                <option value="+81">\u00F0\u0178\u2021\u00AF\u00F0\u0178\u2021\u00B5 +81 Japan</option>
-                <option value="+82">\u00F0\u0178\u2021\u00B0\u00F0\u0178\u2021\u00B7 +82 S.Korea</option>
-                <option value="+966">\u00F0\u0178\u2021\u00B8\u00F0\u0178\u2021\u00A6 +966 Saudi Arabia</option>
-                <option value="+971">\u00F0\u0178\u2021\u00A6\u00F0\u0178\u2021\u00AA +971 UAE</option>
-                <option value="+974">\u00F0\u0178\u2021\u00B6\u00F0\u0178\u2021\u00A6 +974 Qatar</option>
-                <option value="+965">\u00F0\u0178\u2021\u00B0\u00F0\u0178\u2021\u00BC +965 Kuwait</option>
-                <option value="+92">\u00F0\u0178\u2021\u00B5\u00F0\u0178\u2021\u00B0 +92 Pakistan</option>
-                <option value="+880">\u00F0\u0178\u2021\u00A7\u00F0\u0178\u2021\u00A9 +880 Bangladesh</option>
+                <option value="+91">\u{1F1EE}\u{1F1F3} +91 India</option>
+                <option value="+86">\u{1F1E8}\u{1F1F3} +86 China</option>
+                <option value="+81">\u{1F1EF}\u{1F1F5} +81 Japan</option>
+                <option value="+82">\u{1F1F0}\u{1F1F7} +82 S.Korea</option>
+                <option value="+966">\u{1F1F8}\u{1F1E6} +966 Saudi Arabia</option>
+                <option value="+971">\u{1F1E6}\u{1F1EA} +971 UAE</option>
+                <option value="+974">\u{1F1F6}\u{1F1E6} +974 Qatar</option>
+                <option value="+965">\u{1F1F0}\u{1F1FC} +965 Kuwait</option>
+                <option value="+92">\u{1F1F5}\u{1F1F0} +92 Pakistan</option>
+                <option value="+880">\u{1F1E7}\u{1F1E9} +880 Bangladesh</option>
               </optgroup>
             </select>
             <input id="oc-phone" type="tel" placeholder="e.g. 08012345678" style="flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;" />
@@ -386,7 +386,7 @@ function showOrderModal() {
         <div style="font-size:.78rem;font-weight:700;color:var(--green-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Choose Payment Method</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <button id="oc-pay-online-btn" onclick="submitOrderOnline()" style="width:100%;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;border:none;padding:14px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
-            \u00F0\u0178\u2019\u00B3 Pay Online (Card / Bank Transfer)
+            \u{1F4B3} Pay Online (Card / Bank Transfer)
           </button>
           <button id="oc-submit-btn" onclick="submitOrder()" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:14px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
             <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,255,255,0.2)"/><path d="M23.5 8.5A10.45 10.45 0 0 0 16 5.5C10.2 5.5 5.5 10.2 5.5 16c0 1.85.48 3.65 1.4 5.24L5.5 26.5l5.4-1.38A10.43 10.43 0 0 0 16 26.5c5.8 0 10.5-4.7 10.5-10.5 0-2.8-1.09-5.43-3-7.5z" fill="white"/></svg>
@@ -406,7 +406,7 @@ function closeOrderModal() {
   if (modal) modal.style.display = 'none';
 }
 
-// \u00E2\u00E2\u20AC\u009D\u2500 Online Payment via PayIsland \u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u20AC
+// \u00E2\u201D\u2500 Online Payment via PayIsland \u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u20AC
 async function submitOrderOnline() {
   const name  = (document.getElementById('oc-name').value  || '').trim() || 'Customer';
   const phoneCode = (document.getElementById('oc-phone-code') ? document.getElementById('oc-phone-code').value : '+234');
@@ -426,7 +426,7 @@ async function submitOrderOnline() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const onlineBtn = document.getElementById('oc-pay-online-btn');
   const waBtn     = document.getElementById('oc-submit-btn');
-  onlineBtn.disabled = true; onlineBtn.style.opacity = '.6'; onlineBtn.textContent = '\u23F3 Connecting\u00E2\u20AC\u00A6';
+  onlineBtn.disabled = true; onlineBtn.style.opacity = '.6'; onlineBtn.textContent = '\u23F3 Connecting\u2026';
   if (waBtn) { waBtn.disabled = true; waBtn.style.opacity = '.6'; }
 
   try {
@@ -457,14 +457,14 @@ async function submitOrderOnline() {
     window.location.href = data.checkoutUrl;
 
   } catch (err) {
-    onlineBtn.disabled = false; onlineBtn.style.opacity = '1'; onlineBtn.textContent = '\u00F0\u0178\u2019\u00B3 Pay Online (Card / Bank Transfer)';
+    onlineBtn.disabled = false; onlineBtn.style.opacity = '1'; onlineBtn.textContent = '\u{1F4B3} Pay Online (Card / Bank Transfer)';
     if (waBtn) { waBtn.disabled = false; waBtn.style.opacity = '1'; }
     errEl.textContent = '\u274C ' + err.message;
     errEl.style.display = 'block';
   }
 }
 
-// \u00E2\u00E2\u20AC\u009D\u2500 Handle PayIsland payment callback (check URL params on load) \u00E2\u00E2\u20AC\u009D\u20AC
+// \u00E2\u201D\u2500 Handle PayIsland payment callback (check URL params on load) \u00E2\u201D\u20AC
 function checkPaymentReturn() {
   const params = new URLSearchParams(window.location.search);
   const payStatus = params.get('payment');
@@ -516,7 +516,7 @@ async function submitOrder() {
   btn.style.opacity = '.6';
   btn.innerHTML = '\u23F3 Sending...';
 
-  // 2 \u00E2\u00E2\u20AC\u009D\u2500 Build WhatsApp message to farm (plain text \u2014 no emoji to avoid diamond symbols)
+  // 2 \u00E2\u201D\u2500 Build WhatsApp message to farm (plain text \u2014 no emoji to avoid diamond symbols)
   let msg = `Hello Pinnacles Resource Centre Farm!\n\n*NEW ORDER*\n\n`;
   cart.forEach(item => {
     msg += `- *${item.name}* x${item.qty} -- N${(item.price * item.qty).toLocaleString()}\n`;
@@ -527,7 +527,7 @@ async function submitOrder() {
   if (notes) msg += `\n*Notes:* ${notes}`;
   msg += `\n\nPlease confirm availability and delivery. Thank you!`;
 
-  // 1 \u00E2\u00E2\u20AC\u009D\u2500 Save to backend (and trigger admin email)
+  // 1 \u00E2\u201D\u2500 Save to backend (and trigger admin email)
   if (USE_BACKEND) {
     try {
       await fetch(API_BASE + '/orders', {
@@ -545,10 +545,10 @@ async function submitOrder() {
     } catch { /* backend offline \u2014 still open WhatsApp */ }
   }
 
-  // 3 \u00E2\u00E2\u20AC\u009D\u2500 Show success with two send buttons
+  // 3 \u00E2\u201D\u2500 Show success with two send buttons
   showOrderSuccess(name, msg);
 
-  // 4 \u00E2\u00E2\u20AC\u009D\u2500 Clear cart
+  // 4 \u00E2\u201D\u2500 Clear cart
   cart = [];
   updateCartBadge();
   renderCartItems();
@@ -604,12 +604,12 @@ function generateAdvert() {
   const advertText = `\u{1F33F} *PINNACLES RESOURCE CENTRE FARM* \u{1F33F}\n\n\u2705 Fresh Farm Produce Available NOW!\n\n\u{1F345} Tomatoes\n\u{1FAD1} Peppers\n\u{1F353} Strawberries\n\u{1F33D} Maize\n\u{1F955} Carrots\n\u{1F95A} Farm Fresh Eggs\n\u{1FADB} Green Peas\n\u{1F96C} And Much More!\n\n\u{1F4AF} 100% Organically Grown\n\u{1F69A} Fast Delivery Available\n\u{1F4B0} Fair & Affordable Prices\n\n\u{1F4F2} Order via WhatsApp Now!\nDon't miss out \u2014 get your fresh produce today!\n\n#PinnaclesFarm #FreshProduce #OrganicFood #FarmToTable #NigeriaFarms`;
 
   document.getElementById('advert-modal-content').innerHTML = `
-    <h3>\u00F0\u0178\u201C\u00A2 Your WhatsApp Advert</h3>
+    <h3>\u{1F4E2} Your WhatsApp Advert</h3>
     <p>Copy and share this advert on WhatsApp, Facebook, or any platform!</p>
     <div class="advert-text-box">${advertText}</div>
     <div class="advert-modal-actions">
       <button class="share-btn wa" onclick="sendAdvertOnWhatsApp()">\u{1F4F2} Share on WhatsApp</button>
-      <button class="share-btn copy" onclick="copyAdvert()">\u00F0\u0178\u201C\u2039 Copy Text</button>
+      <button class="share-btn copy" onclick="copyAdvert()">\u{1F4CB} Copy Text</button>
     </div>
     <div id="advert-copy-msg" class="copy-msg" style="display:none;margin-top:10px">\u2705 Advert copied!</div>
   `;
@@ -702,7 +702,7 @@ document.querySelectorAll('.why-card, .product-card, .contact-card').forEach(el 
   observer.observe(el);
 });
 
-// \u00E2\u00E2\u20AC\u009D\u2500 Today's Harvest Banner \u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u20AC
+// \u00E2\u201D\u2500 Today's Harvest Banner \u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u20AC
 async function loadTodaysHarvest() {
   try {
     const res = await fetch('/api/harvest/today');
@@ -721,7 +721,7 @@ async function loadTodaysHarvest() {
 document.addEventListener('DOMContentLoaded', () => { loadTodaysHarvest(); });
 
 
-// \u00E2\u00E2\u20AC\u009D\u2500 PRE-ORDER SYSTEM \u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500\u00E2\u00E2\u20AC\u009D\u2500
+// \u00E2\u201D\u2500 PRE-ORDER SYSTEM \u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500
 function openPreorderModal(productId, productName, expectedDate, note) {
   const modal = document.getElementById('preorder-modal');
   const body  = document.getElementById('preorder-modal-body');
@@ -734,7 +734,7 @@ function openPreorderModal(productId, productName, expectedDate, note) {
     <div style="margin-bottom:16px">
       <div style="font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:4px">${p.emoji || '\u{1F33F}'} ${productName}</div>
       <div style="font-size:.85rem;color:#52b788">\u20A6${Number(p.price||0).toLocaleString()} ${p.unit||''}</div>
-      ${expectedDate ? `<div style="margin-top:10px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:10px 14px;font-size:.82rem;color:#fbbf24">\u00F0\u0178\u201C\u2026 Expected availability: <strong>${new Date(expectedDate).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'})}</strong></div>` : ''}
+      ${expectedDate ? `<div style="margin-top:10px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:10px 14px;font-size:.82rem;color:#fbbf24">\u{1F4C5} Expected availability: <strong>${new Date(expectedDate).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'})}</strong></div>` : ''}
       ${note ? `<div style="margin-top:8px;font-size:.8rem;color:rgba(255,255,255,.5)">${note}</div>` : ''}
     </div>
 
@@ -753,7 +753,7 @@ function openPreorderModal(productId, productName, expectedDate, note) {
 
     <div style="display:flex;gap:10px;margin-top:20px">
       <button onclick="submitPreorder(${productId},'${productName}','${(p.unit||'').replace(/'/g,"\\'")}')" style="flex:1;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;border:none;border-radius:12px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">\u23F3 Reserve This Now</button>
-      <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello Pinnacles Farm! I want to pre-order: '+productName+(expectedDate?' (expected '+expectedDate+')':'')+'.')}" target="_blank" style="display:flex;align-items:center;gap:6px;background:#25D366;color:#fff;border-radius:12px;padding:12px 16px;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap">\u00F0\u0178\u2019\u00AC WhatsApp</a>
+      <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello Pinnacles Farm! I want to pre-order: '+productName+(expectedDate?' (expected '+expectedDate+')':'')+'.')}" target="_blank" style="display:flex;align-items:center;gap:6px;background:#25D366;color:#fff;border-radius:12px;padding:12px 16px;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap">\u{1F4AC} WhatsApp</a>
     </div>
   `;
 

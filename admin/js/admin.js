@@ -140,7 +140,7 @@ async function loadOverview() {
   document.getElementById('recent-messages-list').innerHTML = recentMsgs.length
     ? recentMsgs.map(m => `
         <div class="recent-msg-row">
-          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">\u00E2\u2014\u008F NEW</span>'}</div>
+          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">\u25CF NEW</span>'}</div>
           <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'\u2026':''}</div>
         </div>`).join('')
     : '<p style="color:var(--text-muted);font-size:.88rem;padding:20px 0;text-align:center">No messages yet</p>';
@@ -212,7 +212,7 @@ async function openOrderModal(id) {
         </div>`).join('')}
       <div class="order-detail-total"><span>Total</span><span>\u20A6${Number(order.total).toLocaleString()}</span></div>
     </div>
-    ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">\u00F0\u0178\u201C\u009D ${order.notes}</div>` : ''}
+    ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">\u{1F4DD} ${order.notes}</div>` : ''}
     <span class="status-badge status-${order.status}" style="margin-bottom:16px;display:inline-block">${order.status}</span>
 
     ${order.whatsapp_msg ? `
@@ -258,8 +258,8 @@ async function loadProducts() {
     const stockColor  = inStock ? 'rgba(82,183,136,.18)' : 'rgba(231,111,81,.15)';
     const stockText   = inStock ? 'rgba(82,183,136,1)'   : '#e76f51';
     const stockBorder = inStock ? 'rgba(82,183,136,.35)'  : 'rgba(231,111,81,.35)';
-    const stockLabel  = inStock ? '\u2705 In Stock'           : '\u00E2\u009D\u0152 Out of Stock';
-    const toggleLabel = inStock ? '\u00E2\u009D\u0152 Mark Out of Stock'  : '\u2705 Mark In Stock';
+    const stockLabel  = inStock ? '\u2705 In Stock'           : '\u274C Out of Stock';
+    const toggleLabel = inStock ? '\u274C Mark Out of Stock'  : '\u2705 Mark In Stock';
     const imgHtml = p.img
       ? '<img src="' + imgSrc(p.img) + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px" />'
       : '<div style="font-size:2.5rem;line-height:1">' + (p.emoji || '\u{1F33F}') + '</div>';
@@ -274,7 +274,7 @@ async function loadProducts() {
         '</div>' +
         '<div class="apc-actions">' +
           '<button class="btn-outline btn-sm" onclick="toggleProductStock(' + p.id + ',' + (inStock ? 0 : 1) + ')">' + toggleLabel + '</button>' +
-          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">\u00E2\u0153\u008F\u00EF\u00B8\u008F Edit</button>' +
+          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">\u270F\uFE0F Edit</button>' +
           '<button class="btn-outline btn-sm btn-danger" onclick="deleteProduct(' + p.id + ')">Delete</button>' +
         '</div>' +
       '</div>' +
@@ -284,7 +284,7 @@ async function loadProducts() {
 
 async function toggleProductStock(id, newVal) {
   await api('PATCH', '/products/' + id + '/stock', { in_stock: newVal });
-  showToast(newVal ? '\u2705 Marked In Stock' : '\u00E2\u009D\u0152 Marked Out of Stock');
+  showToast(newVal ? '\u2705 Marked In Stock' : '\u274C Marked Out of Stock');
   loadProducts();
 }
 
@@ -399,7 +399,7 @@ async function saveProduct(e) {
     closeProductModal();
     loadProducts();
   } catch (err) {
-    showToast('\u00E2\u009D\u0152 Error: ' + err.message);
+    showToast('\u274C Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Product';
@@ -468,9 +468,9 @@ function generateAdvert() {
 
 \u2705 Fresh Farm Produce Available NOW!
 
-\u00F0\u0178\u008D\u2026 Tomatoes
+\u{1F345} Tomatoes
 \u{1FAD1} Peppers
-\u00F0\u0178\u008D\u201C Strawberries
+\u{1F353} Strawberries
 \u{1F33D} Maize
 \u{1F955} Carrots
 \u{1F95A} Farm Fresh Eggs
@@ -535,7 +535,7 @@ async function loadGallery() {
       <div class="gac-img">
         <img src="${imgSrc(item.img)}" alt="${item.alt || 'Farm photo'}"
              style="width:100%;height:100%;object-fit:cover;border-radius:12px;"
-             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>\u{1F5BC}\u00EF\u00B8\u008F</div>'" />
+             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>\u{1F5BC}\uFE0F</div>'" />
         ${item.wide ? '<span class="gac-wide-badge">WIDE</span>' : ''}
       </div>
       <div class="gac-body">
@@ -543,10 +543,10 @@ async function loadGallery() {
         ${item.caption ? `<div class="gac-caption">"${item.caption}"</div>` : ''}
         <div class="gac-order">Order: #${item.sort_order ?? idx}</div>
         <div class="gac-actions">
-          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">\u00E2\u0153\u008F\u00EF\u00B8\u008F Edit</button>
+          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">\u270F\uFE0F Edit</button>
           <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) - 1})" ${idx === 0 ? 'disabled' : ''}>\u2191</button>
           <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) + 1})" ${idx === items.length - 1 ? 'disabled' : ''}>\u2193</button>
-          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">\u{1F5D1}\u00EF\u00B8\u008F Delete</button>
+          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">\u{1F5D1}\uFE0F Delete</button>
         </div>
       </div>
     </div>
@@ -611,7 +611,7 @@ async function saveGalleryItem(e) {
     const isNew = !editingGalleryId;
 
     if (isNew && !fileInput.files[0]) {
-      showToast('\u00E2\u009D\u0152 Please select a photo to upload.');
+      showToast('\u274C Please select a photo to upload.');
       return;
     }
 
@@ -635,11 +635,11 @@ async function saveGalleryItem(e) {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    showToast(editingGalleryId ? 'Photo updated! \u{1F5BC}\u00EF\u00B8\u008F' : 'Photo added to gallery! \u{1F331}');
+    showToast(editingGalleryId ? 'Photo updated! \u{1F5BC}\uFE0F' : 'Photo added to gallery! \u{1F331}');
     closeGalleryModal();
     loadGallery();
   } catch (err) {
-    showToast('\u00E2\u009D\u0152 Error: ' + err.message);
+    showToast('\u274C Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Photo';
@@ -733,14 +733,14 @@ function sendReceiptWhatsApp() {
     return name + '   ' + qty + '   *' + amt + '*';
   }).join('\n');
 
-  const statusMap = { pending: '\u00E2\u008F\u00B3 Pending', confirmed: '\u2705 Confirmed', processing: '\u{1F504} Processing', delivered: '\u{1F69A} Delivered', cancelled: '\u00E2\u009D\u0152 Cancelled' };
+  const statusMap = { pending: '\u23F3 Pending', confirmed: '\u2705 Confirmed', processing: '\u{1F504} Processing', delivered: '\u{1F69A} Delivered', cancelled: '\u274C Cancelled' };
   const statusStr = statusMap[o.status] || o.status;
   const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? '\u{1F4B3} Online Payment' : '\u{1F4AC} WhatsApp Order';
 
   const pdfLink = currentReceiptUrl ? currentReceiptUrl + '/pdf' : null;
   const linkLine = pdfLink ? '\n\u{1F4C4} *Download PDF Receipt:*\n' + pdfLink : '';
 
-  const SEP  = '\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081\u00E2\u201D\u0081';
+  const SEP  = '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501';
   const LINE = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
 
   const msg =
