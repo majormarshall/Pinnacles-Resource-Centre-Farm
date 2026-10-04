@@ -1,4 +1,4 @@
-// ── Static Files ──────────────────────────────────────────────
+// \u2500\u2500 Static Files \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Force UTF-8 charset on all text files ? prevents emoji/character garbling
 const staticOpts = {
   setHeaders(res, filePath) {
@@ -14,7 +14,7 @@ app.use('/farm',    express.static(path.join(__dirname, '..', 'farm'),   staticO
 app.use('/worker',  express.static(path.join(__dirname, '..', 'worker'), staticOpts));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// â”€â”€ API Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC API Routes â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 // Global rate limit applied to all /api/* routes
 app.use('/api', globalLimiter);
 
@@ -36,11 +36,11 @@ app.use('/api/setup',       require('./routes/setup'));
 
 
 
-// â”€â”€ Receipt Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Receipt Routes â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 const { router: receiptRouter, buildReceiptHtml, verifyToken, streamReceiptPdf } = require('./routes/receipt');
 app.use('/api/orders', receiptRouter); // adds /:id/receipt-token and /:id/receipt/email
 
-// â”€â”€ Public receipt page (/receipt/:id/:token) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Public receipt page (/receipt/:id/:token) â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 app.get('/receipt/:id/:token', async (req, res) => {
   const { id, token } = req.params;
   if (!verifyToken(id, token)) {
@@ -57,7 +57,7 @@ app.get('/receipt/:id/:token', async (req, res) => {
   }
 });
 
-// â”€â”€ PDF receipt download (/receipt/:id/:token/pdf) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC PDF receipt download (/receipt/:id/:token/pdf) â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 app.get('/receipt/:id/:token/pdf', async (req, res) => {
   const { id, token } = req.params;
   if (!verifyToken(id, token)) {
@@ -74,7 +74,7 @@ app.get('/receipt/:id/:token/pdf', async (req, res) => {
   }
 });
 
-// â”€â”€ Info endpoint â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Info endpoint â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 app.get('/api/info', (req, res) => {
   res.json({
     name: 'Pinnacles Resource Centre Farm',
@@ -84,7 +84,7 @@ app.get('/api/info', (req, res) => {
   });
 });
 
-// â”€â”€ Health / diagnostics endpoint â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Health / diagnostics endpoint â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 // Visit /api/health to instantly see what's wrong
 app.get('/api/health', async (req, res) => {
   const status = {
@@ -101,7 +101,7 @@ app.get('/api/health', async (req, res) => {
     const supabase = require('./db');
     const { count } = await supabase.from('products').select('*', { count: 'exact', head: true });
     const { data: admin } = await supabase.from('admins').select('id, username').limit(1).single();
-    status.db = 'connected âœ…';
+    status.db = 'connected â\u0153\u2026';
     status.products_count = count || 0;
     status.admin_exists = !!admin;
     status.admin_username_in_db = admin?.username || 'none';
@@ -112,7 +112,7 @@ app.get('/api/health', async (req, res) => {
   res.status(status.ok ? 200 : 500).json(status);
 });
 
-// â”€â”€ SPA Fallback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC SPA Fallback â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 app.get('*', (req, res) => {
   if (req.path.startsWith('/admin')) {
     return res.sendFile(path.join(__dirname, '..', 'admin', 'index.html'));
@@ -120,13 +120,13 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// â”€â”€ Start Server (local only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Start Server (local only) â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
-    console.log(`\nðŸŒ¿ Pinnacles Farm Server running on http://localhost:${PORT}`);
-    console.log(`ðŸ“Š Admin Dashboard: http://localhost:${PORT}/admin`);
-    console.log(`ðŸ“¡ API Base: http://localhost:${PORT}/api\n`);
+    console.log(`\nð\u0178\u0152¿ Pinnacles Farm Server running on http://localhost:${PORT}`);
+    console.log(`ð\u0178\u201C\u0160 Admin Dashboard: http://localhost:${PORT}/admin`);
+    console.log(`ð\u0178\u201C¡ API Base: http://localhost:${PORT}/api\n`);
   });
 }
 

@@ -1,4 +1,4 @@
-// ── Auth Routes ─────────────────────────────────────────────
+// \u2500\u2500 Auth Routes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 const router  = require('express').Router();
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
@@ -6,7 +6,7 @@ const supabase = require('../db');
 const { authLimiter } = require('../middleware/rateLimiter');
 const { requireAuth } = require('../middleware/auth');
 
-// NOTE: ALTER TABLE skipped — table schema managed in Supabase dashboard
+// NOTE: ALTER TABLE skipped \u2014 table schema managed in Supabase dashboard
 
 router.post('/login', authLimiter, async (req, res) => {
   try {

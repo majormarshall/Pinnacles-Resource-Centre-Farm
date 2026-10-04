@@ -1,5 +1,5 @@
 // ============================================================
-// Pinnacles Farm â€” Admin Dashboard JavaScript
+// Pinnacles Farm â\u20AC\u201D Admin Dashboard JavaScript
 // ============================================================
 const API = '/api';
 let authToken = localStorage.getItem('pinnacles_admin_token');
@@ -17,7 +17,7 @@ function imgSrc(url) {
   return '/' + url;
 }
 
-// â”€â”€ Boot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Boot â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 window.addEventListener('DOMContentLoaded', () => {
   if (authToken) showDashboard();
   else showLogin();
@@ -42,12 +42,12 @@ function parseToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); } catch { return null; }
 }
 
-// â”€â”€ Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Login â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 async function handleLogin(e) {
   e.preventDefault();
   const btn = document.getElementById('login-btn');
   const errEl = document.getElementById('login-error');
-  btn.textContent = 'Signing inâ€¦';
+  btn.textContent = 'Signing inâ\u20AC¦';
   btn.disabled = true;
   errEl.style.display = 'none';
   try {
@@ -78,7 +78,7 @@ function logout() {
   showLogin();
 }
 
-// â”€â”€ API Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC API Helper â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 async function api(method, path, body = null, auth = true) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth && authToken) headers['Authorization'] = `Bearer ${authToken}`;
@@ -89,7 +89,7 @@ async function api(method, path, body = null, auth = true) {
   return res.json();
 }
 
-// â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Tabs â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 function showTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -105,7 +105,7 @@ function showTab(tab, el) {
   if (tab === 'messages') loadMessages();
 }
 
-// â”€â”€ Overview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Overview â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 async function loadOverview() {
   const [ordersData, msgsData] = await Promise.all([
     api('GET', '/orders'),
@@ -114,7 +114,7 @@ async function loadOverview() {
   const s = ordersData.stats || {};
   setText('stat-total-orders', s.total || 0);
   setText('stat-pending', s.pending || 0);
-  setText('stat-revenue', `â‚¦${Number(s.revenue || 0).toLocaleString()}`);
+  setText('stat-revenue', `â\u201A¦${Number(s.revenue || 0).toLocaleString()}`);
   setText('stat-msgs', msgsData.unread || 0);
   document.getElementById('pending-badge').textContent = s.pending || 0;
   document.getElementById('msg-badge').textContent = msgsData.unread || 0;
@@ -129,7 +129,7 @@ async function loadOverview() {
             <div style="font-size:.75rem;color:var(--text-muted)">${formatDate(o.created_at)}</div>
           </div>
           <div style="text-align:right">
-            <div style="font-weight:700;color:var(--green-light)">â‚¦${Number(o.total).toLocaleString()}</div>
+            <div style="font-weight:700;color:var(--green-light)">â\u201A¦${Number(o.total).toLocaleString()}</div>
             <span class="status-badge status-${o.status}">${o.status}</span>
           </div>
         </div>`).join('')
@@ -140,13 +140,13 @@ async function loadOverview() {
   document.getElementById('recent-messages-list').innerHTML = recentMsgs.length
     ? recentMsgs.map(m => `
         <div class="recent-msg-row">
-          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">â— NEW</span>'}</div>
-          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'â€¦':''}</div>
+          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">â\u2014 NEW</span>'}</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'â\u20AC¦':''}</div>
         </div>`).join('')
     : '<p style="color:var(--text-muted);font-size:.88rem;padding:20px 0;text-align:center">No messages yet</p>';
 }
 
-// â”€â”€ Orders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Orders â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 async function loadOrders() {
   const status = document.getElementById('order-status-filter')?.value || '';
   const data = await api('GET', `/orders${status ? '?status=' + status : ''}`);
@@ -157,9 +157,9 @@ async function loadOrders() {
           <div class="order-info">
             <div class="order-id">#${o.id} Â· ${formatDate(o.created_at)}</div>
             <div class="order-name">${o.customer_name || 'Customer'}</div>
-            <div class="order-meta">ðŸ“± ${o.customer_phone || 'No phone'}</div>
+            <div class="order-meta">ð\u0178\u201C± ${o.customer_phone || 'No phone'}</div>
             <div class="order-meta" style="margin-top:4px">
-              ${o.items.map(i => `${i.emoji||''} ${i.name} Ã—${i.qty}`).join(' Â· ')}
+              ${o.items.map(i => `${i.emoji||''} ${i.name} Ã\u2014${i.qty}`).join(' Â· ')}
             </div>
             <div class="order-actions">
               <span class="status-badge status-${o.status}">${o.status}</span>
@@ -168,12 +168,12 @@ async function loadOrders() {
                   `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
               </select>
               <button class="btn-outline btn-sm" onclick="openOrderModal(${o.id})">View</button>
-              <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">ðŸ’¬ WhatsApp</button>
-              <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">ðŸ“„ Receipt</button>
+              <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">ð\u0178\u2019¬ WhatsApp</button>
+              <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">ð\u0178\u201C\u201E Receipt</button>
               <button class="btn-outline btn-sm btn-danger" onclick="deleteOrder(${o.id})">Delete</button>
             </div>
           </div>
-          <div class="order-total">â‚¦${Number(o.total).toLocaleString()}</div>
+          <div class="order-total">â\u201A¦${Number(o.total).toLocaleString()}</div>
         </div>`).join('')
     : '<div style="text-align:center;padding:60px;color:var(--text-muted)">No orders found</div>';
 }
@@ -202,17 +202,17 @@ async function openOrderModal(id) {
     <div style="margin-bottom:16px">
       <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px">#${order.id} Â· ${formatDate(order.created_at)}</div>
       <div style="font-weight:700;font-size:1.1rem">${order.customer_name || 'Customer'}</div>
-      <div style="color:var(--text-muted);font-size:.88rem">ðŸ“± ${order.customer_phone || 'No phone provided'}</div>
+      <div style="color:var(--text-muted);font-size:.88rem">ð\u0178\u201C± ${order.customer_phone || 'No phone provided'}</div>
     </div>
     <div style="margin-bottom:16px">
       ${order.items.map(i => `
         <div class="order-detail-item">
-          <span>${i.emoji||'ðŸŒ¿'} ${i.name} Ã—${i.qty}</span>
-          <span>â‚¦${Number(i.price * i.qty).toLocaleString()}</span>
+          <span>${i.emoji||'ð\u0178\u0152¿'} ${i.name} Ã\u2014${i.qty}</span>
+          <span>â\u201A¦${Number(i.price * i.qty).toLocaleString()}</span>
         </div>`).join('')}
-      <div class="order-detail-total"><span>Total</span><span>â‚¦${Number(order.total).toLocaleString()}</span></div>
+      <div class="order-detail-total"><span>Total</span><span>â\u201A¦${Number(order.total).toLocaleString()}</span></div>
     </div>
-    ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">ðŸ“ ${order.notes}</div>` : ''}
+    ${order.notes ? `<div class="msg-text" style="margin-bottom:16px">ð\u0178\u201C ${order.notes}</div>` : ''}
     <span class="status-badge status-${order.status}" style="margin-bottom:16px;display:inline-block">${order.status}</span>
 
     ${order.whatsapp_msg ? `
@@ -220,17 +220,17 @@ async function openOrderModal(id) {
       <button id="wa-toggle-${order.id}"
         onclick="toggleWaMsg('${order.id}')"
         style="background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.35);color:#25D366;padding:9px 16px;border-radius:50px;font-size:.82rem;font-weight:700;cursor:pointer;width:100%;text-align:left;">
-        ðŸ“² Show WhatsApp Message Sent
+        ð\u0178\u201C² Show WhatsApp Message Sent
       </button>
       <div id="wa-box-${order.id}" style="display:none;margin-top:10px;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:14px 16px;">
         <div style="font-size:.72rem;font-weight:700;color:#25D366;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">Message sent to WhatsApp</div>
         <pre id="wa-pre-${order.id}" style="font-family:'Outfit',sans-serif;font-size:.83rem;color:var(--text-light);white-space:pre-wrap;word-break:break-word;margin:0;line-height:1.6"></pre>
         <button onclick="navigator.clipboard.writeText(document.getElementById('wa-pre-${order.id}').textContent).then(()=>showToast('Copied to clipboard!'))"
-          style="margin-top:10px;background:none;border:1px solid rgba(37,211,102,.4);color:#25D366;padding:6px 14px;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;">ðŸ“‹ Copy Message</button>
+          style="margin-top:10px;background:none;border:1px solid rgba(37,211,102,.4);color:#25D366;padding:6px 14px;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;">ð\u0178\u201C\u2039 Copy Message</button>
       </div>
     </div>` : ''}
 
-    ${order.customer_phone ? `<a href="https://wa.me/${order.customer_phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+order.customer_name+'! Your Pinnacles Farm order #'+order.id+' has been received. We will confirm shortly. ðŸŒ¿')}" target="_blank" class="btn-primary wa-order-btn">ðŸ’¬ Message Customer on WhatsApp</a>` : ''}
+    ${order.customer_phone ? `<a href="https://wa.me/${order.customer_phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+order.customer_name+'! Your Pinnacles Farm order #'+order.id+' has been received. We will confirm shortly. ð\u0178\u0152¿')}" target="_blank" class="btn-primary wa-order-btn">ð\u0178\u2019¬ Message Customer on WhatsApp</a>` : ''}
   `;
   // Safely inject whatsapp_msg as text (avoids XSS)
   if (order.whatsapp_msg) {
@@ -248,7 +248,7 @@ function closeOrderModal() {
 
 function waOrderReply(id) { openOrderModal(id); }
 
-// â”€â”€ Products â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Products â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 let editingProductId = null;
 
 async function loadProducts() {
@@ -258,11 +258,11 @@ async function loadProducts() {
     const stockColor  = inStock ? 'rgba(82,183,136,.18)' : 'rgba(231,111,81,.15)';
     const stockText   = inStock ? 'rgba(82,183,136,1)'   : '#e76f51';
     const stockBorder = inStock ? 'rgba(82,183,136,.35)'  : 'rgba(231,111,81,.35)';
-    const stockLabel  = inStock ? 'âœ… In Stock'           : 'âŒ Out of Stock';
-    const toggleLabel = inStock ? 'âŒ Mark Out of Stock'  : 'âœ… Mark In Stock';
+    const stockLabel  = inStock ? 'â\u0153\u2026 In Stock'           : 'â\u0152 Out of Stock';
+    const toggleLabel = inStock ? 'â\u0152 Mark Out of Stock'  : 'â\u0153\u2026 Mark In Stock';
     const imgHtml = p.img
       ? '<img src="' + imgSrc(p.img) + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px" />'
-      : '<div style="font-size:2.5rem;line-height:1">' + (p.emoji || 'ðŸŒ¿') + '</div>';
+      : '<div style="font-size:2.5rem;line-height:1">' + (p.emoji || 'ð\u0178\u0152¿') + '</div>';
     return '<div class="admin-product-card ' + (p.active ? '' : 'inactive') + '">' +
       '<div class="apc-img">' + imgHtml + '</div>' +
       '<div class="apc-body">' +
@@ -274,7 +274,7 @@ async function loadProducts() {
         '</div>' +
         '<div class="apc-actions">' +
           '<button class="btn-outline btn-sm" onclick="toggleProductStock(' + p.id + ',' + (inStock ? 0 : 1) + ')">' + toggleLabel + '</button>' +
-          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">âœï¸ Edit</button>' +
+          '<button class="btn-outline btn-sm" onclick="editProduct(' + p.id + ')">â\u0153ï¸ Edit</button>' +
           '<button class="btn-outline btn-sm btn-danger" onclick="deleteProduct(' + p.id + ')">Delete</button>' +
         '</div>' +
       '</div>' +
@@ -284,7 +284,7 @@ async function loadProducts() {
 
 async function toggleProductStock(id, newVal) {
   await api('PATCH', '/products/' + id + '/stock', { in_stock: newVal });
-  showToast(newVal ? 'âœ… Marked In Stock' : 'âŒ Marked Out of Stock');
+  showToast(newVal ? 'â\u0153\u2026 Marked In Stock' : 'â\u0152 Marked Out of Stock');
   loadProducts();
 }
 
@@ -313,7 +313,7 @@ function openProductModal(product = null) {
   document.getElementById('prod-modal-title').textContent = product ? 'Edit Product' : 'Add Product';
   document.getElementById('prod-id').value = product?.id || '';
   document.getElementById('prod-name').value = product?.name || '';
-  document.getElementById('prod-emoji').value = product?.emoji || 'ðŸŒ¿';
+  document.getElementById('prod-emoji').value = product?.emoji || 'ð\u0178\u0152¿';
   document.getElementById('prod-price').value = product?.price || '';
   document.getElementById('prod-unit').value = product?.unit || 'per unit';
   document.getElementById('prod-category').value = product?.category || 'vegetables';
@@ -356,7 +356,7 @@ async function saveProduct(e) {
   e.preventDefault();
   const btn = document.getElementById('prod-save-btn');
   btn.disabled = true;
-  btn.textContent = 'Savingâ€¦';
+  btn.textContent = 'Savingâ\u20AC¦';
 
   try {
     // Build FormData so multer can receive the image file
@@ -399,7 +399,7 @@ async function saveProduct(e) {
     closeProductModal();
     loadProducts();
   } catch (err) {
-    showToast('âŒ Error: ' + err.message);
+    showToast('â\u0152 Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Product';
@@ -413,7 +413,7 @@ async function deleteProduct(id) {
   loadProducts();
 }
 
-// â”€â”€ Messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Messages â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 async function loadMessages() {
   const data = await api('GET', '/messages');
   const messages = data.messages || [];
@@ -422,11 +422,11 @@ async function loadMessages() {
         <div class="message-item ${m.is_read ? '' : 'msg-unread'}">
           <div style="flex:1">
             <div class="msg-name">${m.name} ${m.is_read ? '' : '<span style="background:var(--green-light);color:#fff;font-size:.65rem;padding:2px 8px;border-radius:50px;margin-left:6px">NEW</span>'}</div>
-            <div class="msg-meta">ðŸ“± ${m.phone || 'No phone'} Â· ${formatDate(m.created_at)}</div>
+            <div class="msg-meta">ð\u0178\u201C± ${m.phone || 'No phone'} Â· ${formatDate(m.created_at)}</div>
             <div class="msg-text">${m.message}</div>
             <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-              ${!m.is_read ? `<button class="btn-outline btn-sm" onclick="markMsgRead(${m.id})">âœ… Mark Read</button>` : ''}
-              ${m.phone ? `<a href="https://wa.me/${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+m.name+'! Thank you for contacting Pinnacles Resource Centre Farm. ðŸŒ¿')}" target="_blank" class="btn-outline btn-sm">ðŸ’¬ Reply via WhatsApp</a>` : ''}
+              ${!m.is_read ? `<button class="btn-outline btn-sm" onclick="markMsgRead(${m.id})">â\u0153\u2026 Mark Read</button>` : ''}
+              ${m.phone ? `<a href="https://wa.me/${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hello '+m.name+'! Thank you for contacting Pinnacles Resource Centre Farm. ð\u0178\u0152¿')}" target="_blank" class="btn-outline btn-sm">ð\u0178\u2019¬ Reply via WhatsApp</a>` : ''}
               <button class="btn-outline btn-sm btn-danger" onclick="deleteMsg(${m.id})">Delete</button>
             </div>
           </div>
@@ -448,7 +448,7 @@ async function deleteMsg(id) {
   loadMessages();
 }
 
-// â”€â”€ Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Settings â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 async function changePassword(e) {
   e.preventDefault();
   const msgEl = document.getElementById('cp-msg');
@@ -464,25 +464,25 @@ async function changePassword(e) {
 }
 
 function generateAdvert() {
-  const text = `ðŸŒ¿ *PINNACLES RESOURCE CENTRE FARM* ðŸŒ¿
+  const text = `ð\u0178\u0152¿ *PINNACLES RESOURCE CENTRE FARM* ð\u0178\u0152¿
 
-âœ… Fresh Farm Produce Available NOW!
+â\u0153\u2026 Fresh Farm Produce Available NOW!
 
-ðŸ… Tomatoes
-ðŸ«‘ Peppers
-ðŸ“ Strawberries
-ðŸŒ½ Maize
-ðŸ¥• Carrots
-ðŸ¥š Farm Fresh Eggs
-ðŸ«› Green Peas
-ðŸ¥¬ And Much More!
+ð\u0178\u2026 Tomatoes
+ð\u0178«\u2018 Peppers
+ð\u0178\u201C Strawberries
+ð\u0178\u0152½ Maize
+ð\u0178¥\u2022 Carrots
+ð\u0178¥\u0161 Farm Fresh Eggs
+ð\u0178«\u203A Green Peas
+ð\u0178¥¬ And Much More!
 
-ðŸ’¯ 100% Organically Grown
-ðŸšš Fast Delivery Available
-ðŸ’° Fair & Affordable Prices
+ð\u0178\u2019¯ 100% Organically Grown
+ð\u0178\u0161\u0161 Fast Delivery Available
+ð\u0178\u2019° Fair & Affordable Prices
 
-ðŸ“² Order via WhatsApp: +234 903 750 5632
-ðŸ“§ agribusiness@pinnaclescentre.com
+ð\u0178\u201C² Order via WhatsApp: +234 903 750 5632
+ð\u0178\u201C§ agribusiness@pinnaclescentre.com
 
 #PinnaclesFarm #FreshProduce #FarmToTable`;
   const box = document.getElementById('advert-output');
@@ -492,7 +492,7 @@ function generateAdvert() {
   navigator.clipboard.writeText(text).then(() => showToast('Advert copied to clipboard!'));
 }
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Helpers â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 function setText(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
@@ -506,7 +506,7 @@ function formatDate(dt) {
 function showToast(msg) {
   const t = document.createElement('div');
   t.style.cssText = 'position:fixed;bottom:32px;right:32px;background:var(--green);color:#fff;padding:12px 24px;border-radius:50px;font-weight:600;font-size:.9rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)';
-  t.textContent = 'âœ… ' + msg;
+  t.textContent = 'â\u0153\u2026 ' + msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2800);
 }
@@ -517,10 +517,10 @@ function toggleWaMsg(orderId) {
   if (!box) return;
   const isOpen = box.style.display === 'block';
   box.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? 'ðŸ“² Show WhatsApp Message Sent' : 'ðŸ“² Hide WhatsApp Message';
+  btn.textContent = isOpen ? 'ð\u0178\u201C² Show WhatsApp Message Sent' : 'ð\u0178\u201C² Hide WhatsApp Message';
 }
 
-// â”€â”€ Gallery â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Gallery â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 let editingGalleryId = null;
 
 async function loadGallery() {
@@ -535,7 +535,7 @@ async function loadGallery() {
       <div class="gac-img">
         <img src="${imgSrc(item.img)}" alt="${item.alt || 'Farm photo'}"
              style="width:100%;height:100%;object-fit:cover;border-radius:12px;"
-             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>ðŸ–¼ï¸</div>'" />
+             onerror="this.outerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>ð\u0178\u2013¼ï¸</div>'" />
         ${item.wide ? '<span class="gac-wide-badge">WIDE</span>' : ''}
       </div>
       <div class="gac-body">
@@ -543,10 +543,10 @@ async function loadGallery() {
         ${item.caption ? `<div class="gac-caption">"${item.caption}"</div>` : ''}
         <div class="gac-order">Order: #${item.sort_order ?? idx}</div>
         <div class="gac-actions">
-          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">âœï¸ Edit</button>
-          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) - 1})" ${idx === 0 ? 'disabled' : ''}>â†‘</button>
-          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) + 1})" ${idx === items.length - 1 ? 'disabled' : ''}>â†“</button>
-          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">ðŸ—‘ï¸ Delete</button>
+          <button class="btn-outline btn-sm" onclick="editGalleryItem(${item.id})">â\u0153ï¸ Edit</button>
+          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) - 1})" ${idx === 0 ? 'disabled' : ''}>â\u2020\u2018</button>
+          <button class="btn-outline btn-sm" onclick="moveGalleryItem(${item.id}, ${(item.sort_order ?? idx) + 1})" ${idx === items.length - 1 ? 'disabled' : ''}>â\u2020\u201C</button>
+          <button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem(${item.id})">ð\u0178\u2014\u2018ï¸ Delete</button>
         </div>
       </div>
     </div>
@@ -604,14 +604,14 @@ async function saveGalleryItem(e) {
   e.preventDefault();
   const btn = document.getElementById('gal-save-btn');
   btn.disabled = true;
-  btn.textContent = 'Savingâ€¦';
+  btn.textContent = 'Savingâ\u20AC¦';
 
   try {
     const fileInput = document.getElementById('gal-img-file');
     const isNew = !editingGalleryId;
 
     if (isNew && !fileInput.files[0]) {
-      showToast('âŒ Please select a photo to upload.');
+      showToast('â\u0152 Please select a photo to upload.');
       return;
     }
 
@@ -635,11 +635,11 @@ async function saveGalleryItem(e) {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    showToast(editingGalleryId ? 'Photo updated! ðŸ–¼ï¸' : 'Photo added to gallery! ðŸŒ±');
+    showToast(editingGalleryId ? 'Photo updated! ð\u0178\u2013¼ï¸' : 'Photo added to gallery! ð\u0178\u0152±');
     closeGalleryModal();
     loadGallery();
   } catch (err) {
-    showToast('âŒ Error: ' + err.message);
+    showToast('â\u0152 Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Photo';
@@ -664,7 +664,7 @@ async function deleteGalleryItem(id) {
   loadGallery();
 }
 
-// â”€â”€ Receipt Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20AC Receipt Modal â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 let currentReceiptOrderId = null;
 let currentReceiptUrl     = null;
 let currentReceiptOrder   = null;
@@ -677,7 +677,7 @@ async function openReceiptModal(orderId) {
   document.getElementById('receipt-download-btn').href = '#';
   document.getElementById('receipt-email-input').value = '';
   document.getElementById('receipt-email-msg').style.display = 'none';
-  document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;">Loadingâ€¦</div>';
+  document.getElementById('receipt-order-summary').innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;">Loadingâ\u20AC¦</div>';
 
   document.getElementById('receipt-modal-overlay').classList.add('open');
   document.getElementById('receipt-modal').classList.add('open');
@@ -689,15 +689,15 @@ async function openReceiptModal(orderId) {
       currentReceiptOrder = order;
       const itemsHtml = order.items.map(i =>
         '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">' +
-        '<span>' + (i.emoji || 'ðŸŒ¿') + ' ' + i.name + ' Ã—' + i.qty + '</span>' +
-        '<span style="font-weight:700;">â‚¦' + Number(i.price * i.qty).toLocaleString() + '</span></div>'
+        '<span>' + (i.emoji || 'ð\u0178\u0152¿') + ' ' + i.name + ' Ã\u2014' + i.qty + '</span>' +
+        '<span style="font-weight:700;">â\u201A¦' + Number(i.price * i.qty).toLocaleString() + '</span></div>'
       ).join('');
       document.getElementById('receipt-order-summary').innerHTML =
-        '<div style="font-weight:700;margin-bottom:10px;color:var(--text-light);">Order #' + order.id + ' â€” ' + (order.customer_name || 'Customer') + '</div>' +
-        '<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px;">ðŸ“± ' + (order.customer_phone || 'No phone') + '</div>' +
+        '<div style="font-weight:700;margin-bottom:10px;color:var(--text-light);">Order #' + order.id + ' â\u20AC\u201D ' + (order.customer_name || 'Customer') + '</div>' +
+        '<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px;">ð\u0178\u201C± ' + (order.customer_phone || 'No phone') + '</div>' +
         itemsHtml +
         '<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:800;color:var(--green-light);">' +
-        '<span>Total</span><span>â‚¦' + Number(order.total).toLocaleString() + '</span></div>';
+        '<span>Total</span><span>â\u201A¦' + Number(order.total).toLocaleString() + '</span></div>';
       if (order.customer_email) {
         document.getElementById('receipt-email-input').value = order.customer_email;
       }
@@ -725,26 +725,26 @@ function sendReceiptWhatsApp() {
   const dateStr = new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const receiptNo = String(o.id).padStart(4, '0');
 
-  // Build items rows â€” padded to look tabular
+  // Build items rows â\u20AC\u201D padded to look tabular
   const itemLines = o.items.map(i => {
-    const name = (i.emoji || 'ðŸŒ¿') + ' ' + i.name;
-    const qty  = 'Ã—' + i.qty;
-    const amt  = 'â‚¦' + Number(i.price * i.qty).toLocaleString('en-NG');
+    const name = (i.emoji || 'ð\u0178\u0152¿') + ' ' + i.name;
+    const qty  = 'Ã\u2014' + i.qty;
+    const amt  = 'â\u201A¦' + Number(i.price * i.qty).toLocaleString('en-NG');
     return name + '   ' + qty + '   *' + amt + '*';
   }).join('\n');
 
-  const statusMap = { pending: 'â³ Pending', confirmed: 'âœ… Confirmed', processing: 'ðŸ”„ Processing', delivered: 'ðŸšš Delivered', cancelled: 'âŒ Cancelled' };
+  const statusMap = { pending: 'â³ Pending', confirmed: 'â\u0153\u2026 Confirmed', processing: 'ð\u0178\u201D\u201E Processing', delivered: 'ð\u0178\u0161\u0161 Delivered', cancelled: 'â\u0152 Cancelled' };
   const statusStr = statusMap[o.status] || o.status;
-  const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? 'ðŸ’³ Online Payment' : 'ðŸ’¬ WhatsApp Order';
+  const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? 'ð\u0178\u2019³ Online Payment' : 'ð\u0178\u2019¬ WhatsApp Order';
 
   const pdfLink = currentReceiptUrl ? currentReceiptUrl + '/pdf' : null;
-  const linkLine = pdfLink ? '\nðŸ“„ *Download PDF Receipt:*\n' + pdfLink : '';
+  const linkLine = pdfLink ? '\nð\u0178\u201C\u201E *Download PDF Receipt:*\n' + pdfLink : '';
 
-  const SEP  = 'â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”';
-  const LINE = 'â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€';
+  const SEP  = 'â\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201Dâ\u201D';
+  const LINE = 'â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC';
 
   const msg =
-    'ðŸŒ¿ *PINNACLES RESOURCE CENTRE FARM*\n' +
+    'ð\u0178\u0152¿ *PINNACLES RESOURCE CENTRE FARM*\n' +
     '_FRESH Â· ORGANIC Â· FARM TO TABLE_\n\n' +
     SEP + '\n' +
     '       *OFFICIAL RECEIPT*\n' +
@@ -752,7 +752,7 @@ function sendReceiptWhatsApp() {
     SEP + '\n\n' +
     '*BILLED TO*\n' +
     (o.customer_name || 'Customer') + '\n' +
-    'ðŸ“± ' + (o.customer_phone || 'â€”') + '\n\n' +
+    'ð\u0178\u201C± ' + (o.customer_phone || 'â\u20AC\u201D') + '\n\n' +
     '*ORDER DETAILS*\n' +
     'Order #' + o.id + '\n' +
     'Date: ' + dateStr + '\n\n' +
@@ -761,14 +761,14 @@ function sendReceiptWhatsApp() {
     LINE + '\n' +
     itemLines + '\n' +
     LINE + '\n' +
-    '*TOTAL          â‚¦' + Number(o.total).toLocaleString('en-NG') + '*\n' +
+    '*TOTAL          â\u201A¦' + Number(o.total).toLocaleString('en-NG') + '*\n' +
     LINE + '\n\n' +
     'Status:  ' + statusStr + '\n' +
     'Payment: ' + payMethod + '\n\n' +
     SEP + '\n' +
-    'Thank you for shopping with us! ðŸŒ±\n' +
-    'ðŸ“§ agribusiness@pinnaclescentre.com\n' +
-    'ðŸ“² +234 903 750 5632' +
+    'Thank you for shopping with us! ð\u0178\u0152±\n' +
+    'ð\u0178\u201C§ agribusiness@pinnaclescentre.com\n' +
+    'ð\u0178\u201C² +234 903 750 5632' +
     linkLine;
 
   const phone = (o.customer_phone || '').replace(/\D/g, '');
@@ -779,14 +779,14 @@ function sendReceiptWhatsApp() {
 }
 function copyReceiptLink() {
   if (!currentReceiptUrl) { showToast('Receipt link not ready yet.'); return; }
-  navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('ðŸ”— Receipt link copied!'));
+  navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('ð\u0178\u201D\u2014 Receipt link copied!'));
 }
 
 
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 // WALK-IN / FARM ORDER
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 function openWalkinModal() {
   document.getElementById('wi-name').value    = '';
   document.getElementById('wi-phone').value   = '';
@@ -811,7 +811,7 @@ function addWalkinItem() {
     '<input type="number" placeholder="Price/unit" class="form-input wi-item-price" style="width:90px;flex-shrink:0" oninput="recalcWalkinTotal()" min="0">' +
     '<span class="wi-subtotal" style="width:80px;flex-shrink:0;text-align:right;font-weight:700;font-size:.8rem;color:#52b788;white-space:nowrap">NGN 0</span>' +
     '<button type="button" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;flex-shrink:0" ' +
-    'onclick="this.parentElement.remove();recalcWalkinTotal()">Ã—</button>';
+    'onclick="this.parentElement.remove();recalcWalkinTotal()">Ã\u2014</button>';
   list.appendChild(div);
 }
 function recalcWalkinTotal() {
@@ -862,9 +862,9 @@ async function saveWalkinOrder() {
   } catch (e) { showToast('Error: ' + e.message); }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 // MONTHLY SALES REPORT
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 function openReportModal() {
   const now = new Date();
   document.getElementById('report-month').value = now.getMonth() + 1;
@@ -896,9 +896,9 @@ async function downloadReport() {
   } catch (e) { showToast('Error: ' + e.message); }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 // AUTO-REFRESH: poll for new orders every 30 seconds
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20ACâ\u201D\u20AC
 function startOrderPolling() {
   stopOrderPolling();
   _initLastOrderId();
@@ -1060,14 +1060,14 @@ async function loadPreorders() {
             <input type="date" id="po-date-${p.id}" value="${p.preorder_expected_date||''}" style="flex:1;min-width:120px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:var(--text-primary);font-size:.78rem;font-family:inherit;outline:none" placeholder="Expected date">
             <input type="text" id="po-note-${p.id}" value="${p.preorder_note||''}" style="flex:2;min-width:140px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:var(--text-primary);font-size:.78rem;font-family:inherit;outline:none" placeholder="Note (e.g. 'Available Friday')">
             <button onclick="saveProductPreorder(${p.id})" style="background:#52b788;color:#0d2818;border:none;border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit">Save</button>
-          </div>` : `<div style="font-size:.78rem;color:var(--text-muted)">Pre-order disabled — toggle to enable</div>`}
+          </div>` : `<div style="font-size:.78rem;color:var(--text-muted)">Pre-order disabled \u2014 toggle to enable</div>`}
         </div>`;
       }).join('') || '<div style="color:var(--text-muted);font-size:.85rem">No products found</div>';
     } catch(e) { prodList.innerHTML = `<div style="color:#f87171;font-size:.85rem">Error: ${e.message}</div>`; }
   }
 
   // Load preorder requests
-  list.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:24px 0">Loading…</div>';
+  list.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:24px 0">Loading\u2026</div>';
   try {
     const all = await api('GET', '/customers/preorders/all');
     const rows = Array.isArray(all) ? (filter === 'all' ? all : all.filter(r => r.status === filter)) : [];

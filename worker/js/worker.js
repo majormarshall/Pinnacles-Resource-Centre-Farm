@@ -1,12 +1,12 @@
 // worker/js/worker.js
-// Farm Worker Mobile Portal — JavaScript
+// Farm Worker Mobile Portal \u2014 JavaScript
 // Auth uses the same JWT as the admin system
 'use strict';
 
 const W_TOKEN = 'pinnacles_admin_token';
 let wUser     = null;
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// \u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function wToken()      { return localStorage.getItem(W_TOKEN) || ''; }
 function wVal(id)      { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 function today()       { return new Date().toISOString().slice(0, 10); }
@@ -15,7 +15,7 @@ function nowTime()     {
   return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
 }
 function fmtDate(d) {
-  if (!d) return '—';
+  if (!d) return '\u2014';
   try { return new Date(d).toLocaleDateString('en-NG', { day: '2-digit', month: 'short' }); }
   catch { return d; }
 }
@@ -43,7 +43,7 @@ function wToast(msg, isError, ms = 2800) {
   toastTimer = setTimeout(() => { el.style.display = 'none'; }, ms);
 }
 
-// ── LOGIN ──────────────────────────────────────────────────────────────────
+// \u2500\u2500 LOGIN \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function wLogin() {
   const email = wVal('we');
   const pass  = wVal('wp');
@@ -74,7 +74,7 @@ function wLogout() {
   document.getElementById('w-login').style.display  = 'flex';
 }
 
-// ── SHOW APP ───────────────────────────────────────────────────────────────
+// \u2500\u2500 SHOW APP \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function showWApp() {
   document.getElementById('w-login').style.display = 'none';
   document.getElementById('w-app').style.display   = 'flex';
@@ -84,7 +84,7 @@ function showWApp() {
   const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const name  = (wUser?.name || '').split(' ')[0] || 'Worker';
   document.getElementById('w-greeting').textContent =
-    `${greet}, ${name}! 🌱`;
+    `${greet}, ${name}! \u{1F331}`;
   document.getElementById('w-date').textContent =
     now.toLocaleDateString('en-NG', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 
@@ -100,7 +100,7 @@ function showWApp() {
   loadMyAttendance();
 }
 
-// ── TAB SWITCHING ──────────────────────────────────────────────────────────
+// \u2500\u2500 TAB SWITCHING \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function wTab(tab, btn) {
   document.querySelectorAll('.w-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.w-nav-btn').forEach(b => b.classList.remove('active'));
@@ -109,12 +109,12 @@ function wTab(tab, btn) {
   if (btn)   btn.classList.add('active');
 }
 
-// ── LOAD MY ATTENDANCE ─────────────────────────────────────────────────────
+// \u2500\u2500 LOAD MY ATTENDANCE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadMyAttendance() {
   const attEl = document.getElementById('w-my-att');
   if (!attEl) return;
   try {
-    // Fetch all attendance — filter to today/recent on frontend
+    // Fetch all attendance \u2014 filter to today/recent on frontend
     const rows = await wApi('GET', '/api/farm/attendance');
     const mine = Array.isArray(rows) ? rows.slice(0, 10) : [];
 
@@ -125,14 +125,14 @@ async function loadMyAttendance() {
     attEl.innerHTML = mine.map(r => `
       <div class="w-att-row">
         <div class="w-att-date">${fmtDate(r.work_date)}</div>
-        <div class="w-att-meta">${r.time_in || '—'} → ${r.time_out || '—'} · ${r.hours_worked || 8} hrs${r.task ? ' · ' + r.task : ''}</div>
+        <div class="w-att-meta">${r.time_in || '\u2014'} \u2192 ${r.time_out || '\u2014'} · ${r.hours_worked || 8} hrs${r.task ? ' · ' + r.task : ''}</div>
       </div>`).join('');
   } catch {
     attEl.innerHTML = '<p class="w-empty">Could not load attendance.</p>';
   }
 }
 
-// ── SUBMIT ATTENDANCE ──────────────────────────────────────────────────────
+// \u2500\u2500 SUBMIT ATTENDANCE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function wSubmitAttendance() {
   const workDate = wVal('wa-date');
   const timeIn   = wVal('wa-in');
@@ -160,7 +160,7 @@ async function wSubmitAttendance() {
 
   try {
     await wApi('POST', '/api/farm/attendance', body);
-    wToast('✅ Attendance submitted!');
+    wToast('\u2705 Attendance submitted!');
     // Clear optional fields
     const outEl = document.getElementById('wa-out');
     const taskEl = document.getElementById('wa-task');
@@ -170,11 +170,11 @@ async function wSubmitAttendance() {
     if (notesEl) notesEl.value = '';
     loadMyAttendance();
   } catch (e) {
-    wToast('❌ ' + e.message, true, 4000);
+    wToast('\u274C ' + e.message, true, 4000);
   }
 }
 
-// ── SUBMIT TASK (logs to farm diary) ──────────────────────────────────────
+// \u2500\u2500 SUBMIT TASK (logs to farm diary) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function wSubmitTask() {
   const category = wVal('wt-cat');
   const desc     = wVal('wt-desc');
@@ -183,7 +183,7 @@ async function wSubmitTask() {
 
   if (!desc) { wToast('Please describe the task', true); return; }
 
-  const title   = category + (area ? ' — ' + area : '');
+  const title   = category + (area ? ' \u2014 ' + area : '');
   const content = desc + (area ? `\n\nArea: ${area}` : '');
 
   try {
@@ -194,15 +194,15 @@ async function wSubmitTask() {
       content,
       written_by: wUser?.name || 'Worker',
     });
-    wToast('✅ Task logged!');
+    wToast('\u2705 Task logged!');
     document.getElementById('wt-desc').value = '';
     document.getElementById('wt-area').value = '';
   } catch (e) {
-    wToast('❌ ' + e.message, true, 4000);
+    wToast('\u274C ' + e.message, true, 4000);
   }
 }
 
-// ── SUBMIT HARVEST ────────────────────────────────────────────────────────
+// \u2500\u2500 SUBMIT HARVEST \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function wSubmitHarvest() {
   const crop  = wVal('wh-crop');
   const qty   = wVal('wh-qty');
@@ -224,17 +224,17 @@ async function wSubmitHarvest() {
       harvested_by:  wUser?.name || 'Worker',
       notes:         notes || null,
     });
-    wToast('✅ Harvest logged!');
+    wToast('\u2705 Harvest logged!');
     ['wh-crop','wh-qty','wh-notes'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
   } catch (e) {
-    wToast('❌ ' + e.message, true, 4000);
+    wToast('\u274C ' + e.message, true, 4000);
   }
 }
 
-// ── SUBMIT DIARY ENTRY ────────────────────────────────────────────────────
+// \u2500\u2500 SUBMIT DIARY ENTRY \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function wSubmitDiary() {
   const content = wVal('wd-note');
   const weather = wVal('wd-weather');
@@ -250,15 +250,15 @@ async function wSubmitDiary() {
       weather:    weather || null,
       written_by: wUser?.name || 'Worker',
     });
-    wToast('✅ Diary entry saved!');
+    wToast('\u2705 Diary entry saved!');
     document.getElementById('wd-note').value    = '';
     document.getElementById('wd-weather').value = '';
   } catch (e) {
-    wToast('❌ ' + e.message, true, 4000);
+    wToast('\u274C ' + e.message, true, 4000);
   }
 }
 
-// ── AUTO-LOGIN on page load ───────────────────────────────────────────────
+// \u2500\u2500 AUTO-LOGIN on page load \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem(W_TOKEN);
   if (!token) return;
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showWApp();
       }
     })
-    .catch(() => { /* Token invalid — stay on login screen */ });
+    .catch(() => { /* Token invalid \u2014 stay on login screen */ });
 });
 
 // -- REGISTRATION ---------------------------------------------------------

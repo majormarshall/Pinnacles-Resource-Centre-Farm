@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin â€” Pinnacles Resource Centre Farm</title>
+  <title>Admin â&#x20AC;&#x201D; Pinnacles Resource Centre Farm</title>
   <link rel="icon" type="image/svg+xml" href="/images/receipt-logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -24,7 +24,7 @@
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="login-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required autocomplete="current-password" />
+          <input type="password" id="login-password" placeholder="â&#x20AC;¢â&#x20AC;¢â&#x20AC;¢â&#x20AC;¢â&#x20AC;¢â&#x20AC;¢â&#x20AC;¢â&#x20AC;¢" required autocomplete="current-password" />
         </div>
         <div id="login-error" class="error-msg" style="display:none"></div>
         <button type="submit" class="btn-primary full-width" id="login-btn">Sign In</button>
@@ -45,14 +45,14 @@
         </div>
       </div>
       <nav class="sidebar-nav">
-        <a href="#" class="nav-item" onclick="showTab('overview', this)">ðŸ“Š Overview</a>
-        <a href="#" class="nav-item" onclick="showTab('orders', this)">ðŸ›’ Orders <span class="nav-badge" id="pending-badge">0</span></a>
-        <a href="#" class="nav-item" onclick="showTab('products', this)">ðŸŒ¿ Products</a>
-        <a href="#" class="nav-item" onclick="showTab('harvest', this); loadHarvestAdmin()">ðŸŒ± Today's Harvest</a>
+        <a href="#" class="nav-item" onclick="showTab('overview', this)">ð&#x178;&#x201C;&#x160; Overview</a>
+        <a href="#" class="nav-item" onclick="showTab('orders', this)">ð&#x178;&#x203A;&#x2019; Orders <span class="nav-badge" id="pending-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('products', this)">ð&#x178;&#x152;¿ Products</a>
+        <a href="#" class="nav-item" onclick="showTab('harvest', this); loadHarvestAdmin()">ð&#x178;&#x152;± Today's Harvest</a>
         <a href="#" class="nav-item" onclick="showTab('preorders', this); loadPreorders()">â³ Pre-orders <span class="nav-badge" id="preorder-badge">0</span></a>
-        <a href="#" class="nav-item" onclick="showTab('gallery', this)">ðŸ–¼ï¸ Gallery</a>
-        <a href="#" class="nav-item" onclick="showTab('messages', this)">ðŸ’¬ Messages <span class="nav-badge" id="msg-badge">0</span></a>
-        <a href="#" class="nav-item" onclick="showTab('settings', this)">âš™ï¸ Settings</a>
+        <a href="#" class="nav-item" onclick="showTab('gallery', this)">ð&#x178;&#x2013;¼ï¸ Gallery</a>
+        <a href="#" class="nav-item" onclick="showTab('messages', this)">ð&#x178;&#x2019;¬ Messages <span class="nav-badge" id="msg-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('settings', this)">â&#x161;&#x2122;ï¸ Settings</a>
       </nav>
       <div class="sidebar-footer">
         <span id="admin-name-display">admin</span>
@@ -67,7 +67,7 @@
       <div class="topbar">
         <div class="topbar-title" id="topbar-title">Dashboard Overview</div>
         <div class="topbar-right">
-          <a href="/" target="_blank" class="view-site-btn">ðŸŒ View Site</a>
+          <a href="/" target="_blank" class="view-site-btn">ð&#x178;&#x152; View Site</a>
           <div class="admin-avatar">A</div>
         </div>
       </div>
@@ -84,23 +84,23 @@
               <option value="ready">Ready</option>
               <option value="cancelled">Cancelled</option>
             </select>
-            <button onclick="loadPreorders()" class="btn-secondary" style="padding:8px 16px;font-size:.85rem">ðŸ”„ Refresh</button>
+            <button onclick="loadPreorders()" class="btn-secondary" style="padding:8px 16px;font-size:.85rem">ð&#x178;&#x201D;&#x201E; Refresh</button>
           </div>
         </div>
 
         <!-- Product preorder toggle -->
         <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px">
-          <h3 style="font-size:.95rem;font-weight:700;color:var(--text-primary);margin-bottom:16px">ðŸ”§ Enable Pre-order on Products</h3>
+          <h3 style="font-size:.95rem;font-weight:700;color:var(--text-primary);margin-bottom:16px">ð&#x178;&#x201D;§ Enable Pre-order on Products</h3>
           <div id="preorder-product-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
-            <div style="color:var(--text-muted);font-size:.85rem">Loading productsâ€¦</div>
+            <div style="color:var(--text-muted);font-size:.85rem">Loading productsâ&#x20AC;¦</div>
           </div>
         </div>
 
         <!-- Incoming preorders table -->
         <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;overflow:hidden">
-          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;color:var(--text-primary)">ðŸ“‹ Customer Pre-order Requests</div>
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;color:var(--text-primary)">ð&#x178;&#x201C;&#x2039; Customer Pre-order Requests</div>
           <div id="preorders-list" style="padding:16px 20px">
-            <div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:40px 0">Loading pre-ordersâ€¦</div>
+            <div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:40px 0">Loading pre-ordersâ&#x20AC;¦</div>
           </div>
         </div>
       </section>
@@ -109,7 +109,7 @@
       <section id="tab-overview" class="tab-content active">
         <div class="stats-grid">
           <div class="stat-card green">
-            <div class="stat-icon">ðŸ›’</div>
+            <div class="stat-icon">ð&#x178;&#x203A;&#x2019;</div>
             <div class="stat-info">
               <span class="stat-value" id="stat-total-orders">0</span>
               <span class="stat-label">Total Orders</span>
@@ -123,14 +123,14 @@
             </div>
           </div>
           <div class="stat-card blue">
-            <div class="stat-icon">ðŸ’°</div>
+            <div class="stat-icon">ð&#x178;&#x2019;°</div>
             <div class="stat-info">
-              <span class="stat-value" id="stat-revenue">â‚¦0</span>
+              <span class="stat-value" id="stat-revenue">â&#x201A;¦0</span>
               <span class="stat-label">Total Revenue</span>
             </div>
           </div>
           <div class="stat-card red">
-            <div class="stat-icon">ðŸ’¬</div>
+            <div class="stat-icon">ð&#x178;&#x2019;¬</div>
             <div class="stat-info">
               <span class="stat-value" id="stat-msgs">0</span>
               <span class="stat-label">Unread Messages</span>
@@ -140,11 +140,11 @@
 
         <div class="overview-grid">
           <div class="card">
-            <div class="card-header"><h3>Recent Orders</h3><button class="link-btn" onclick="showTab('orders', document.querySelector('[onclick*=orders]'))">View All â†’</button></div>
+            <div class="card-header"><h3>Recent Orders</h3><button class="link-btn" onclick="showTab('orders', document.querySelector('[onclick*=orders]'))">View All â&#x2020;&#x2019;</button></div>
             <div id="recent-orders-list"></div>
           </div>
           <div class="card">
-            <div class="card-header"><h3>Recent Messages</h3><button class="link-btn" onclick="showTab('messages', document.querySelector('[onclick*=messages]'))">View All â†’</button></div>
+            <div class="card-header"><h3>Recent Messages</h3><button class="link-btn" onclick="showTab('messages', document.querySelector('[onclick*=messages]'))">View All â&#x2020;&#x2019;</button></div>
             <div id="recent-messages-list"></div>
           </div>
         </div>
@@ -163,9 +163,9 @@
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
-          <button class="btn-primary" onclick="loadOrders()">ðŸ”„ Refresh</button>
-          <button class="btn-success" onclick="openWalkinModal()">âž• Add Walk-in Order</button>
-          <button class="btn-outline" onclick="openReportModal()">ðŸ“Š Monthly Report</button>
+          <button class="btn-primary" onclick="loadOrders()">ð&#x178;&#x201D;&#x201E; Refresh</button>
+          <button class="btn-success" onclick="openWalkinModal()">â&#x17E;&#x2022; Add Walk-in Order</button>
+          <button class="btn-outline" onclick="openReportModal()">ð&#x178;&#x201C;&#x160; Monthly Report</button>
         </div>
         <div id="orders-list" class="list-container"></div>
       </section>
@@ -174,7 +174,7 @@
       <section id="tab-products" class="tab-content">
         <div class="tab-toolbar">
           <button class="btn-primary" onclick="openProductModal()">+ Add Product</button>
-          <button class="btn-outline" onclick="loadProducts()">ðŸ”„ Refresh</button>
+          <button class="btn-outline" onclick="loadProducts()">ð&#x178;&#x201D;&#x201E; Refresh</button>
         </div>
         <div id="products-admin-grid" class="admin-products-grid"></div>
       </section>
@@ -182,7 +182,7 @@
       <!-- MESSAGES TAB -->
       <section id="tab-messages" class="tab-content">
         <div class="tab-toolbar">
-          <button class="btn-outline" onclick="loadMessages()">ðŸ”„ Refresh</button>
+          <button class="btn-outline" onclick="loadMessages()">ð&#x178;&#x201D;&#x201E; Refresh</button>
         </div>
         <div id="messages-list" class="list-container"></div>
       </section>
@@ -191,7 +191,7 @@
       <section id="tab-gallery" class="tab-content">
         <div class="tab-toolbar">
           <button class="btn-primary" onclick="openGalleryModal()">+ Add Photo</button>
-          <button class="btn-outline" onclick="loadGallery()">ðŸ”„ Refresh</button>
+          <button class="btn-outline" onclick="loadGallery()">ð&#x178;&#x201D;&#x201E; Refresh</button>
         </div>
         <p style="color:var(--text-muted);font-size:.84rem;margin-bottom:20px;">
           Upload photos that appear in the <strong>Farm Gallery</strong> section of the website.
@@ -204,15 +204,15 @@
       <section id="tab-settings" class="tab-content">
         <div class="settings-grid">
           <div class="card">
-            <div class="card-header"><h3>âš™ï¸ Farm Info</h3></div>
+            <div class="card-header"><h3>â&#x161;&#x2122;ï¸ Farm Info</h3></div>
             <div class="settings-info">
               <div class="info-row"><span>WhatsApp</span><strong>+234 903 750 5632</strong></div>
               <div class="info-row"><span>Email</span><strong>agribusiness@pinnaclescentre.com</strong></div>
             </div>
-            <a href="https://wa.me/2349037505632" target="_blank" class="btn-primary mt-12">ðŸ’¬ Open WhatsApp</a>
+            <a href="https://wa.me/2349037505632" target="_blank" class="btn-primary mt-12">ð&#x178;&#x2019;¬ Open WhatsApp</a>
           </div>
           <div class="card">
-            <div class="card-header"><h3>ðŸ” Change Password</h3></div>
+            <div class="card-header"><h3>ð&#x178;&#x201D; Change Password</h3></div>
             <form onsubmit="changePassword(event)">
               <div class="form-group"><label>Current Password</label><input type="password" id="cp-current" required /></div>
               <div class="form-group"><label>New Password</label><input type="password" id="cp-new" required /></div>
@@ -221,9 +221,9 @@
             </form>
           </div>
           <div class="card">
-            <div class="card-header"><h3>ðŸ“¢ Generate WhatsApp Advert</h3></div>
+            <div class="card-header"><h3>ð&#x178;&#x201C;¢ Generate WhatsApp Advert</h3></div>
             <p class="card-desc">Generate a promotional message to share on WhatsApp.</p>
-            <button class="btn-primary" onclick="generateAdvert()">ðŸ“¢ Generate Advert</button>
+            <button class="btn-primary" onclick="generateAdvert()">ð&#x178;&#x201C;¢ Generate Advert</button>
             <div id="advert-output" class="advert-box" style="display:none"></div>
           </div>
         </div>
@@ -232,9 +232,9 @@
     
   <div id="tab-harvest" class="tab-content">
     <div style="margin-bottom:20px">
-      <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-bottom:8px">ðŸŒ± Today's Harvest</h2>
+      <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-bottom:8px">ð&#x178;&#x152;± Today's Harvest</h2>
       <p style="color:var(--text-muted);font-size:.88rem;line-height:1.6">Toggle products that were harvested today. They will appear in the live green banner on the customer website.</p>
-      <button class="btn-secondary" onclick="clearTodaysHarvest()" style="margin-top:12px">ðŸ—‘ï¸ Clear All Today's Harvest</button>
+      <button class="btn-secondary" onclick="clearTodaysHarvest()" style="margin-top:12px">ð&#x178;&#x2014;&#x2018;ï¸ Clear All Today's Harvest</button>
     </div>
     <div id="harvest-admin-list" style="display:flex;flex-direction:column;gap:12px;max-width:600px"></div>
   </div>
@@ -247,14 +247,14 @@
   <div class="modal" id="prod-modal">
     <div class="modal-header">
       <h3 id="prod-modal-title">Add Product</h3>
-      <button onclick="closeProductModal()" class="modal-close">âœ•</button>
+      <button onclick="closeProductModal()" class="modal-close">â&#x153;&#x2022;</button>
     </div>
     <form id="product-form" onsubmit="saveProduct(event)">
       <input type="hidden" id="prod-id" />
       <input type="hidden" id="prod-existing-img" />
       <div class="form-row">
         <div class="form-group"><label>Product Name *</label><input type="text" id="prod-name" required /></div>
-        <div class="form-group"><label>Emoji (fallback)</label><input type="text" id="prod-emoji" placeholder="ðŸŒ¿" maxlength="4" /></div>
+        <div class="form-group"><label>Emoji (fallback)</label><input type="text" id="prod-emoji" placeholder="ð&#x178;&#x152;¿" maxlength="4" /></div>
       </div>
       <!-- Product Image Upload -->
       <div class="form-group">
@@ -262,18 +262,18 @@
         <div id="img-upload-area" onclick="document.getElementById('prod-img-file').click()" style="border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;" onmouseenter="this.style.borderColor='var(--green-light)'" onmouseleave="this.style.borderColor='var(--border)'">
           <div id="img-preview-wrap" style="display:none;position:relative;">
             <img id="img-preview" src="" alt="Preview" style="max-height:140px;border-radius:8px;object-fit:cover;width:100%;" />
-            <button type="button" onclick="event.stopPropagation();clearImage()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">âœ•</button>
+            <button type="button" onclick="event.stopPropagation();clearImage()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">â&#x153;&#x2022;</button>
           </div>
           <div id="img-placeholder" style="color:var(--text-muted);font-size:.9rem;">
-            <div style="font-size:2rem;margin-bottom:6px;">ðŸ“·</div>
+            <div style="font-size:2rem;margin-bottom:6px;">ð&#x178;&#x201C;·</div>
             <div>Click to upload a photo</div>
-            <div style="font-size:.78rem;margin-top:4px;">JPG, PNG, WEBP â€” max 5 MB</div>
+            <div style="font-size:.78rem;margin-top:4px;">JPG, PNG, WEBP â&#x20AC;&#x201D; max 5 MB</div>
           </div>
         </div>
         <input type="file" id="prod-img-file" accept="image/*" style="display:none" onchange="previewImage(this)" />
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Price (â‚¦) *</label><input type="number" id="prod-price" required min="0" /></div>
+        <div class="form-group"><label>Price (â&#x201A;¦) *</label><input type="number" id="prod-price" required min="0" /></div>
         <div class="form-group"><label>Unit</label><input type="text" id="prod-unit" placeholder="per kg" /></div>
       </div>
       <div class="form-row">
@@ -305,7 +305,7 @@
   <!-- ORDER DETAIL MODAL -->
   <div class="modal-overlay" id="order-modal-overlay" onclick="closeOrderModal()"></div>
   <div class="modal" id="order-modal">
-    <div class="modal-header"><h3>Order Details</h3><button onclick="closeOrderModal()" class="modal-close">âœ•</button></div>
+    <div class="modal-header"><h3>Order Details</h3><button onclick="closeOrderModal()" class="modal-close">â&#x153;&#x2022;</button></div>
     <div id="order-modal-content"></div>
   </div>
 
@@ -314,7 +314,7 @@
   <div class="modal" id="gallery-modal">
     <div class="modal-header">
       <h3 id="gallery-modal-title">Add Gallery Photo</h3>
-      <button onclick="closeGalleryModal()" class="modal-close">âœ•</button>
+      <button onclick="closeGalleryModal()" class="modal-close">â&#x153;&#x2022;</button>
     </div>
     <form id="gallery-form" onsubmit="saveGalleryItem(event)">
       <input type="hidden" id="gallery-item-id" />
@@ -330,12 +330,12 @@
             <img id="gal-preview" src="" alt="Preview"
                  style="max-height:160px;border-radius:8px;object-fit:cover;width:100%;" />
             <button type="button" onclick="event.stopPropagation();clearGalleryImage()"
-                    style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:.9rem;cursor:pointer;">âœ•</button>
+                    style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:.9rem;cursor:pointer;">â&#x153;&#x2022;</button>
           </div>
           <div id="gal-placeholder" style="color:var(--text-muted);font-size:.9rem;">
-            <div style="font-size:2rem;margin-bottom:6px;">ðŸ–¼ï¸</div>
+            <div style="font-size:2rem;margin-bottom:6px;">ð&#x178;&#x2013;¼ï¸</div>
             <div>Click to upload a farm photo</div>
-            <div style="font-size:.78rem;margin-top:4px;">JPG, PNG, WEBP â€” max 5 MB</div>
+            <div style="font-size:.78rem;margin-top:4px;">JPG, PNG, WEBP â&#x20AC;&#x201D; max 5 MB</div>
           </div>
         </div>
         <input type="file" id="gal-img-file" accept="image/*" style="display:none"
@@ -353,7 +353,7 @@
       <div class="form-group checkbox-group">
         <label>
           <input type="checkbox" id="gal-wide" />
-          Wide image (spans full gallery width â€” best for landscape/hero shots)
+          Wide image (spans full gallery width â&#x20AC;&#x201D; best for landscape/hero shots)
         </label>
       </div>
 
@@ -368,8 +368,8 @@
   <div class="modal-overlay" id="receipt-modal-overlay" onclick="closeReceiptModal()"></div>
   <div class="modal" id="receipt-modal" style="max-width:520px;">
     <div class="modal-header">
-      <h3>ðŸ“„ Order Receipt</h3>
-      <button onclick="closeReceiptModal()" class="modal-close">âœ•</button>
+      <h3>ð&#x178;&#x201C;&#x201E; Order Receipt</h3>
+      <button onclick="closeReceiptModal()" class="modal-close">â&#x153;&#x2022;</button>
     </div>
     <div style="padding:20px 24px;">
       <!-- Order summary shown inside modal -->
@@ -379,15 +379,15 @@
       <div style="display:flex;flex-direction:column;gap:10px;">
         <a id="receipt-download-btn" href="#" target="_blank"
            style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;padding:13px 20px;border-radius:50px;font-weight:700;font-size:.92rem;text-decoration:none;text-align:center;">
-          â¬‡ï¸ Download / Print Receipt (PDF)
+          â¬&#x2021;ï¸ Download / Print Receipt (PDF)
         </a>
         <button id="receipt-wa-btn" onclick="sendReceiptWhatsApp()"
            style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.4);color:#25D366;padding:13px 20px;border-radius:50px;font-weight:700;font-size:.92rem;cursor:pointer;width:100%;">
-          ðŸ“² Send PDF Receipt via WhatsApp
+          ð&#x178;&#x201C;² Send PDF Receipt via WhatsApp
         </button>
         <!-- Email section -->
         <div style="border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
-          <div style="font-size:.75rem;font-weight:700;color:var(--green-light);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;">ðŸ“§ Email Receipt to Customer</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--green-light);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;">ð&#x178;&#x201C;§ Email Receipt to Customer</div>
           <div style="display:flex;gap:8px;">
             <input type="email" id="receipt-email-input" placeholder="customer@email.com"
               style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:50px;padding:9px 16px;color:var(--text);font-family:inherit;font-size:.85rem;outline:none;" />
@@ -399,7 +399,7 @@
         <!-- Copy link -->
         <button onclick="copyReceiptLink()"
           style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:10px 20px;border-radius:50px;font-size:.82rem;cursor:pointer;font-family:inherit;">
-          ðŸ”— Copy Receipt Link (share with customer)
+          ð&#x178;&#x201D;&#x2014; Copy Receipt Link (share with customer)
         </button>
       </div>
     </div>
@@ -407,12 +407,12 @@
 
   <script src="js/admin.js"></script>
 
-<!-- â”€â”€ WALK-IN ORDER MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<!-- â&#x201D;&#x20AC;â&#x201D;&#x20AC; WALK-IN ORDER MODAL â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC; -->
 <div id="walkin-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeWalkinModal()">
   <div class="modal-box" style="max-width:530px">
     <div class="modal-header">
-      <h3>âž• Add Walk-in / Farm Order</h3>
-      <button class="modal-close" onclick="closeWalkinModal()">âœ•</button>
+      <h3>â&#x17E;&#x2022; Add Walk-in / Farm Order</h3>
+      <button class="modal-close" onclick="closeWalkinModal()">â&#x153;&#x2022;</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
@@ -424,68 +424,68 @@
         <div style="display:flex;gap:8px">
           <select id="wi-code" class="form-input" style="width:145px">
             <optgroup label="Popular">
-              <option value="+234">ðŸ‡³ðŸ‡¬ +234 Nigeria</option>
-              <option value="+233">ðŸ‡¬ðŸ‡­ +233 Ghana</option>
-              <option value="+27">ðŸ‡¿ðŸ‡¦ +27  S. Africa</option>
-              <option value="+254">ðŸ‡°ðŸ‡ª +254 Kenya</option>
-              <option value="+44">ðŸ‡¬ðŸ‡§ +44  UK</option>
-              <option value="+1">ðŸ‡ºðŸ‡¸ +1   USA / Canada</option>
+              <option value="+234">ð&#x178;&#x2021;³ð&#x178;&#x2021;¬ +234 Nigeria</option>
+              <option value="+233">ð&#x178;&#x2021;¬ð&#x178;&#x2021;­ +233 Ghana</option>
+              <option value="+27">ð&#x178;&#x2021;¿ð&#x178;&#x2021;¦ +27  S. Africa</option>
+              <option value="+254">ð&#x178;&#x2021;°ð&#x178;&#x2021;ª +254 Kenya</option>
+              <option value="+44">ð&#x178;&#x2021;¬ð&#x178;&#x2021;§ +44  UK</option>
+              <option value="+1">ð&#x178;&#x2021;ºð&#x178;&#x2021;¸ +1   USA / Canada</option>
             </optgroup>
             <optgroup label="Africa">
-              <option value="+20">ðŸ‡ªðŸ‡¬ +20  Egypt</option>
-              <option value="+212">ðŸ‡²ðŸ‡¦ +212 Morocco</option>
-              <option value="+213">ðŸ‡©ðŸ‡¿ +213 Algeria</option>
-              <option value="+216">ðŸ‡¹ðŸ‡³ +216 Tunisia</option>
-              <option value="+218">ðŸ‡±ðŸ‡¾ +218 Libya</option>
-              <option value="+221">ðŸ‡¸ðŸ‡³ +221 Senegal</option>
-              <option value="+225">ðŸ‡¨ðŸ‡® +225 Ivory Coast</option>
-              <option value="+226">ðŸ‡§ðŸ‡« +226 Burkina Faso</option>
-              <option value="+227">ðŸ‡³ðŸ‡ª +227 Niger</option>
-              <option value="+228">ðŸ‡¹ðŸ‡¬ +228 Togo</option>
-              <option value="+229">ðŸ‡§ðŸ‡¯ +229 Benin</option>
-              <option value="+237">ðŸ‡¨ðŸ‡² +237 Cameroon</option>
-              <option value="+243">ðŸ‡¨ðŸ‡© +243 DR Congo</option>
-              <option value="+244">ðŸ‡¦ðŸ‡´ +244 Angola</option>
-              <option value="+249">ðŸ‡¸ðŸ‡© +249 Sudan</option>
-              <option value="+250">ðŸ‡·ðŸ‡¼ +250 Rwanda</option>
-              <option value="+251">ðŸ‡ªðŸ‡¹ +251 Ethiopia</option>
-              <option value="+255">ðŸ‡¹ðŸ‡¿ +255 Tanzania</option>
-              <option value="+256">ðŸ‡ºðŸ‡¬ +256 Uganda</option>
-              <option value="+260">ðŸ‡¿ðŸ‡² +260 Zambia</option>
-              <option value="+263">ðŸ‡¿ðŸ‡¼ +263 Zimbabwe</option>
+              <option value="+20">ð&#x178;&#x2021;ªð&#x178;&#x2021;¬ +20  Egypt</option>
+              <option value="+212">ð&#x178;&#x2021;²ð&#x178;&#x2021;¦ +212 Morocco</option>
+              <option value="+213">ð&#x178;&#x2021;©ð&#x178;&#x2021;¿ +213 Algeria</option>
+              <option value="+216">ð&#x178;&#x2021;¹ð&#x178;&#x2021;³ +216 Tunisia</option>
+              <option value="+218">ð&#x178;&#x2021;±ð&#x178;&#x2021;¾ +218 Libya</option>
+              <option value="+221">ð&#x178;&#x2021;¸ð&#x178;&#x2021;³ +221 Senegal</option>
+              <option value="+225">ð&#x178;&#x2021;¨ð&#x178;&#x2021;® +225 Ivory Coast</option>
+              <option value="+226">ð&#x178;&#x2021;§ð&#x178;&#x2021;« +226 Burkina Faso</option>
+              <option value="+227">ð&#x178;&#x2021;³ð&#x178;&#x2021;ª +227 Niger</option>
+              <option value="+228">ð&#x178;&#x2021;¹ð&#x178;&#x2021;¬ +228 Togo</option>
+              <option value="+229">ð&#x178;&#x2021;§ð&#x178;&#x2021;¯ +229 Benin</option>
+              <option value="+237">ð&#x178;&#x2021;¨ð&#x178;&#x2021;² +237 Cameroon</option>
+              <option value="+243">ð&#x178;&#x2021;¨ð&#x178;&#x2021;© +243 DR Congo</option>
+              <option value="+244">ð&#x178;&#x2021;¦ð&#x178;&#x2021;´ +244 Angola</option>
+              <option value="+249">ð&#x178;&#x2021;¸ð&#x178;&#x2021;© +249 Sudan</option>
+              <option value="+250">ð&#x178;&#x2021;·ð&#x178;&#x2021;¼ +250 Rwanda</option>
+              <option value="+251">ð&#x178;&#x2021;ªð&#x178;&#x2021;¹ +251 Ethiopia</option>
+              <option value="+255">ð&#x178;&#x2021;¹ð&#x178;&#x2021;¿ +255 Tanzania</option>
+              <option value="+256">ð&#x178;&#x2021;ºð&#x178;&#x2021;¬ +256 Uganda</option>
+              <option value="+260">ð&#x178;&#x2021;¿ð&#x178;&#x2021;² +260 Zambia</option>
+              <option value="+263">ð&#x178;&#x2021;¿ð&#x178;&#x2021;¼ +263 Zimbabwe</option>
             </optgroup>
             <optgroup label="Europe">
-              <option value="+33">ðŸ‡«ðŸ‡· +33  France</option>
-              <option value="+49">ðŸ‡©ðŸ‡ª +49  Germany</option>
-              <option value="+39">ðŸ‡®ðŸ‡¹ +39  Italy</option>
-              <option value="+34">ðŸ‡ªðŸ‡¸ +34  Spain</option>
-              <option value="+31">ðŸ‡³ðŸ‡± +31  Netherlands</option>
-              <option value="+32">ðŸ‡§ðŸ‡ª +32  Belgium</option>
-              <option value="+353">ðŸ‡®ðŸ‡ª +353 Ireland</option>
-              <option value="+46">ðŸ‡¸ðŸ‡ª +46  Sweden</option>
-              <option value="+47">ðŸ‡³ðŸ‡´ +47  Norway</option>
-              <option value="+45">ðŸ‡©ðŸ‡° +45  Denmark</option>
-              <option value="+41">ðŸ‡¨ðŸ‡­ +41  Switzerland</option>
-              <option value="+7">ðŸ‡·ðŸ‡º +7   Russia</option>
+              <option value="+33">ð&#x178;&#x2021;«ð&#x178;&#x2021;· +33  France</option>
+              <option value="+49">ð&#x178;&#x2021;©ð&#x178;&#x2021;ª +49  Germany</option>
+              <option value="+39">ð&#x178;&#x2021;®ð&#x178;&#x2021;¹ +39  Italy</option>
+              <option value="+34">ð&#x178;&#x2021;ªð&#x178;&#x2021;¸ +34  Spain</option>
+              <option value="+31">ð&#x178;&#x2021;³ð&#x178;&#x2021;± +31  Netherlands</option>
+              <option value="+32">ð&#x178;&#x2021;§ð&#x178;&#x2021;ª +32  Belgium</option>
+              <option value="+353">ð&#x178;&#x2021;®ð&#x178;&#x2021;ª +353 Ireland</option>
+              <option value="+46">ð&#x178;&#x2021;¸ð&#x178;&#x2021;ª +46  Sweden</option>
+              <option value="+47">ð&#x178;&#x2021;³ð&#x178;&#x2021;´ +47  Norway</option>
+              <option value="+45">ð&#x178;&#x2021;©ð&#x178;&#x2021;° +45  Denmark</option>
+              <option value="+41">ð&#x178;&#x2021;¨ð&#x178;&#x2021;­ +41  Switzerland</option>
+              <option value="+7">ð&#x178;&#x2021;·ð&#x178;&#x2021;º +7   Russia</option>
             </optgroup>
             <optgroup label="Americas">
-              <option value="+55">ðŸ‡§ðŸ‡· +55  Brazil</option>
-              <option value="+52">ðŸ‡²ðŸ‡½ +52  Mexico</option>
-              <option value="+54">ðŸ‡¦ðŸ‡· +54  Argentina</option>
-              <option value="+57">ðŸ‡¨ðŸ‡´ +57  Colombia</option>
-              <option value="+58">ðŸ‡»ðŸ‡ª +58  Venezuela</option>
+              <option value="+55">ð&#x178;&#x2021;§ð&#x178;&#x2021;· +55  Brazil</option>
+              <option value="+52">ð&#x178;&#x2021;²ð&#x178;&#x2021;½ +52  Mexico</option>
+              <option value="+54">ð&#x178;&#x2021;¦ð&#x178;&#x2021;· +54  Argentina</option>
+              <option value="+57">ð&#x178;&#x2021;¨ð&#x178;&#x2021;´ +57  Colombia</option>
+              <option value="+58">ð&#x178;&#x2021;»ð&#x178;&#x2021;ª +58  Venezuela</option>
             </optgroup>
             <optgroup label="Asia &amp; Middle East">
-              <option value="+91">ðŸ‡®ðŸ‡³ +91  India</option>
-              <option value="+86">ðŸ‡¨ðŸ‡³ +86  China</option>
-              <option value="+81">ðŸ‡¯ðŸ‡µ +81  Japan</option>
-              <option value="+82">ðŸ‡°ðŸ‡· +82  South Korea</option>
-              <option value="+966">ðŸ‡¸ðŸ‡¦ +966 Saudi Arabia</option>
-              <option value="+971">ðŸ‡¦ðŸ‡ª +971 UAE</option>
-              <option value="+974">ðŸ‡¶ðŸ‡¦ +974 Qatar</option>
-              <option value="+965">ðŸ‡°ðŸ‡¼ +965 Kuwait</option>
-              <option value="+92">ðŸ‡µðŸ‡° +92  Pakistan</option>
-              <option value="+880">ðŸ‡§ðŸ‡© +880 Bangladesh</option>
+              <option value="+91">ð&#x178;&#x2021;®ð&#x178;&#x2021;³ +91  India</option>
+              <option value="+86">ð&#x178;&#x2021;¨ð&#x178;&#x2021;³ +86  China</option>
+              <option value="+81">ð&#x178;&#x2021;¯ð&#x178;&#x2021;µ +81  Japan</option>
+              <option value="+82">ð&#x178;&#x2021;°ð&#x178;&#x2021;· +82  South Korea</option>
+              <option value="+966">ð&#x178;&#x2021;¸ð&#x178;&#x2021;¦ +966 Saudi Arabia</option>
+              <option value="+971">ð&#x178;&#x2021;¦ð&#x178;&#x2021;ª +971 UAE</option>
+              <option value="+974">ð&#x178;&#x2021;¶ð&#x178;&#x2021;¦ +974 Qatar</option>
+              <option value="+965">ð&#x178;&#x2021;°ð&#x178;&#x2021;¼ +965 Kuwait</option>
+              <option value="+92">ð&#x178;&#x2021;µð&#x178;&#x2021;° +92  Pakistan</option>
+              <option value="+880">ð&#x178;&#x2021;§ð&#x178;&#x2021;© +880 Bangladesh</option>
             </optgroup>
           </select>
           <input type="tel" id="wi-phone" class="form-input" placeholder="Phone number" style="flex:1">
@@ -494,9 +494,9 @@
       <div class="form-group">
         <label>Payment Method</label>
         <select id="wi-payment" class="form-input">
-          <option value="cash">ðŸ’µ Cash</option>
-          <option value="pos">ðŸ’³ POS / Card</option>
-          <option value="transfer">ðŸ¦ Bank Transfer</option>
+          <option value="cash">ð&#x178;&#x2019;µ Cash</option>
+          <option value="pos">ð&#x178;&#x2019;³ POS / Card</option>
+          <option value="transfer">ð&#x178;¦ Bank Transfer</option>
         </select>
       </div>
       <div class="form-group">
@@ -513,7 +513,7 @@
       </div>
       <div class="form-group">
         <label>Notes (optional)</label>
-        <textarea id="wi-notes" class="form-input" rows="2" placeholder="Delivery instructions, special requestsâ€¦"></textarea>
+        <textarea id="wi-notes" class="form-input" rows="2" placeholder="Delivery instructions, special requestsâ&#x20AC;¦"></textarea>
       </div>
       <div style="background:#f0faf4;padding:12px 16px;border-radius:8px;margin-top:4px">
         <strong style="color:#1b4332">Total: NGN <span id="wi-total-display">0</span></strong>
@@ -521,17 +521,17 @@
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeWalkinModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveWalkinOrder()">ðŸ’¾ Save Order &amp; Generate Receipt</button>
+      <button class="btn-primary" onclick="saveWalkinOrder()">ð&#x178;&#x2019;¾ Save Order &amp; Generate Receipt</button>
     </div>
   </div>
 </div>
 
-<!-- â”€â”€ MONTHLY REPORT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<!-- â&#x201D;&#x20AC;â&#x201D;&#x20AC; MONTHLY REPORT MODAL â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC;â&#x201D;&#x20AC; -->
 <div id="report-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeReportModal()">
   <div class="modal-box" style="max-width:380px">
     <div class="modal-header">
-      <h3>ðŸ“Š Monthly Sales Report</h3>
-      <button class="modal-close" onclick="closeReportModal()">âœ•</button>
+      <h3>ð&#x178;&#x201C;&#x160; Monthly Sales Report</h3>
+      <button class="modal-close" onclick="closeReportModal()">â&#x153;&#x2022;</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
@@ -555,7 +555,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeReportModal()">Cancel</button>
-      <button class="btn-primary" onclick="downloadReport()">â¬‡ï¸ Download Excel</button>
+      <button class="btn-primary" onclick="downloadReport()">â¬&#x2021;ï¸ Download Excel</button>
     </div>
   </div>
 </div>
