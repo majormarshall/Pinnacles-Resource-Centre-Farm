@@ -950,7 +950,7 @@ async function approveWorker(id, btn) {
       method: 'PATCH',
       headers: { Authorization: 'Bearer ' + localStorage.getItem('pinnacles_admin_token') }
     });
-    if (!res.ok) throw new Error('Failed');
+    if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Failed'); }
     showFoToast('Worker approved! They can now log in. ?');
     loadPendingWorkers();
   } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '\u2705 Approve'; btn.disabled = false; }
@@ -964,7 +964,7 @@ async function rejectWorker(id, btn) {
       method: 'PATCH',
       headers: { Authorization: 'Bearer ' + localStorage.getItem('pinnacles_admin_token') }
     });
-    if (!res.ok) throw new Error('Failed');
+    if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Failed'); }
     showFoToast('Registration rejected.');
     loadPendingWorkers();
   } catch(e) { showFoToast('Error: ' + e.message, true); btn.textContent = '\u2716 Reject'; btn.disabled = false; }
