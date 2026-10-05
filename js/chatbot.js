@@ -272,9 +272,84 @@ const ChatBot = (() => {
     }
   }
 
-  // \u2500\u2500 Handle a user message \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-  async 
-// \u2500\u2500 Harvest AI backend call \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  // ── Handle a user message ──────────────────────────────────
+  async function handleUserMessage(text) {
+    if (!text.trim()) return;
+
+    // Show user bubble
+    await addBubble(text, 'user');
+
+    // Disable input briefly
+    const input = el('chat-input');
+    if (input) input.disabled = true;
+
+    // Typing animation
+    const typingDelay = 600 + Math.random() * 400;
+    await addTyping(typingDelay);
+
+    const intent = matchIntent(text);
+
+    if (intent && intent.type === 'product_search') {
+      const p = intent.product;
+      await addBubble(`Great choice! Here's **${p.name}** 🌿`, 'bot');
+      await addProductCard(p, 100);
+      await addChips(['🛒 Browse All','💰 View Prices','💬 WhatsApp Us'], 300);
+    } else if (intent) {
+      const replyText = typeof intent.reply === 'function' ? intent.reply() : intent.reply;
+      await addBubble(replyText, 'bot');
+
+      // Handle actions
+      if (intent.action === 'showProducts' || text.toLowerCase().includes('view all') || text.toLowerCase().includes('browse')) {
+        await showProductsInChat(products);
+      } else if (intent.action === 'showCategory') {
+        const cat = intent.category;
+        const filtered = products.filter(p => p.category === cat);
+        if (filtered.length) await showProductsInChat(filtered);
+        else await addBubble(`Hmm, we don't have any ${cat} listed right now. Check back soon or message us on WhatsApp!`, 'bot');
+      } else if (intent.tags.includes('contact') || text.toLowerCase().includes('whatsapp')) {
+        // WhatsApp special chip handled below
+      }
+
+      // Chips
+      if (intent.chips) {
+        const chips = typeof intent.chips === 'function' ? intent.chips() : intent.chips;
+        // Replace "💬 WhatsApp Us" chip with actual WhatsApp opener
+        await addChips(chips.filter(c => !c.toLowerCase().includes('whatsapp')), 200);
+        if (chips.some(c => c.toLowerCase().includes('whatsapp'))) {
+          setTimeout(() => {
+            const msgs = el('chat-messages');
+            const wa = document.createElement('button');
+            wa.className = 'chip';
+            wa.style.background = 'rgba(37,211,102,.15)';
+            wa.style.borderColor = 'rgba(37,211,102,.4)';
+            wa.style.color = '#25D366';
+            wa.textContent = '💬 WhatsApp Us';
+            wa.onclick = () => window.open(`https://wa.me/${FARM_WA}?text=${encodeURIComponent('Hello Pinnacles Farm! 🌿 I need help with an order.')}`, '_blank');
+            // Append to last chip group
+            const lastChips = msgs.querySelector('.chat-chips:last-child');
+            if (lastChips) lastChips.appendChild(wa);
+            else {
+              const wrap = document.createElement('div');
+              wrap.className = 'chat-chips';
+              wrap.appendChild(wa);
+              msgs.appendChild(wrap);
+            }
+            scrollDown();
+          }, 300);
+        }
+      }
+    } else {
+      // Fallback
+      await addBubble(`I'm not sure I understand that 🤔 Let me connect you to our team on WhatsApp for a better answer!`, 'bot');
+      await addChips(['🛒 Browse Products','💬 WhatsApp Us','💰 View Prices'], 200);
+    }
+
+    if (input) input.disabled = false;
+    input?.focus();
+    lastIntent = intent;
+  }
+
+//\u2500\u2500 Harvest AI backend call \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function callHarvestAI(userMsg) {
   try {
     const cart = window._cartItems ? [...window._cartItems] : [];
