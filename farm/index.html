@@ -20,7 +20,7 @@
     <input type="text"     id="l-email" placeholder="Username" autocomplete="username" />
     <input type="password" id="l-pass"  placeholder="Password" autocomplete="current-password" />
     <button onclick="doLogin()">Sign In &#x2192;</button>
-    <a href="../admin/" style="display:block;text-align:center;margin-top:16px;color:rgba(255,255,255,.5);font-size:.8rem">&#x2190; Back to E-commerce Admin</a>
+    <a href="../admin/" style="display:block;text-align:center;margin-top:16px;color:rgba(255,255,255,.5);font-size:.8rem">&#x2190; <span class='nav-text'>Back to E-commerce Admin</span></a>
   </div>
 </div>
 
@@ -36,24 +36,24 @@
     </div>
     <div class="fo-user-info" id="fo-user-info"></div>
     <div class="fo-nav">
-      <a href="#" class="fo-nav-item active" onclick="showFoTab('overview',this)">&#x1F4CA; Dashboard</a>
+      <a href="#" class="fo-nav-item active" onclick="showFoTab('overview',this)">&#x1F4CA; <span class='nav-text'>Dashboard</span></a>
       <div class="fo-nav-group">PRODUCTION</div>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('fields',this)">&#x1F5FA;&#xFE0F; Fields & Plots</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('plantings',this)">&#x1F331; Planting Records</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('harvests',this)">&#x1F9FA; Harvest Records</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('sprays',this)">&#x1F4A7; Spraying Log</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('fields',this)">&#x1F5FA;&#xFE0F; <span class='nav-text'>Fields & Plots</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('plantings',this)">&#x1F331; <span class='nav-text'>Planting Records</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('harvests',this)">&#x1F9FA; <span class='nav-text'>Harvest Records</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('sprays',this)">&#x1F4A7; <span class='nav-text'>Spraying Log</span></a>
       <div class="fo-nav-group">RESOURCES</div>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('workers',this)">&#x1F477; Workers</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('attendance',this)">&#x2705; Attendance</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('inputs',this)">&#x1F3EA; Inputs & Supplies</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('equipment',this)">&#x1F69C; Equipment</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('workers',this)">&#x1F477; <span class='nav-text'>Workers</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('attendance',this)">&#x2705; <span class='nav-text'>Attendance</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('inputs',this)">&#x1F3EA; <span class='nav-text'>Inputs & Supplies</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('equipment',this)">&#x1F69C; <span class='nav-text'>Equipment</span></a>
       <div class="fo-nav-group">RECORDS</div>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('crops',this)">&#x1F33E; Crop Varieties</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('diary',this)">&#x1F4D4; Farm Diary</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('payroll',this)">&#x1F4B0; Payroll</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('reports',this)">&#x1F4C8; Reports</a>
-      <a href="#" class="fo-nav-item" onclick="showFoTab('team',this)">&#x1F464; Team / Users</a>
-      <a href="../admin/" class="fo-nav-item" style="margin-top:auto;color:rgba(255,255,255,.4);font-size:.78rem">&#x2190; E-commerce Admin</a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('crops',this)">&#x1F33E; <span class='nav-text'>Crop Varieties</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('diary',this)">&#x1F4D4; <span class='nav-text'>Farm Diary</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('payroll',this)">&#x1F4B0; <span class='nav-text'>Payroll</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('reports',this)">&#x1F4C8; <span class='nav-text'>Reports</span></a>
+      <a href="#" class="fo-nav-item" onclick="showFoTab('team',this)">&#x1F464; <span class='nav-text'>Team / Users</span></a>
+      <a href="../admin/" class="fo-nav-item" style="margin-top:auto;color:rgba(255,255,255,.4);font-size:.78rem">&#x2190; <span class='nav-text'>E-commerce Admin</span></a>
     </div>
     <button class="fo-logout" onclick="doLogout()">&#x1F6AA; Sign Out</button>
   </nav>
@@ -159,7 +159,7 @@
       <!-- Pending registrations -->
       <div id="pending-workers-box" style="display:none;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:16px 20px;margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <h4 style="color:#fbbf24;font-size:.95rem;margin:0">&#x23F3; Pending Worker Registrations <span id="pending-count" style="background:rgba(251,191,36,.3);border-radius:20px;padding:2px 10px;font-size:.8rem;margin-left:6px">0</span></h4>
+          <h4 style="color:#fbbf24;font-size:.95rem;margin:0">&#x23F3; <span class='nav-text'>Pending Worker Registrations </span><span id="pending-count" style="background:rgba(251,191,36,.3);border-radius:20px;padding:2px 10px;font-size:.8rem;margin-left:6px">0</span></h4>
           <button onclick="loadPendingWorkers()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:.8rem;cursor:pointer">&#x1F504; Refresh</button>
         </div>
         <div id="pending-workers-list"></div>

@@ -376,3 +376,18 @@ html, body { height: 100%; font-family: 'Outfit', sans-serif; background: var(--
 .role-farm   { background: rgba(82,183,136,.15);  color: #52b788; }
 .role-worker { background: rgba(251,191,36,.12);  color: #fbbf24; }
 .role-finance{ background: rgba(239,68,68,.12);   color: #f87171; }
+
+/* COLLAPSIBLE SIDEBAR */
+#main-app.sidebar-collapsed .fo-sidebar { width: 74px; }
+.fo-sidebar { transition: width 0.3s ease; overflow-x: hidden; white-space: nowrap; }
+.sidebar-collapsed .fo-brand > div { display: none; }
+.sidebar-collapsed .fo-brand { padding: 20px 10px; justify-content: center; gap: 0; }
+.sidebar-collapsed .fo-brand img { width: 36px !important; height: 36px !important; margin: 0 !important; }
+.sidebar-collapsed .fo-nav-item { padding: 12px; justify-content: center; overflow: hidden; }
+.sidebar-collapsed .fo-nav-item .nav-text { display: none; }
+.sidebar-collapsed .fo-nav-item { font-size: 1.4rem; }
+.sidebar-collapsed .fo-nav-group { font-size: 0; padding: 10px 0; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; letter-spacing: 0; }
+.sidebar-collapsed .fo-logout { padding: 12px 8px; font-size: 0; justify-content: center; }
+.sidebar-collapsed .fo-logout::before { content: '\1F6AA'; font-size: 1.4rem; }
+.sidebar-toggle-btn { background: transparent; border: none; color: rgba(255,255,255,0.6); font-size: 1.5rem; cursor: pointer; margin-right: 16px; display: inline-flex; align-items: center; justify-content: center; }
+.sidebar-toggle-btn:hover { color: #fff; }

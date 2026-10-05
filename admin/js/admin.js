@@ -1140,3 +1140,6 @@ async function updatePreorderStatus(id, status) {
   } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
+
+
+function toggleSidebar() { document.getElementById('dashboard').classList.toggle('sidebar-collapsed'); }

@@ -974,3 +974,6 @@ async function rejectWorker(id, btn) {
 
 // Auto-load pending count on dashboard load
 setTimeout(() => { try { loadPendingWorkers(); } catch(_){} }, 2000);
+
+
+function toggleSidebar() { document.getElementById('fo-dashboard').classList.toggle('sidebar-collapsed'); }
