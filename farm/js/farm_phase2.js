@@ -373,22 +373,24 @@ async function loadTeam() {
 
   el.innerHTML = rows.map(u => `
     <div class="team-member-row">
-      <div class="team-avatar">${roleIcon[u.role] || '\u{1F464}'}</div>
-      <div class="team-info">
-        <div class="team-name">${u.name}</div>
-        <div class="team-email">${u.created_at ? "Joined: " + new Date(u.created_at).toLocaleDateString() : ""}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span class="role-pill ${roleClass[u.role] || 'role-worker'}">${u.role?.replace('_', ' ')}</span>
-        <select onchange="updateUserRole(${u.id}, this.value)" class="fo-select" style="width:150px;font-size:.78rem;padding:5px 8px">
-          <option value="super_admin"   ${u.role==='super_admin'  ?'selected':''}>\u{1F451} super_admin</option>
-          <option value="ecomm_admin"   ${u.role==='ecomm_admin'  ?'selected':''}>\u{1F4E6} ecomm_admin</option>
-          <option value="farm_manager"  ${u.role==='farm_manager' ?'selected':''}>\u{1F33E} farm_manager</option>
-          <option value="farm_worker"   ${u.role==='farm_worker'  ?'selected':''}>\u{1F477} farm_worker</option>
-          <option value="finance"       ${u.role==='finance'      ?'selected':''}>\u{1F4B0} finance</option>
-        </select>
-      </div>
-    </div>`).join('');
+        <div class="team-avatar">${roleIcon[u.role] || '\u{1F464}'}</div>
+        <div class="team-info">
+          <div class="team-name">${u.name}</div>
+          <div class="team-email">${u.created_at ? "Joined: " + new Date(u.created_at).toLocaleDateString() : ""}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="role-pill ${roleClass[u.role] || 'role-worker'}">${u.role?.replace('_', ' ')}</span>
+          <select onchange="updateUserRole(${u.id}, this.value)" class="fo-select" style="width:150px;font-size:.78rem;padding:5px 8px">
+            <option value="super_admin"   ${u.role==='super_admin'  ?'selected':''}>\u{1F451} super_admin</option>
+            <option value="ecomm_admin"   ${u.role==='ecomm_admin'  ?'selected':''}>\u{1F4E6} ecomm_admin</option>
+            <option value="farm_manager"  ${u.role==='farm_manager' ?'selected':''}>\u{1F33E} farm_manager</option>
+            <option value="farm_worker"   ${u.role==='farm_worker'  ?'selected':''}>\u{1F477} farm_worker</option>
+            <option value="finance"       ${u.role==='finance'      ?'selected':''}>\u{1F4B0} finance</option>
+          </select>
+          <button onclick="resetUserPassword(${u.id}, '${u.name}')" style="background:rgba(251,191,36,.15);border:none;color:#fbbf24;padding:6px 12px;border-radius:8px;font-size:.75rem;cursor:pointer;font-weight:600">\u{1F512} Reset Pwd</button>
+          <button onclick="removeUser(${u.id}, '${u.name}')" style="background:rgba(239,68,68,.15);border:none;color:#f87171;padding:6px 12px;border-radius:8px;font-size:.75rem;cursor:pointer;font-weight:600">\u274C Remove</button>
+        </div>
+      </div>`).join('');
 }
 
 async function updateUserRole(id, role) {
@@ -439,6 +441,36 @@ async function createNewUser() {
   const data = await res.json();
   if (!res.ok) { foToast('\u274C ' + (data.error || 'Failed')); return; }
   foToast('\u2705 Team member created!');
+    alert('USER CREATED!\n\nPlease give them this username to log in:\n\n' + data.name);
   closeFoModal();
+  loadTeam();
+}
+
+
+async function resetUserPassword(id, name) {
+  const newPass = prompt('Enter a new password for ' + name + ' (min 6 characters):');
+  if (!newPass) return;
+  if (newPass.length < 6) { foToast('❌ Password too short!'); return; }
+  
+  const token = foToken();
+  const res = await fetch('/api/admin-users/' + id + '/password', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({ password: newPass })
+  });
+  if (!res.ok) { foToast('❌ Failed to reset password'); return; }
+  foToast('✅ Password updated successfully!');
+}
+
+async function removeUser(id, name) {
+  if (!confirm('Are you sure you want to completely remove the user ' + name + '? They will no longer be able to log in.')) return;
+  
+  const token = foToken();
+  const res = await fetch('/api/admin-users/' + id, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  if (!res.ok) { foToast('❌ Failed to remove user'); return; }
+  foToast('✅ User removed!');
   loadTeam();
 }
