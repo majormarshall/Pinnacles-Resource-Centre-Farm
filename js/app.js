@@ -16,8 +16,8 @@ const fallbackProducts = [
   { id:8, name:'Fresh Greens', emoji:'\u{1F96C}', img:null, price:600, unit:'per bunch', description:'Assorted fresh leafy greens including spinach and ugwu.', category:'vegetables', tag:'Daily Harvest', in_stock:1 },
   { id:9, name:'Garden Cucumber', emoji:'\u{1F952}', img:null, price:700, unit:'per pack', description:'Cool crisp cucumbers perfect for salads and juicing.', category:'vegetables', tag:'Fresh', in_stock:1 },
   { id:10, name:'Spring Onions', emoji:'\u{1F9C5}', img:null, price:500, unit:'per bunch', description:'Fresh spring onions with a mild sweet flavour.', category:'vegetables', tag:'Fresh', in_stock:1 },
-  { id:11, name:'Sweet Pepper', emoji:'\u{1F336}\u00EF\u00B8\u008F', img:null, price:900, unit:'per pack', description:'Colourful sweet peppers \u2014 red, yellow and green.', category:'vegetables', tag:'Seasonal', in_stock:1 },
-  { id:12, name:'Farm Honey', emoji:'\u00F0\u0178\u008D\u00AF', img:null, price:4500, unit:'per jar', description:'Pure raw natural honey from our farm bees.', category:'fruits', tag:'Natural', in_stock:1 },
+  { id:11, name:'Sweet Pepper', emoji:'\u{1F336}\uFE0F', img:null, price:900, unit:'per pack', description:'Colourful sweet peppers \u2014 red, yellow and green.', category:'vegetables', tag:'Seasonal', in_stock:1 },
+  { id:12, name:'Farm Honey', emoji:'\u{1F36F}', img:null, price:4500, unit:'per jar', description:'Pure raw natural honey from our farm bees.', category:'fruits', tag:'Natural', in_stock:1 },
 ];
 
 // ===== STATE =====
@@ -406,7 +406,7 @@ function closeOrderModal() {
   if (modal) modal.style.display = 'none';
 }
 
-// \u00E2\u201D\u2500 Online Payment via PayIsland \u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u20AC
+// \u00E2\u201D\u2500 Online Payment via PayIsland \u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u2500
 async function submitOrderOnline() {
   const name  = (document.getElementById('oc-name').value  || '').trim() || 'Customer';
   const phoneCode = (document.getElementById('oc-phone-code') ? document.getElementById('oc-phone-code').value : '+234');
@@ -464,7 +464,7 @@ async function submitOrderOnline() {
   }
 }
 
-// \u00E2\u201D\u2500 Handle PayIsland payment callback (check URL params on load) \u00E2\u201D\u20AC
+// \u00E2\u201D\u2500 Handle PayIsland payment callback (check URL params on load) \u2500
 function checkPaymentReturn() {
   const params = new URLSearchParams(window.location.search);
   const payStatus = params.get('payment');
@@ -586,37 +586,7 @@ function directOrder(id) {
 }
 
 // ===== SHARE =====
-function shareOnWhatsApp() {
-  const msg = `\u{1F33F} *Pinnacles Resource Centre Farm*\n\nGet fresh farm produce delivered to you!\n\n\u{1F345} Tomatoes  \u{1FAD1} Peppers  \u{1F353} Strawberries\n\u{1F33D} Maize  \u{1F955} Carrots  \u{1F95A} Eggs  \u{1FADB} Green Peas\n\n\u{1F4F2} Order directly on WhatsApp!\n#PinnaclesFarm #FreshProduce #FarmToTable`;
-  openWhatsApp(msg);
-}
-
-function copyLink() {
-  navigator.clipboard.writeText(window.location.href).then(() => {
-    const msg = document.getElementById('copy-msg');
-    msg.style.display = 'block';
-    setTimeout(() => msg.style.display = 'none', 3000);
-  });
-}
-
 // ===== GENERATE ADVERT =====
-function generateAdvert() {
-  const advertText = `\u{1F33F} *PINNACLES RESOURCE CENTRE FARM* \u{1F33F}\n\n\u2705 Fresh Farm Produce Available NOW!\n\n\u{1F345} Tomatoes\n\u{1FAD1} Peppers\n\u{1F353} Strawberries\n\u{1F33D} Maize\n\u{1F955} Carrots\n\u{1F95A} Farm Fresh Eggs\n\u{1FADB} Green Peas\n\u{1F96C} And Much More!\n\n\u{1F4AF} 100% Organically Grown\n\u{1F69A} Fast Delivery Available\n\u{1F4B0} Fair & Affordable Prices\n\n\u{1F4F2} Order via WhatsApp Now!\nDon't miss out \u2014 get your fresh produce today!\n\n#PinnaclesFarm #FreshProduce #OrganicFood #FarmToTable #NigeriaFarms`;
-
-  document.getElementById('advert-modal-content').innerHTML = `
-    <h3>\u{1F4E2} Your WhatsApp Advert</h3>
-    <p>Copy and share this advert on WhatsApp, Facebook, or any platform!</p>
-    <div class="advert-text-box">${advertText}</div>
-    <div class="advert-modal-actions">
-      <button class="share-btn wa" onclick="sendAdvertOnWhatsApp()">\u{1F4F2} Share on WhatsApp</button>
-      <button class="share-btn copy" onclick="copyAdvert()">\u{1F4CB} Copy Text</button>
-    </div>
-    <div id="advert-copy-msg" class="copy-msg" style="display:none;margin-top:10px">\u2705 Advert copied!</div>
-  `;
-  document.getElementById('advert-modal-overlay').classList.add('open');
-  document.getElementById('advert-modal').classList.add('open');
-}
-
 function sendAdvertOnWhatsApp() {
   const msg = `\u{1F33F} *PINNACLES RESOURCE CENTRE FARM* \u{1F33F}\n\n\u2705 Fresh Farm Produce Available NOW!\n\n\u{1F345} Tomatoes | \u{1FAD1} Peppers | \u{1F353} Strawberries\n\u{1F33D} Maize | \u{1F955} Carrots | \u{1F95A} Farm Fresh Eggs\n\u{1FADB} Green Peas | \u{1F96C} And Much More!\n\n\u{1F4AF} 100% Organically Grown\n\u{1F69A} Fast Delivery Available\n\u{1F4B0} Fair & Affordable Prices\n\n\u{1F4F2} Order via WhatsApp Now!\n\n#PinnaclesFarm #FreshProduce #FarmToTable`;
   openWhatsApp(msg);
@@ -702,7 +672,7 @@ document.querySelectorAll('.why-card, .product-card, .contact-card').forEach(el 
   observer.observe(el);
 });
 
-// \u00E2\u201D\u2500 Today's Harvest Banner \u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u20AC
+// \u00E2\u201D\u2500 Today's Harvest Banner \u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u00E2\u201D\u2500\u2500
 async function loadTodaysHarvest() {
   try {
     const res = await fetch('/api/harvest/today');
