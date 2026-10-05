@@ -376,7 +376,7 @@ async function loadTeam() {
       <div class="team-avatar">${roleIcon[u.role] || '\u{1F464}'}</div>
       <div class="team-info">
         <div class="team-name">${u.name}</div>
-        <div class="team-email">${u.email}</div>
+        <div class="team-email">${u.created_at ? "Joined: " + new Date(u.created_at).toLocaleDateString() : ""}</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <span class="role-pill ${roleClass[u.role] || 'role-worker'}">${u.role?.replace('_', ' ')}</span>
