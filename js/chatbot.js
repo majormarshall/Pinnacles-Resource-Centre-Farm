@@ -460,17 +460,7 @@ async function handleUserMessage(text) {
   // \u2500\u2500 Init \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   async function init() {
     // Load products from the API (same endpoint used by the main site)
-    try {
-      const res = await fetch('/api/products');
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          products = data.map(p => ({ ...p, desc: p.description }));
-        }
-      }
-    } catch { /* use empty */ }
-
-    // Wire up events
+    // Wire up events immediately so the UI is responsive
     el('chat-launcher').addEventListener('click', toggle);
     el('chat-close-btn').addEventListener('click', close);
     el('chat-input').addEventListener('keydown', e => {
@@ -488,6 +478,16 @@ async function handleUserMessage(text) {
         el('chat-unread-badge').textContent = '1';
       }
     }, 4000);
+
+    try {
+      const res = await fetch('/api/products');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          products = data.map(p => ({ ...p, desc: p.description }));
+        }
+      }
+    } catch { /* use empty */ }
   }
 
   function sendMessage() {
