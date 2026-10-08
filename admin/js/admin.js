@@ -717,9 +717,39 @@ function closeReceiptModal() {
   document.getElementById('receipt-modal').classList.remove('open');
 }
 
-function sendReceiptWhatsApp() {
+async function sendReceiptWhatsApp() {
   if (!currentReceiptOrder) return;
   const o = currentReceiptOrder;
+  
+
+  // Attempt Web Share API to send the PDF file natively
+  
+  if (pdfLink && navigator.canShare) {
+    try {
+      const btn = document.getElementById('receipt-wa-btn');
+      const origText = btn.innerHTML;
+      btn.innerHTML = '⏳ Preparing PDF...';
+      
+      const res = await fetch(pdfLink);
+      const blob = await res.blob();
+      const file = new File([blob], "Receipt_" + String(o.id).padStart(4, '0') + ".pdf", { type: 'application/pdf' });
+      
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: "Pinnacles Farm Receipt #" + o.id,
+          text: "Hello " + (o.customer_name || 'Customer') + ", here is your order receipt from Pinnacles Farm.",
+          files: [file]
+        });
+        btn.innerHTML = origText;
+        return; // Native share succeeded!
+      }
+      btn.innerHTML = origText;
+    } catch (err) {
+      console.warn("Share API failed or user cancelled:", err);
+      document.getElementById('receipt-wa-btn').innerHTML = '📱 Send PDF Receipt via WhatsApp';
+      // If it fails or is cancelled, we fall back to the URL-based text share below
+    }
+  }
 
   // Format date like "18 September 2026"
   const dateStr = new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });

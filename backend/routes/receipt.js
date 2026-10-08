@@ -660,7 +660,7 @@ async function streamReceiptPdf(order, res, req) {
     { txt:'UNIT PRICE', x:COL_UNIT_END, align:'right'  },
     { txt:'AMOUNT',     x:COL_AMT_END,  align:'right'  },
   ];
-  const hdrY = fl(TABLE_TOP + TH_H - 9) - 9;
+  const hdrY = fl(TABLE_TOP + TH_H / 2) - 3;
   // Thin separator under header
   hline(TABLE_TOP + TH_H + 0.5, ML, MR, hex('#0f5132'), 0.5);
 
@@ -681,7 +681,7 @@ async function streamReceiptPdf(order, res, req) {
     const qty   = String(item.qty);
     const unitP = 'NGN ' + Number(item.price).toLocaleString('en-NG');
     const amt   = 'NGN ' + Number(item.price * item.qty).toLocaleString('en-NG');
-    const rowY  = fl(tY + ROW_H - 8) - 9;
+    const rowY  = fl(tY + ROW_H / 2) - 3;
 
     page.drawText(name, { x: COL_ITEM_X, y: rowY, size:9, font:regular, color:C_TXTDK });
 
@@ -703,11 +703,11 @@ async function streamReceiptPdf(order, res, req) {
 
   page.drawRectangle({ x:ML, y:fl(tY + 28), width:CW, height:28, color:C_TBLHDR });
 
-  page.drawText('TOTAL', { x: COL_ITEM_X, y: fl(tY + 28 - 8) - 11, size:11, font:bold, color:WHITE });
+  page.drawText('TOTAL', { x: COL_ITEM_X, y: fl(tY + 14) - 4, size:11, font:bold, color:WHITE });
 
   const totalStr = 'NGN ' + Number(order.total).toLocaleString('en-NG');
   const totW     = bold.widthOfTextAtSize(totalStr, 12);
-  page.drawText(totalStr, { x: COL_AMT_END - totW, y: fl(tY + 28 - 8) - 12, size:12, font:bold, color:hex('#a3d9b8') });
+  page.drawText(totalStr, { x: COL_AMT_END - totW, y: fl(tY + 14) - 4, size:12, font:bold, color:hex('#a3d9b8') });
 
   // ══════════════════════════════════════════════════════════
   // FOOTER — anchored to bottom of page (pkY 756-820)
