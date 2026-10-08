@@ -720,6 +720,7 @@ function closeReceiptModal() {
 async function sendReceiptWhatsApp() {
   if (!currentReceiptOrder) return;
   const o = currentReceiptOrder;
+  const pdfLink = currentReceiptUrl ? currentReceiptUrl + '/pdf' : null;
   
 
   // Attempt Web Share API to send the PDF file natively
@@ -767,7 +768,7 @@ async function sendReceiptWhatsApp() {
   const statusStr = statusMap[o.status] || o.status;
   const payMethod = (o.whatsapp_msg || '').startsWith('payisland_ref:') ? '\u{1F4B3} Online Payment' : '\u{1F4AC} WhatsApp Order';
 
-  const pdfLink = currentReceiptUrl ? currentReceiptUrl + '/pdf' : null;
+  
   const linkLine = pdfLink ? '\n\u{1F4C4} *Download PDF Receipt:*\n' + pdfLink : '';
 
   const SEP  = '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501';
