@@ -60,6 +60,7 @@ app.use('/api/admin-users', require('./routes/admin-users'));
 app.use('/api/customers',   require('./routes/customers').router);
 app.use('/api/worker-register', require('./routes/worker-register'));
 app.use('/api/setup',       require('./routes/setup'));
+app.use('/api/settings',    require('./routes/settings'));
 
 // Serve worker portal
 app.use('/worker', express.static(path.join(__dirname, '..', 'worker')));

@@ -915,3 +915,89 @@ function sendBulkWhatsApp() {
     (notes ? '\n\nNotes: ' + notes : '');
   window.open('https://wa.me/2349037505632?text=' + encodeURIComponent(msg), '_blank');
 }
+
+
+// ── Hero Background Media Controller ─────────────────────────
+function toggleHeroVideo() {
+  const vid = document.getElementById('hero-video');
+  const icon = document.getElementById('hero-ctrl-icon');
+  const text = document.getElementById('hero-ctrl-text');
+  if (!vid) return;
+  if (vid.paused) {
+    vid.play();
+    if (icon) icon.textContent = '⏸️';
+    if (text) text.textContent = 'Video';
+  } else {
+    vid.pause();
+    if (icon) icon.textContent = '▶️';
+    if (text) text.textContent = 'Paused';
+  }
+}
+
+async function initHeroMedia() {
+  const vid = document.getElementById('hero-video');
+  const slideshow = document.getElementById('hero-slideshow');
+  const ctrl = document.getElementById('hero-media-ctrl');
+
+  try {
+    const res = await fetch('/api/settings/hero');
+    if (res.ok) {
+      const config = await res.json();
+      if (config && config.type === 'slideshow' && Array.isArray(config.images) && config.images.length > 0) {
+        if (vid) vid.style.display = 'none';
+        if (ctrl) ctrl.style.display = 'none';
+        if (slideshow) {
+          slideshow.style.display = 'block';
+          slideshow.innerHTML = config.images.map((src, i) =>
+            `<div class="hero-slide${i===0?' active':''}" style="background-image:url('${src}')"></div>`
+          ).join('');
+
+          let cur = 0;
+          const slides = slideshow.querySelectorAll('.hero-slide');
+          if (slides.length > 1) {
+            setInterval(() => {
+              slides[cur].classList.remove('active');
+              cur = (cur + 1) % slides.length;
+              slides[cur].classList.add('active');
+            }, 5500);
+          }
+        }
+        return;
+      } else if (config && config.type === 'image') {
+        if (vid) vid.style.display = 'none';
+        if (ctrl) ctrl.style.display = 'none';
+        if (slideshow) {
+          slideshow.style.display = 'block';
+          const bgImg = (config.images && config.images[0]) || 'images/farm_hero.png';
+          slideshow.innerHTML = `<div class="hero-slide active" style="background-image:url('${bgImg}')"></div>`;
+        }
+        return;
+      } else if (config && config.type === 'video' && config.video_url) {
+        if (vid) {
+          const srcEl = vid.querySelector('source');
+          if (srcEl && srcEl.getAttribute('src') !== config.video_url) {
+            srcEl.src = config.video_url;
+            vid.load();
+          }
+        }
+      }
+    }
+  } catch(e) {}
+
+  if (vid) {
+    vid.muted = true;
+    const playPromise = vid.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        const icon = document.getElementById('hero-ctrl-icon');
+        const text = document.getElementById('hero-ctrl-text');
+        if (icon) icon.textContent = '▶️';
+        if (text) text.textContent = 'Play';
+      });
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initHeroMedia();
+});

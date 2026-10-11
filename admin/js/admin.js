@@ -1174,3 +1174,57 @@ async function updatePreorderStatus(id, status) {
 
 
 function toggleSidebar() { document.getElementById('dashboard').classList.toggle('sidebar-collapsed'); }
+
+
+
+// ── Hero Media Settings (Admin) ──────────────────────────────
+function toggleHeroSettingsFields(type) {
+  const vidField = document.getElementById('hero-video-field');
+  const slideField = document.getElementById('hero-slideshow-field');
+  if (vidField) vidField.style.display = (type === 'video') ? 'block' : 'none';
+  if (slideField) slideField.style.display = (type === 'slideshow' || type === 'image') ? 'block' : 'none';
+}
+
+async function loadHeroSettings() {
+  try {
+    const res = await fetch('/api/settings/hero');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data) return;
+    const typeSelect = document.getElementById('hero-media-type');
+    const vidInput = document.getElementById('hero-video-url');
+    const slideText = document.getElementById('hero-slideshow-images');
+    if (typeSelect && data.type) typeSelect.value = data.type;
+    if (vidInput && data.video_url) vidInput.value = data.video_url;
+    if (slideText && Array.isArray(data.images)) slideText.value = data.images.join(String.fromCharCode(10));
+    toggleHeroSettingsFields(data.type || 'video');
+  } catch(e) {}
+}
+
+async function saveHeroSettings(e) {
+  e.preventDefault();
+  const type = document.getElementById('hero-media-type')?.value || 'video';
+  const video_url = document.getElementById('hero-video-url')?.value?.trim() || 'videos/hero-bg.mp4';
+  const rawImages = document.getElementById('hero-slideshow-images')?.value || '';
+  const images = rawImages.split(String.fromCharCode(10)).map(s => s.trim()).filter(Boolean);
+  const msg = document.getElementById('hero-save-msg');
+
+  try {
+    await api('POST', '/settings/hero', { type, video_url, images });
+    if (msg) {
+      msg.textContent = '✅ Hero background settings saved successfully!';
+      msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 4000);
+    }
+    showToast('Hero settings updated successfully');
+  } catch(err) {
+    if (msg) {
+      msg.textContent = '❌ Error saving: ' + err.message;
+      msg.style.display = 'block';
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadHeroSettings();
+});

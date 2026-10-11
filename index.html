@@ -77,7 +77,12 @@
 
   <!-- HERO SECTION -->
   <section class="hero" id="home">
-    <div class="hero-bg"></div>
+    <div class="hero-bg" id="hero-bg">
+      <video id="hero-video" class="hero-video" autoplay muted loop playsinline preload="auto" poster="images/farm_hero.png">
+        <source src="videos/hero-bg.mp4" type="video/mp4" />
+      </video>
+      <div id="hero-slideshow" class="hero-slideshow" style="display:none"></div>
+    </div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <div class="hero-badge">&#x1F331; Grown with Care &#xB7; Harvested Fresh Daily</div>
@@ -97,6 +102,11 @@
         <div class="hero-feat">&#x2705; Easy ordering</div>
         <div class="hero-feat">&#x1F33F; Farm-fresh produce</div>
       </div>
+    </div>
+    <!-- Ambient video play/pause toggle button -->
+    <div class="hero-media-ctrl" id="hero-media-ctrl" onclick="toggleHeroVideo()" title="Pause/Play background video">
+      <span id="hero-ctrl-icon">⏸️</span>
+      <span id="hero-ctrl-text">Video</span>
     </div>
     <div class="hero-scroll-hint">
       <span>Scroll to explore</span>
