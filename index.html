@@ -63,6 +63,7 @@
       <ul class="nav-links" id="nav-links">
         <li><a href="#home">Home</a></li>
         <li><a href="#products">Shop</a></li>
+        <li><a href="#wholesale" class="nav-link">Bulk Orders</a></li>
         <li><a href="#delivery" class="nav-link">Delivery</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#gallery">Gallery</a></li>
@@ -142,6 +143,7 @@
         <button class="filter-btn" onclick="filterProducts('fruits', this)">&#x1F353; Fruits</button>
         <button class="filter-btn" onclick="filterProducts('grains', this)">&#x1F33D; Grains</button>
         <button class="filter-btn" onclick="filterProducts('proteins', this)">&#x1F95A; Proteins</button>
+        <button class="filter-btn" onclick="filterProducts('preorder', this)" style="border-color:rgba(245,158,11,.4);color:#fbbf24">&#x23F3; Pre-orders</button>
       </div>
 
       <div class="products-grid" id="products-grid">
@@ -179,7 +181,47 @@
     </div>
   </aside>
 
-  <!-- DELIVERY SECTION -->
+  <!-- WHOLESALE / BULK ORDERING SECTION -->
+  <section class="wholesale-section" id="wholesale">
+    <div class="container">
+      <div class="wholesale-inner">
+        <div class="wholesale-text">
+          <span class="section-tag light">For Businesses</span>
+          <h2>Buying in Bulk? &#x1F4E6;</h2>
+          <p>We supply fresh farm produce to restaurants, hotels, supermarkets, caterers, schools and retailers across Kwara State and beyond. Get competitive wholesale prices direct from the farm.</p>
+          <div class="wholesale-types">
+            <span class="ws-tag">&#x1F37D;&#xFE0F; Restaurants</span>
+            <span class="ws-tag">&#x1F3E8; Hotels</span>
+            <span class="ws-tag">&#x1F6D2; Supermarkets</span>
+            <span class="ws-tag">&#x1F468;&#x200D;&#x1F373; Caterers</span>
+            <span class="ws-tag">&#x1F3EB; Schools</span>
+            <span class="ws-tag">&#x1F3EA; Retailers</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
+            <button onclick="openBulkModal()" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px">&#x1F4CB; Request Bulk Order</button>
+            <a href="#" onclick="openWhatsApp('Hello Pinnacles Farm! I am interested in bulk/wholesale pricing for my business. Please send me your wholesale price list.')" class="btn-outline" style="display:inline-flex;align-items:center;gap:8px;color:#fff;border-color:rgba(255,255,255,.3)">&#x1F4AC; Chat on WhatsApp</a>
+          </div>
+        </div>
+        <div class="wholesale-img">
+          <div class="wholesale-card">
+            <div style="font-size:3rem;margin-bottom:12px">&#x1F33E;</div>
+            <h4>Why Buy from Us?</h4>
+            <ul class="ws-benefits">
+              <li>&#x2705; Direct from farm &#x2014; no middlemen</li>
+              <li>&#x2705; Competitive bulk pricing</li>
+              <li>&#x2705; Flexible delivery schedules</li>
+              <li>&#x2705; Consistent quality &amp; freshness</li>
+              <li>&#x2705; Regular supply agreements available</li>
+              <li>&#x2705; Custom orders &amp; harvest pre-booking</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+<!-- DELIVERY SECTION -->
   <section class="delivery-section" id="delivery">
     <div class="container">
       <div class="section-header">
@@ -346,45 +388,6 @@
           </div>
           <button type="submit" class="btn-primary full-width">&#x1F4F2; Send via WhatsApp</button>
         </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHOLESALE / BULK ORDERING SECTION -->
-  <section class="wholesale-section" id="wholesale">
-    <div class="container">
-      <div class="wholesale-inner">
-        <div class="wholesale-text">
-          <span class="section-tag light">For Businesses</span>
-          <h2>Buying in Bulk? &#x1F4E6;</h2>
-          <p>We supply fresh farm produce to restaurants, hotels, supermarkets, caterers, schools and retailers across Kwara State and beyond. Get competitive wholesale prices direct from the farm.</p>
-          <div class="wholesale-types">
-            <span class="ws-tag">&#x1F37D;&#xFE0F; Restaurants</span>
-            <span class="ws-tag">&#x1F3E8; Hotels</span>
-            <span class="ws-tag">&#x1F6D2; Supermarkets</span>
-            <span class="ws-tag">&#x1F468;&#x200D;&#x1F373; Caterers</span>
-            <span class="ws-tag">&#x1F3EB; Schools</span>
-            <span class="ws-tag">&#x1F3EA; Retailers</span>
-          </div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
-            <button onclick="openBulkModal()" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px">&#x1F4CB; Request Bulk Order</button>
-            <a href="#" onclick="openWhatsApp('Hello Pinnacles Farm! I am interested in bulk/wholesale pricing for my business. Please send me your wholesale price list.')" class="btn-outline" style="display:inline-flex;align-items:center;gap:8px;color:#fff;border-color:rgba(255,255,255,.3)">&#x1F4AC; Chat on WhatsApp</a>
-          </div>
-        </div>
-        <div class="wholesale-img">
-          <div class="wholesale-card">
-            <div style="font-size:3rem;margin-bottom:12px">&#x1F33E;</div>
-            <h4>Why Buy from Us?</h4>
-            <ul class="ws-benefits">
-              <li>&#x2705; Direct from farm &#x2014; no middlemen</li>
-              <li>&#x2705; Competitive bulk pricing</li>
-              <li>&#x2705; Flexible delivery schedules</li>
-              <li>&#x2705; Consistent quality &amp; freshness</li>
-              <li>&#x2705; Regular supply agreements available</li>
-              <li>&#x2705; Custom orders &amp; harvest pre-booking</li>
-            </ul>
-          </div>
-        </div>
       </div>
     </div>
   </section>

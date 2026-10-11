@@ -547,3 +547,47 @@ ul{list-style:none;}
 #acc-modal-body input:focus, #acc-modal-body textarea:focus {
   border-color: rgba(82,183,136,.6) !important;
 }
+
+
+/* ── Pre-order & Stock Visibility Enhancements ──────────────── */
+.avail-pre {
+  background: rgba(217, 119, 6, 0.9) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
+}
+.btn-preorder {
+  flex: 1;
+  background: linear-gradient(135deg, #b45309, #d97706) !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 0;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: opacity .2s, transform .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.btn-preorder:hover {
+  opacity: .92;
+  transform: translateY(-1px);
+}
+.product-card.out-of-stock {
+  opacity: 1 !important;
+  border-color: rgba(245, 158, 11, .3) !important;
+  background: linear-gradient(180deg, var(--bg2) 0%, rgba(245, 158, 11, .03) 100%);
+}
+.product-card.out-of-stock:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(245, 158, 11, .6) !important;
+  box-shadow: 0 12px 30px rgba(245, 158, 11, .12);
+}
+.product-card.out-of-stock .product-img-wrap img {
+  filter: none !important;
+}
