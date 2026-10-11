@@ -17,7 +17,7 @@ function rateLimitHandler(req, res, next, options) {
 // obvious scrapers / DoS without affecting real users.
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 2000,
   standardHeaders: true,  // Return RateLimit-* headers (RFC 6585)
   legacyHeaders: false,
   message: 'Too many requests. Please wait a few minutes and try again.',
@@ -28,7 +28,7 @@ const globalLimiter = rateLimit({
 // Tight limit to prevent brute-force on the admin login.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many login attempts. Please wait 15 minutes before trying again.',
@@ -51,7 +51,7 @@ const orderLimiter = rateLimit({
 // Prevents contact form spam.
 const messageLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many messages sent. Please wait a few minutes before sending another message.',

@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
     const { data: existing } = await supabase
       .from('customers')
       .select('id')
-      .eq('email', email.toLowerCase())
+      .eq('email', String(email).trim().toLowerCase())
       .single();
     if (existing) return res.status(409).json({ error: 'An account with this email already exists' });
 
