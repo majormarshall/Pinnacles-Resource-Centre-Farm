@@ -918,84 +918,120 @@ function sendBulkWhatsApp() {
 
 
 // ── Hero Background Media Controller ─────────────────────────
-function toggleHeroVideo() {
+let heroCurrentIndex = 0;
+let heroSlideshowTimer = null;
+let heroMode = 'slideshow';
+
+function showHeroSlide(index) {
+  const slideshow = document.getElementById('hero-slideshow');
+  if (!slideshow) return;
+  const slides = slideshow.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.hero-dot');
+  if (slides.length === 0) return;
+
+  heroCurrentIndex = (index + slides.length) % slides.length;
+
+  slides.forEach((s, i) => {
+    if (i === heroCurrentIndex) s.classList.add('active');
+    else s.classList.remove('active');
+  });
+
+  dots.forEach((d, i) => {
+    if (i === heroCurrentIndex) d.classList.add('active');
+    else d.classList.remove('active');
+  });
+}
+
+function nextHeroSlide() {
+  showHeroSlide(heroCurrentIndex + 1);
+}
+
+function startHeroSlideshow() {
+  stopHeroSlideshow();
+  heroSlideshowTimer = setInterval(nextHeroSlide, 4500);
+}
+
+function stopHeroSlideshow() {
+  if (heroSlideshowTimer) {
+    clearInterval(heroSlideshowTimer);
+    heroSlideshowTimer = null;
+  }
+}
+
+function jumpToHeroSlide(index) {
+  showHeroSlide(index);
+  if (heroMode === 'slideshow') {
+    startHeroSlideshow(); // reset timer
+  }
+}
+
+function toggleHeroMediaMode() {
   const vid = document.getElementById('hero-video');
+  const slideshow = document.getElementById('hero-slideshow');
+  const dots = document.getElementById('hero-dots');
   const icon = document.getElementById('hero-ctrl-icon');
   const text = document.getElementById('hero-ctrl-text');
-  if (!vid) return;
-  if (vid.paused) {
-    vid.play();
-    if (icon) icon.textContent = '⏸️';
-    if (text) text.textContent = 'Video';
+
+  if (heroMode === 'slideshow') {
+    // Switch to ambient video
+    heroMode = 'video';
+    stopHeroSlideshow();
+    if (slideshow) slideshow.style.display = 'none';
+    if (dots) dots.style.display = 'none';
+    if (vid) {
+      vid.style.display = 'block';
+      vid.muted = true;
+      vid.play().catch(() => {});
+    }
+    if (icon) icon.textContent = '🖼️';
+    if (text) text.textContent = 'Slideshow';
   } else {
-    vid.pause();
-    if (icon) icon.textContent = '▶️';
-    if (text) text.textContent = 'Paused';
+    // Switch to active slideshow
+    heroMode = 'slideshow';
+    if (vid) {
+      vid.pause();
+      vid.style.display = 'none';
+    }
+    if (slideshow) slideshow.style.display = 'block';
+    if (dots) dots.style.display = 'flex';
+    if (icon) icon.textContent = '🎥';
+    if (text) text.textContent = 'Play Video';
+    startHeroSlideshow();
   }
 }
 
 async function initHeroMedia() {
   const vid = document.getElementById('hero-video');
   const slideshow = document.getElementById('hero-slideshow');
-  const ctrl = document.getElementById('hero-media-ctrl');
+  const dots = document.getElementById('hero-dots');
 
+  // Immediately start slideshow with existing DOM slides
+  startHeroSlideshow();
+
+  // Load custom settings if configured by admin
   try {
     const res = await fetch('/api/settings/hero');
     if (res.ok) {
       const config = await res.json();
-      if (config && config.type === 'slideshow' && Array.isArray(config.images) && config.images.length > 0) {
-        if (vid) vid.style.display = 'none';
-        if (ctrl) ctrl.style.display = 'none';
-        if (slideshow) {
-          slideshow.style.display = 'block';
-          slideshow.innerHTML = config.images.map((src, i) =>
-            `<div class="hero-slide${i===0?' active':''}" style="background-image:url('${src}')"></div>`
-          ).join('');
+      if (config && Array.isArray(config.images) && config.images.length > 0 && slideshow) {
+        slideshow.innerHTML = config.images.map((src, i) =>
+          `<div class="hero-slide${i === 0 ? ' active' : ''}" style="background-image:url('${src}')"></div>`
+        ).join('');
 
-          let cur = 0;
-          const slides = slideshow.querySelectorAll('.hero-slide');
-          if (slides.length > 1) {
-            setInterval(() => {
-              slides[cur].classList.remove('active');
-              cur = (cur + 1) % slides.length;
-              slides[cur].classList.add('active');
-            }, 5500);
-          }
+        if (dots) {
+          dots.innerHTML = config.images.map((_, i) =>
+            `<div class="hero-dot${i === 0 ? ' active' : ''}" onclick="jumpToHeroSlide(${i})"></div>`
+          ).join('');
         }
-        return;
-      } else if (config && config.type === 'image') {
-        if (vid) vid.style.display = 'none';
-        if (ctrl) ctrl.style.display = 'none';
-        if (slideshow) {
-          slideshow.style.display = 'block';
-          const bgImg = (config.images && config.images[0]) || 'images/farm_hero.png';
-          slideshow.innerHTML = `<div class="hero-slide active" style="background-image:url('${bgImg}')"></div>`;
-        }
-        return;
-      } else if (config && config.type === 'video' && config.video_url) {
-        if (vid) {
-          const srcEl = vid.querySelector('source');
-          if (srcEl && srcEl.getAttribute('src') !== config.video_url) {
-            srcEl.src = config.video_url;
-            vid.load();
-          }
-        }
+        showHeroSlide(0);
+      }
+
+      // If admin explicitly chose video as default
+      if (config && config.type === 'video') {
+        toggleHeroMediaMode();
       }
     }
-  } catch(e) {}
-
-  if (vid) {
-    vid.muted = true;
-    const playPromise = vid.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        const icon = document.getElementById('hero-ctrl-icon');
-        const text = document.getElementById('hero-ctrl-text');
-        if (icon) icon.textContent = '▶️';
-        if (text) text.textContent = 'Play';
-      });
-    }
-  }
+  } catch (_) {}
 }
 
 document.addEventListener('DOMContentLoaded', () => {

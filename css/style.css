@@ -684,3 +684,46 @@ ul{list-style:none;}
 .product-card.out-of-stock .product-img-wrap img {
   filter: none !important;
 }
+
+
+/* Slideshow Dots Navigation */
+.hero-dots {
+  position: absolute;
+  bottom: 28px;
+  left: 28px;
+  z-index: 4;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.hero-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all .35s ease;
+}
+.hero-dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+.hero-dot.active {
+  width: 24px;
+  border-radius: 12px;
+  background: var(--green-light);
+  box-shadow: 0 0 10px rgba(82, 183, 136, 0.6);
+}
+@media (max-width: 768px) {
+  .hero-dots {
+    bottom: 72px;
+    left: 16px;
+    gap: 6px;
+  }
+  .hero-dot {
+    width: 7px;
+    height: 7px;
+  }
+  .hero-dot.active {
+    width: 18px;
+  }
+}

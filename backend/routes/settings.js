@@ -1,54 +1,61 @@
-﻿const fs = require("fs");
-const path = require("path");
-const express = require("express");
-const router = express.Router();
-const { requireAuth } = require("../middleware/auth");
+// ── Hero Background Settings API ─────────────────────────────
+const express = require('express');
+const router  = express.Router();
+const path    = require('path');
+const fs      = require('fs');
+const os      = require('os');
+const { requireAuth } = require('../middleware/auth');
 
-const SETTINGS_FILE = path.join(__dirname, "..", "hero_settings.json");
+const TMP_FILE = path.join(os.tmpdir(), 'pinnacles_hero_settings.json');
 
 const DEFAULT_HERO = {
-  type: "video",
-  video_url: "videos/hero-bg.mp4",
+  type: 'slideshow',
+  video_url: 'videos/hero-bg.mp4',
   images: [
-    "images/farm_hero.png"
+    'images/farm_hero.png',
+    'images/tomatoes.png',
+    'images/pepper.png',
+    'images/strawberry.png',
+    'images/maize.png'
   ]
 };
 
-function readHeroSettings() {
+let memorySettings = { ...DEFAULT_HERO };
+
+function readSettings() {
+  if (memorySettings && memorySettings.updated_at) return memorySettings;
   try {
-    if (fs.existsSync(SETTINGS_FILE)) {
-      return JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf8"));
+    if (fs.existsSync(TMP_FILE)) {
+      const data = JSON.parse(fs.readFileSync(TMP_FILE, 'utf8'));
+      memorySettings = data;
+      return data;
     }
-  } catch(e) {}
-  return DEFAULT_HERO;
+  } catch (_) {}
+  return memorySettings || DEFAULT_HERO;
 }
 
-function writeHeroSettings(data) {
+function saveSettings(data) {
+  memorySettings = { ...data, updated_at: new Date().toISOString() };
   try {
-    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2), "utf8");
-    return true;
-  } catch(e) {
-    console.error("Failed to write hero settings:", e.message);
-    return false;
-  }
+    fs.writeFileSync(TMP_FILE, JSON.stringify(memorySettings), 'utf8');
+  } catch (_) {}
+  return memorySettings;
 }
 
 // GET /api/settings/hero - Public
-router.get("/hero", (req, res) => {
-  res.json(readHeroSettings());
+router.get('/hero', (req, res) => {
+  res.json(readSettings());
 });
 
 // POST /api/settings/hero - Admin
-router.post("/hero", requireAuth, (req, res) => {
-  const { type = "video", video_url = "videos/hero-bg.mp4", images = [] } = req.body;
-  const newSettings = {
+router.post('/hero', requireAuth, (req, res) => {
+  const { type = 'slideshow', video_url = 'videos/hero-bg.mp4', images = [] } = req.body || {};
+  const updated = saveSettings({
     type,
-    video_url: video_url || "videos/hero-bg.mp4",
-    images: Array.isArray(images) && images.length > 0 ? images : ["images/farm_hero.png"],
-    updated_at: new Date().toISOString()
-  };
-  writeHeroSettings(newSettings);
-  res.json({ ok: true, settings: newSettings });
+    video_url: video_url || 'videos/hero-bg.mp4',
+    images: Array.isArray(images) && images.length > 0 ? images : DEFAULT_HERO.images
+  });
+  res.json({ ok: true, settings: updated });
 });
 
 module.exports = router;

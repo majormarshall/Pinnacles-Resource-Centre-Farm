@@ -78,10 +78,18 @@
   <!-- HERO SECTION -->
   <section class="hero" id="home">
     <div class="hero-bg" id="hero-bg">
-      <video id="hero-video" class="hero-video" autoplay muted loop playsinline preload="auto" poster="images/farm_hero.png">
+      <!-- Active Slideshow -->
+      <div id="hero-slideshow" class="hero-slideshow">
+        <div class="hero-slide active" style="background-image:url('images/farm_hero.png')"></div>
+        <div class="hero-slide" style="background-image:url('images/tomatoes.png')"></div>
+        <div class="hero-slide" style="background-image:url('images/pepper.png')"></div>
+        <div class="hero-slide" style="background-image:url('images/strawberry.png')"></div>
+        <div class="hero-slide" style="background-image:url('images/maize.png')"></div>
+      </div>
+      <!-- Background Video (Toggleable or Configurable) -->
+      <video id="hero-video" class="hero-video" muted loop playsinline preload="auto" poster="images/farm_hero.png" style="display:none">
         <source src="videos/hero-bg.mp4" type="video/mp4" />
       </video>
-      <div id="hero-slideshow" class="hero-slideshow" style="display:none"></div>
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -103,17 +111,24 @@
         <div class="hero-feat">&#x1F33F; Farm-fresh produce</div>
       </div>
     </div>
-    <!-- Ambient video play/pause toggle button -->
-    <div class="hero-media-ctrl" id="hero-media-ctrl" onclick="toggleHeroVideo()" title="Pause/Play background video">
-      <span id="hero-ctrl-icon">⏸️</span>
-      <span id="hero-ctrl-text">Video</span>
+    <!-- Slideshow indicators -->
+    <div class="hero-dots" id="hero-dots">
+      <div class="hero-dot active" onclick="jumpToHeroSlide(0)"></div>
+      <div class="hero-dot" onclick="jumpToHeroSlide(1)"></div>
+      <div class="hero-dot" onclick="jumpToHeroSlide(2)"></div>
+      <div class="hero-dot" onclick="jumpToHeroSlide(3)"></div>
+      <div class="hero-dot" onclick="jumpToHeroSlide(4)"></div>
+    </div>
+    <!-- Ambient video / slideshow toggle button -->
+    <div class="hero-media-ctrl" id="hero-media-ctrl" onclick="toggleHeroMediaMode()" title="Switch between Slideshow & Ambient Video">
+      <span id="hero-ctrl-icon">🎥</span>
+      <span id="hero-ctrl-text">Play Video</span>
     </div>
     <div class="hero-scroll-hint">
       <span>Scroll to explore</span>
       <div class="scroll-arrow">&#x2193;</div>
     </div>
   </section>
-
 
   <!-- MARQUEE -->
   <div class="marquee-wrap">
