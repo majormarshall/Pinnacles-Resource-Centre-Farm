@@ -22,6 +22,7 @@ const fallbackProducts = [
 
 // ===== STATE =====
 let products = [...fallbackProducts];
+window.products = products;
 let cart = [];
 let activeFilter = 'all';
 
@@ -45,6 +46,7 @@ async function loadProductsFromAPI() {
       if (Array.isArray(data) && data.length > 0) {
         // Map backend field 'description' to 'desc' used in frontend
         products = data.map(p => ({ ...p, desc: p.description, price: Number(p.price||0), in_stock: (p.in_stock===true||p.in_stock===1||Number(p.in_stock)>0)?1:0 }));
+        window.products = products;
       }
     }
   } catch { /* backend offline \u2014 use fallback */ }
@@ -717,37 +719,67 @@ function openPreorderModal(productId, productName, expectedDate, note) {
   const body  = document.getElementById('preorder-modal-body');
   if (!modal || !body) return;
 
-  // Find the product to get unit and price
-  const p = products.find(x => x.id === productId) || {};
+  if (typeof closeModal === 'function') closeModal();
+
+  const p = (products || []).find(x => String(x.id) === String(productId)) || {};
+  const name = productName || p.name || 'Farm Produce';
+  const expDate = expectedDate || p.preorder_expected_date || '';
+  const poNote = note || p.preorder_note || '';
+  const unit = p.unit || 'kg';
+  const priceStr = p.price ? '₦' + Number(p.price).toLocaleString() + (p.unit ? ' ' + p.unit : '') : '';
+  const defaultQty = parseInt(document.getElementById('card-qty-' + productId)?.textContent) || 1;
+
+  const custUser = typeof currentCustomer !== 'undefined' && currentCustomer ? currentCustomer : null;
+  const prefilledName = custUser?.name ? `value="${custUser.name}"` : '';
+  const prefilledPhone = custUser?.phone ? `value="${custUser.phone}"` : '';
+
+  const waText = encodeURIComponent(
+    'Hello Pinnacles Farm! 🌾 I would like to pre-order:\n\n' + (p.emoji || '🌿') + ' *' + name + '* ' + (priceStr ? '(' + priceStr + ')' : '') + '\n\nPlease notify me when available!'
+  );
 
   body.innerHTML = `
-    <div style="margin-bottom:16px">
-      <div style="font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:4px">${p.emoji || '\u{1F33F}'} ${productName}</div>
-      <div style="font-size:.85rem;color:#52b788">\u20A6${Number(p.price||0).toLocaleString()} ${p.unit||''}</div>
-      ${expectedDate ? `<div style="margin-top:10px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:10px 14px;font-size:.82rem;color:#fbbf24">\u{1F4C5} Expected availability: <strong>${new Date(expectedDate).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'})}</strong></div>` : ''}
-      ${note ? `<div style="margin-top:8px;font-size:.8rem;color:rgba(255,255,255,.5)">${note}</div>` : ''}
+    <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:16px;margin-bottom:18px">
+      <div style="font-size:1.15rem;font-weight:700;color:#fbbf24;margin-bottom:4px">${p.emoji || '🌾'} ${name}</div>
+      ${priceStr ? `<div style="font-size:.85rem;color:#52b788;font-weight:600;margin-bottom:6px">${priceStr}</div>` : ''}
+      ${expDate ? `<div style="font-size:.8rem;color:#fde047;margin-bottom:4px">📅 Expected Harvest: <strong>${new Date(expDate).toLocaleDateString('en-NG',{day:'numeric',month:'long'})}</strong></div>` : ''}
+      <div style="font-size:.78rem;color:rgba(255,255,255,.6)">${poNote || 'Reserve your fresh farm produce now. We will notify you when harvested!'}</div>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:12px">
-      <input id="po-name" type="text" placeholder="Your name *" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none" />
-      <input id="po-phone" type="tel" placeholder="Your phone number *" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none" />
-      <div style="display:flex;align-items:center;gap:10px">
-        <label style="font-size:.82rem;color:rgba(255,255,255,.6);min-width:70px">Quantity</label>
-        <input id="po-qty" type="number" value="1" min="1" style="width:70px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 12px;color:#fff;font-family:inherit;font-size:.9rem;text-align:center;outline:none" />
-        <span style="font-size:.82rem;color:rgba(255,255,255,.5)">${p.unit||''}</span>
+      <div>
+        <label style="display:block;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:4px">Your Name *</label>
+        <input id="po-name" type="text" placeholder="Full name" ${prefilledName} style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none;box-sizing:border-box" />
       </div>
-      <textarea id="po-notes" placeholder="Any special requests? (optional)" rows="2" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none;resize:vertical"></textarea>
+      <div>
+        <label style="display:block;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:4px">WhatsApp Phone Number *</label>
+        <input id="po-phone" type="tel" placeholder="e.g. 08012345678" ${prefilledPhone} style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none;box-sizing:border-box" />
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+          <label style="display:block;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:4px">Quantity *</label>
+          <input id="po-qty" type="number" value="${defaultQty}" min="1" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;text-align:center;outline:none;box-sizing:border-box" />
+        </div>
+        <div style="flex:1">
+          <label style="display:block;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:4px">Unit</label>
+          <input id="po-unit" type="text" value="${unit}" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;outline:none;box-sizing:border-box" />
+        </div>
+      </div>
+      <div>
+        <label style="display:block;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:4px">Special Requests / Notes (optional)</label>
+        <textarea id="po-notes" placeholder="Delivery preferences, questions, or specific requests..." rows="2" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.85rem;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+      </div>
     </div>
 
     <div id="po-error" style="display:none;color:#f87171;font-size:.82rem;margin-top:10px"></div>
 
-    <div style="display:flex;gap:10px;margin-top:20px">
-      <button onclick="submitPreorder(${productId},'${productName}','${(p.unit||'').replace(/'/g,"\\'")}')" style="flex:1;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;border:none;border-radius:12px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">\u23F3 Reserve This Now</button>
-      <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello Pinnacles Farm! I want to pre-order: '+productName+(expectedDate?' (expected '+expectedDate+')':'')+'.')}" target="_blank" style="display:flex;align-items:center;gap:6px;background:#25D366;color:#fff;border-radius:12px;padding:12px 16px;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap">\u{1F4AC} WhatsApp</a>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+      <button onclick="submitPreorder(${productId ? `'${productId}'` : 'null'}, '${name.replace(/'/g, "\\'")}', '${expDate}')" style="display:block;width:100%;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;border:none;border-radius:12px;padding:13px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s">⏳ Place Pre-order</button>
+      <a href="https://wa.me/2349037505632?text=${waText}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;border-radius:12px;padding:12px;font-size:.92rem;font-weight:700;text-decoration:none;font-family:inherit">💬 Pre-order via WhatsApp</a>
     </div>
   `;
 
-  modal.style.display = 'block';
+  modal.style.display = 'flex';
+  modal.style.zIndex = '100000';
   document.body.style.overflow = 'hidden';
   setTimeout(() => document.getElementById('po-name')?.focus(), 100);
 }
@@ -758,40 +790,47 @@ function closePreorderModal() {
   document.body.style.overflow = '';
 }
 
-async function submitPreorder(productId, productName, unit) {
+async function submitPreorder(productId, productName, expectedDate) {
   const name  = (document.getElementById('po-name')?.value  || '').trim();
   const phone = (document.getElementById('po-phone')?.value || '').trim();
-  const qty   = parseInt(document.getElementById('po-qty')?.value) || 1;
+  const qty   = parseFloat(document.getElementById('po-qty')?.value) || 1;
+  const unit  = (document.getElementById('po-unit')?.value  || 'kg').trim();
   const notes = (document.getElementById('po-notes')?.value || '').trim();
   const errEl = document.getElementById('po-error');
-  if (!name)  { errEl.textContent = 'Please enter your name.';         errEl.style.display='block'; return; }
-  if (!phone) { errEl.textContent = 'Please enter your phone number.'; errEl.style.display='block'; return; }
-  errEl.style.display = 'none';
+
+  if (!name)  { if (errEl) { errEl.textContent = 'Please enter your name.'; errEl.style.display='block'; } return; }
+  if (!phone) { if (errEl) { errEl.textContent = 'Please enter your phone number.'; errEl.style.display='block'; } return; }
+  if (errEl) errEl.style.display = 'none';
+
+  const custUser = typeof currentCustomer !== 'undefined' && currentCustomer ? currentCustomer : null;
+
   try {
     const res = await fetch('/api/customers/preorder', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      // API expects customer_name and customer_phone
       body: JSON.stringify({
-        product_id: productId,
-        product_name: productName,
-        quantity: qty,
-        unit: unit || '',
-        notes: notes || '',
+        customer_id: custUser?.id || null,
         customer_name: name,
         customer_phone: phone,
+        customer_email: custUser?.email || null,
+        product_id: productId || null,
+        product_name: productName,
+        quantity: qty,
+        unit: unit,
+        notes: notes || null,
+        expected_date: expectedDate || null
       }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to submit pre-order');
-    const waConfirm = encodeURIComponent('Hello Pinnacles Farm! I just pre-ordered ' + productName + ' on your website. My name is ' + name + ' and phone is ' + phone + '.');
+    const waConfirm = encodeURIComponent('Hello Pinnacles Farm! 🌾 I just placed a pre-order for ' + qty + ' ' + unit + ' of ' + productName + '. My name is ' + name + ' and phone is ' + phone + '.');
     document.getElementById('preorder-modal-body').innerHTML =
       '<div style="text-align:center;padding:20px 0">' +
-      '<div style="font-size:3rem;margin-bottom:16px">\u2705</div>' +
-      '<h4 style="font-size:1.1rem;color:#a3d9b8;margin-bottom:10px">Pre-order Reserved!</h4>' +
-      '<p style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">Thank you <strong style="color:#fff">' + name + '</strong>! We\'ll contact you on <strong style="color:#fff">' + phone + '</strong> when <strong style="color:#52b788">' + productName + '</strong> is ready.</p>' +
-      '<a href="https://wa.me/2349037505632?text=' + waConfirm + '" target="_blank" style="display:inline-block;margin-top:20px;background:#25D366;color:#fff;border-radius:50px;padding:10px 24px;font-weight:700;font-size:.85rem;text-decoration:none">&#128172; Confirm on WhatsApp</a>' +
-      '<br><button onclick="closePreorderModal()" style="margin-top:12px;background:none;border:none;color:rgba(255,255,255,.4);font-size:.82rem;cursor:pointer;font-family:inherit">Close</button>' +
+      '<div style="font-size:3rem;margin-bottom:16px">✅</div>' +
+      '<h4 style="font-size:1.15rem;color:#a3d9b8;margin-bottom:10px">Pre-order Reserved!</h4>' +
+      '<p style="font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.7">Thank you <strong style="color:#fff">' + name + '</strong>! We have received your reservation for <strong style="color:#52b788">' + qty + ' ' + unit + ' of ' + productName + '</strong>. We\'ll contact you on WhatsApp at <strong style="color:#fff">' + phone + '</strong> when harvest is ready.</p>' +
+      '<a href="https://wa.me/2349037505632?text=' + waConfirm + '" target="_blank" style="display:inline-block;margin-top:20px;background:#25D366;color:#fff;border-radius:50px;padding:12px 26px;font-weight:700;font-size:.88rem;text-decoration:none">💬 Confirm on WhatsApp</a>' +
+      '<br><button onclick="closePreorderModal()" style="margin-top:14px;background:none;border:none;color:rgba(255,255,255,.5);font-size:.85rem;cursor:pointer;font-family:inherit">Close</button>' +
       '</div>';
   } catch(e) {
     if (errEl) { errEl.textContent = e.message; errEl.style.display = 'block'; }
@@ -917,123 +956,44 @@ function sendBulkWhatsApp() {
 }
 
 
-// ── Hero Background Media Controller ─────────────────────────
-let heroCurrentIndex = 0;
-let heroSlideshowTimer = null;
-let heroMode = 'slideshow';
+// ── Hero Background Media Interchange ─────────────────────────
+function initAutoHeroInterchange() {
+  const photo = document.getElementById('hero-photo-layer');
+  const vid   = document.getElementById('hero-video');
+  if (!photo && !vid) return;
 
-function showHeroSlide(index) {
-  const slideshow = document.getElementById('hero-slideshow');
-  if (!slideshow) return;
-  const slides = slideshow.querySelectorAll('.hero-slide');
-  const dots = document.querySelectorAll('.hero-dot');
-  if (slides.length === 0) return;
-
-  heroCurrentIndex = (index + slides.length) % slides.length;
-
-  slides.forEach((s, i) => {
-    if (i === heroCurrentIndex) s.classList.add('active');
-    else s.classList.remove('active');
-  });
-
-  dots.forEach((d, i) => {
-    if (i === heroCurrentIndex) d.classList.add('active');
-    else d.classList.remove('active');
-  });
-}
-
-function nextHeroSlide() {
-  showHeroSlide(heroCurrentIndex + 1);
-}
-
-function startHeroSlideshow() {
-  stopHeroSlideshow();
-  heroSlideshowTimer = setInterval(nextHeroSlide, 4500);
-}
-
-function stopHeroSlideshow() {
-  if (heroSlideshowTimer) {
-    clearInterval(heroSlideshowTimer);
-    heroSlideshowTimer = null;
+  if (vid) {
+    vid.muted = true;
+    vid.setAttribute('playsinline', '');
+    vid.play().catch(() => {
+      const playOnUserGesture = () => {
+        vid.play().catch(() => {});
+        window.removeEventListener('click', playOnUserGesture);
+        window.removeEventListener('touchstart', playOnUserGesture);
+      };
+      window.addEventListener('click', playOnUserGesture, { once: true });
+      window.addEventListener('touchstart', playOnUserGesture, { once: true });
+    });
   }
-}
 
-function jumpToHeroSlide(index) {
-  showHeroSlide(index);
-  if (heroMode === 'slideshow') {
-    startHeroSlideshow(); // reset timer
+  // Cross-fade interchange: photo (7 seconds) <-> video (12 seconds)
+  let showingPhoto = true;
+  function cycleHeroMedia() {
+    if (!photo) return;
+    if (showingPhoto) {
+      photo.classList.add('fade-out');
+      showingPhoto = false;
+      setTimeout(cycleHeroMedia, 12000); // Video layer plays for 12 seconds
+    } else {
+      photo.classList.remove('fade-out');
+      showingPhoto = true;
+      setTimeout(cycleHeroMedia, 7000);  // Photo layer displays for 7 seconds
+    }
   }
-}
 
-function toggleHeroMediaMode() {
-  const vid = document.getElementById('hero-video');
-  const slideshow = document.getElementById('hero-slideshow');
-  const dots = document.getElementById('hero-dots');
-  const icon = document.getElementById('hero-ctrl-icon');
-  const text = document.getElementById('hero-ctrl-text');
-
-  if (heroMode === 'slideshow') {
-    // Switch to ambient video
-    heroMode = 'video';
-    stopHeroSlideshow();
-    if (slideshow) slideshow.style.display = 'none';
-    if (dots) dots.style.display = 'none';
-    if (vid) {
-      vid.style.display = 'block';
-      vid.muted = true;
-      vid.play().catch(() => {});
-    }
-    if (icon) icon.textContent = '🖼️';
-    if (text) text.textContent = 'Slideshow';
-  } else {
-    // Switch to active slideshow
-    heroMode = 'slideshow';
-    if (vid) {
-      vid.pause();
-      vid.style.display = 'none';
-    }
-    if (slideshow) slideshow.style.display = 'block';
-    if (dots) dots.style.display = 'flex';
-    if (icon) icon.textContent = '🎥';
-    if (text) text.textContent = 'Play Video';
-    startHeroSlideshow();
-  }
-}
-
-async function initHeroMedia() {
-  const vid = document.getElementById('hero-video');
-  const slideshow = document.getElementById('hero-slideshow');
-  const dots = document.getElementById('hero-dots');
-
-  // Immediately start slideshow with existing DOM slides
-  startHeroSlideshow();
-
-  // Load custom settings if configured by admin
-  try {
-    const res = await fetch('/api/settings/hero');
-    if (res.ok) {
-      const config = await res.json();
-      if (config && Array.isArray(config.images) && config.images.length > 0 && slideshow) {
-        slideshow.innerHTML = config.images.map((src, i) =>
-          `<div class="hero-slide${i === 0 ? ' active' : ''}" style="background-image:url('${src}')"></div>`
-        ).join('');
-
-        if (dots) {
-          dots.innerHTML = config.images.map((_, i) =>
-            `<div class="hero-dot${i === 0 ? ' active' : ''}" onclick="jumpToHeroSlide(${i})"></div>`
-          ).join('');
-        }
-        showHeroSlide(0);
-      }
-
-      // If admin explicitly chose video as default
-      if (config && config.type === 'video') {
-        toggleHeroMediaMode();
-      }
-    }
-  } catch (_) {}
+  setTimeout(cycleHeroMedia, 7000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initHeroMedia();
+  initAutoHeroInterchange();
 });

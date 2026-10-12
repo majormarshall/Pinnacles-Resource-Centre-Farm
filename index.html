@@ -78,18 +78,12 @@
   <!-- HERO SECTION -->
   <section class="hero" id="home">
     <div class="hero-bg" id="hero-bg">
-      <!-- Active Slideshow -->
-      <div id="hero-slideshow" class="hero-slideshow">
-        <div class="hero-slide active" style="background-image:url('images/farm_hero.png')"></div>
-        <div class="hero-slide" style="background-image:url('images/tomatoes.png')"></div>
-        <div class="hero-slide" style="background-image:url('images/pepper.png')"></div>
-        <div class="hero-slide" style="background-image:url('images/strawberry.png')"></div>
-        <div class="hero-slide" style="background-image:url('images/maize.png')"></div>
-      </div>
-      <!-- Background Video (Toggleable or Configurable) -->
-      <video id="hero-video" class="hero-video" muted loop playsinline preload="auto" poster="images/farm_hero.png" style="display:none">
+      <!-- Ambient Farm Video (Layer 0) -->
+      <video id="hero-video" class="hero-video" autoplay muted loop playsinline preload="auto" poster="images/farm_hero.png">
         <source src="videos/hero-bg.mp4" type="video/mp4" />
       </video>
+      <!-- Scenic Farm Photo (Layer 1 - auto-crossfades with video) -->
+      <div id="hero-photo-layer" class="hero-photo-layer" style="background-image:url('images/farm_hero.png')"></div>
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -110,19 +104,6 @@
         <div class="hero-feat">&#x2705; Easy ordering</div>
         <div class="hero-feat">&#x1F33F; Farm-fresh produce</div>
       </div>
-    </div>
-    <!-- Slideshow indicators -->
-    <div class="hero-dots" id="hero-dots">
-      <div class="hero-dot active" onclick="jumpToHeroSlide(0)"></div>
-      <div class="hero-dot" onclick="jumpToHeroSlide(1)"></div>
-      <div class="hero-dot" onclick="jumpToHeroSlide(2)"></div>
-      <div class="hero-dot" onclick="jumpToHeroSlide(3)"></div>
-      <div class="hero-dot" onclick="jumpToHeroSlide(4)"></div>
-    </div>
-    <!-- Ambient video / slideshow toggle button -->
-    <div class="hero-media-ctrl" id="hero-media-ctrl" onclick="toggleHeroMediaMode()" title="Switch between Slideshow & Ambient Video">
-      <span id="hero-ctrl-icon">🎥</span>
-      <span id="hero-ctrl-text">Play Video</span>
     </div>
     <div class="hero-scroll-hint">
       <span>Scroll to explore</span>
@@ -683,11 +664,11 @@
 </div>
 
 <!-- PRE-ORDER MODAL -->
-<div id="preorder-modal" style="display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,.7);backdrop-filter:blur(6px)" onclick="if(event.target===this)closePreorderModal()">
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#111f11;border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:32px;width:min(460px,92vw)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h3 style="font-size:1.1rem;font-weight:800;color:#a3d9b8">&#x23F3; Pre-order</h3>
-      <button onclick="closePreorderModal()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer">&#x2715;</button>
+<div id="preorder-modal" style="display:none;position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);align-items:center;justify-content:center" onclick="if(event.target===this)closePreorderModal()">
+  <div style="background:#111f11;border:1px solid rgba(255,255,255,.16);border-radius:24px;padding:32px;width:min(480px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.7);position:relative">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 style="font-size:1.15rem;font-weight:800;color:#a3d9b8">⏳ Pre-order Produce</h3>
+      <button onclick="closePreorderModal()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:1.4rem;cursor:pointer;padding:4px;line-height:1">✕</button>
     </div>
     <div id="preorder-modal-body"></div>
   </div>
