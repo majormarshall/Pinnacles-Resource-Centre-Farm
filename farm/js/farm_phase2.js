@@ -24,7 +24,7 @@ function showFoTab(tab, el) {
     fields:loadFields, plantings:loadPlantings, harvests:loadHarvests,
     sprays:loadSprays, workers:loadWorkers, attendance:loadAttendance,
     inputs:loadInputs, equipment:loadEquipment, diary:loadDiary,
-    crops:loadCrops, payroll:initPayroll, team:loadTeam, reports:loadReports,
+    crops:loadCrops, payroll:initPayroll, team:loadTeam, reports:initReports,
   };
   if (loaders[tab]) loaders[tab]();
 }
@@ -303,64 +303,330 @@ async function markPaid(workerId, name, gross, periodStart, periodEnd, days, hou
   loadPayroll();
 }
 
-// \u2500\u2500 REPORTS (real data) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-async function loadReports() {
-  const reportsEl = document.getElementById('fotab-reports');
-  if (!reportsEl) return;
-  const now   = new Date();
-  const month = now.getMonth() + 1;
-  const year  = now.getFullYear();
+// ── FULL FARM REPORTS SYSTEM ──────────────────────────────────────────────
+let currentReportType = 'financial';
 
-  reportsEl.innerHTML = `<div style="padding:24px"><p style="color:rgba(255,255,255,.5);font-size:.88rem;margin-bottom:20px">Showing data for <strong style="color:#a3d9b8">${now.toLocaleString('en-NG',{month:'long',year:'numeric'})}</strong></p>
-  <div id="report-content"><div class="fo-empty">Loading reports\u2026</div></div></div>`;
+function initReports() {
+  const now = new Date();
+  const mSelect = document.getElementById('rpt-month');
+  const yInput  = document.getElementById('rpt-year');
+  if (mSelect && !mSelect.value) mSelect.value = now.getMonth() + 1;
+  if (yInput && !yInput.value)   yInput.value  = now.getFullYear();
+  switchReportView(currentReportType || 'financial');
+}
+
+function switchReportView(type) {
+  currentReportType = type;
+  document.querySelectorAll('.report-nav-pill').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('rpt-btn-' + type);
+  if (activeBtn) activeBtn.classList.add('active');
+  runCurrentReport();
+}
+
+function generateReport(type) {
+  const map = {
+    harvest_summary: 'harvest',
+    worker_attendance: 'attendance',
+    spray_log: 'sprays',
+    inputs_usage: 'inputs',
+    financial: 'financial'
+  };
+  const targetType = map[type] || type || 'financial';
+  showFoTab('reports', document.querySelector('.fo-nav-item[onclick*="reports"]'));
+  switchReportView(targetType);
+}
+
+function exportReport(type) {
+  const mSelect = document.getElementById('rpt-month');
+  const yInput  = document.getElementById('rpt-year');
+  const month = parseInt(mSelect?.value) || (new Date().getMonth() + 1);
+  const year  = parseInt(yInput?.value)  || new Date().getFullYear();
+  const token = foToken();
+
+  let endpoint = '';
+  if (type === 'monthly') endpoint = `/api/exports/monthly/excel?month=${month}&year=${year}&token=${encodeURIComponent(token)}`;
+  else if (type === 'harvest') endpoint = `/api/exports/harvest/excel?month=${month}&year=${year}&token=${encodeURIComponent(token)}`;
+  else if (type === 'payroll') endpoint = `/api/exports/payroll/excel?month=${month}&year=${year}&token=${encodeURIComponent(token)}`;
+
+  if (!endpoint) return;
+  foToast('📥 Preparing Excel download…', 2500);
+  window.open(endpoint, '_blank');
+}
+
+async function runCurrentReport() {
+  const container = document.getElementById('report-view-container');
+  if (!container) return;
+
+  const mSelect = document.getElementById('rpt-month');
+  const yInput  = document.getElementById('rpt-year');
+  const month = parseInt(mSelect?.value) || (new Date().getMonth() + 1);
+  const year  = parseInt(yInput?.value)  || new Date().getFullYear();
+  const mName = new Date(year, month - 1, 1).toLocaleString('en-NG', { month: 'long' });
+
+  container.innerHTML = '<div class="fo-empty" style="padding:40px 0">⏳ Loading ' + currentReportType.toUpperCase() + ' report for ' + mName + ' ' + year + '…</div>';
 
   try {
-    const [costs, harvests] = await Promise.all([
-      foApi('GET', `/reports/costs?month=${month}&year=${year}`),
-      foApi('GET', `/reports/harvest-summary?month=${month}&year=${year}`),
-    ]);
+    if (currentReportType === 'financial') {
+      await renderFinancialReport(month, year, mName, container);
+    } else if (currentReportType === 'harvest') {
+      await renderHarvestReport(month, year, mName, container);
+    } else if (currentReportType === 'attendance') {
+      await renderAttendanceReport(month, year, mName, container);
+    } else if (currentReportType === 'sprays') {
+      await renderSpraysReport(month, year, mName, container);
+    } else if (currentReportType === 'inputs') {
+      await renderInputsReport(month, year, mName, container);
+    }
+  } catch (err) {
+    container.innerHTML = '<div class="fo-empty" style="color:#f87171">⚠️ Error loading report: ' + err.message + '</div>';
+  }
+}
 
-    const profitColor = costs.profit >= 0 ? '' : ' red';
-    document.getElementById('report-content').innerHTML = `
+async function renderFinancialReport(month, year, mName, container) {
+  const [costs, harvests] = await Promise.all([
+    foApi('GET', `/reports/costs?month=${month}&year=${year}`).catch(() => ({ revenue:0, labour_cost:0, inputs_cost:0, profit:0, order_count:0 })),
+    foApi('GET', `/reports/harvest-summary?month=${month}&year=${year}`).catch(() => ({ total_kg:0, rows:[] })),
+  ]);
 
-      <div class="report-section">
-        <h4>\u{1F4B0} Financial Overview</h4>
-        <div class="report-kpi-row">
-          <div class="report-kpi"><div class="report-kpi-val">NGN ${Number(costs.revenue).toLocaleString('en-NG')}</div><div class="report-kpi-lbl">E-commerce Revenue</div></div>
-          <div class="report-kpi"><div class="report-kpi-val">NGN ${Number(costs.labour_cost).toLocaleString('en-NG')}</div><div class="report-kpi-lbl">Labour Cost</div></div>
-          <div class="report-kpi"><div class="report-kpi-val">NGN ${Number(costs.inputs_cost).toLocaleString('en-NG')}</div><div class="report-kpi-lbl">Inputs Cost</div></div>
-          <div class="report-kpi"><div class="report-kpi-val${profitColor}">NGN ${Number(costs.profit).toLocaleString('en-NG')}</div><div class="report-kpi-lbl">${costs.profit >= 0 ? '\u2705 Estimated Profit' : '\u26A0\uFE0F Estimated Loss'}</div></div>
-        </div>
+  const rev = Number(costs.revenue || 0);
+  const lab = Number(costs.labour_cost || 0);
+  const inp = Number(costs.inputs_cost || 0);
+  const profit = Number(costs.profit || (rev - lab - inp));
+  const profitColor = profit >= 0 ? '' : ' red';
+
+  container.innerHTML = `
+    <div class="report-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h4>💰 Financial & Performance Overview — ${mName} ${year}</h4>
+        <button class="fo-btn-secondary" onclick="exportReport('monthly')" style="font-size:.78rem;padding:6px 12px">📥 Download Monthly Excel</button>
       </div>
+      <div class="report-kpi-row">
+        <div class="report-kpi"><div class="report-kpi-val">₦${rev.toLocaleString('en-NG')}</div><div class="report-kpi-lbl">🛒 Store Orders Revenue</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">₦${lab.toLocaleString('en-NG')}</div><div class="report-kpi-lbl">👷 Labour / Payroll Cost</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">₦${inp.toLocaleString('en-NG')}</div><div class="report-kpi-lbl">📦 Inputs & Supplies Cost</div></div>
+        <div class="report-kpi"><div class="report-kpi-val${profitColor}">₦${profit.toLocaleString('en-NG')}</div><div class="report-kpi-lbl">${profit >= 0 ? '✅ Estimated Net Margin' : '⚠️ Estimated Deficit'}</div></div>
+      </div>
+    </div>
 
-      <div class="report-section">
-        <h4>\u{1F9FA} Harvest Summary</h4>
-        ${harvests.rows.length ? `
+    <div class="report-section">
+      <h4>🌾 Production Highlights</h4>
+      <div class="report-kpi-row" style="max-width:600px">
+        <div class="report-kpi"><div class="report-kpi-val">${(Number(harvests.total_kg) || 0).toFixed(1)} kg</div><div class="report-kpi-lbl">Total Harvested</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">${harvests.rows?.length || 0}</div><div class="report-kpi-lbl">Crop Varieties Harvested</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">${costs.order_count || 0}</div><div class="report-kpi-lbl">Customer Orders</div></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h4>🧺 Crop Harvest Breakdown</h4>
+      ${harvests.rows && harvests.rows.length ? `
+      <div style="background:var(--fo-bg3);border:1px solid var(--fo-border);border-radius:14px;overflow:hidden">
         <table class="report-table">
-          <thead><tr><th>Crop</th><th>Grade</th><th>Total Harvested</th><th>Harvests</th></tr></thead>
+          <thead><tr><th>Crop Name</th><th>Grade</th><th>Total Harvested</th><th>Harvest Events</th></tr></thead>
           <tbody>
             ${harvests.rows.map(r => `<tr>
-              <td>${r.crop_name || '\u2013'}</td>
+              <td><strong>${r.crop_name}</strong></td>
               <td><span class="fo-row-badge badge-${r.quality_grade === 'A' ? 'green' : r.quality_grade === 'B' ? 'yellow' : 'gray'}">Grade ${r.quality_grade}</span></td>
-              <td><strong>${Number(r.total_qty).toFixed(1)} ${r.unit}</strong></td>
+              <td><strong style="color:#52b788">${Number(r.total_qty).toFixed(1)} ${r.unit || 'kg'}</strong></td>
+              <td>${r.harvest_count} event${r.harvest_count === 1 ? '' : 's'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : '<p class="fo-empty">No harvest logs recorded for this period.</p>'}
+    </div>
+  `;
+}
+
+async function renderHarvestReport(month, year, mName, container) {
+  const data = await foApi('GET', `/reports/harvest-summary?month=${month}&year=${year}`).catch(() => ({ total_kg:0, total_events:0, rows:[], raw:[] }));
+  const rows = data.rows || [];
+  const raw  = data.raw || [];
+
+  container.innerHTML = `
+    <div class="report-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h4>🧺 Harvest Summary Report — ${mName} ${year}</h4>
+        <button class="fo-btn-secondary" onclick="exportReport('harvest')" style="font-size:.78rem;padding:6px 12px">📥 Download Harvest Excel</button>
+      </div>
+      <div class="report-kpi-row">
+        <div class="report-kpi"><div class="report-kpi-val">${(Number(data.total_kg)||0).toFixed(1)} kg</div><div class="report-kpi-lbl">Total Harvest Volume</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">${data.total_events || raw.length || 0}</div><div class="report-kpi-lbl">Harvest Sessions</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">${rows.length}</div><div class="report-kpi-lbl">Distinct Varieties</div></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h4>Totals By Crop & Grade</h4>
+      ${rows.length ? `
+      <div style="background:var(--fo-bg3);border:1px solid var(--fo-border);border-radius:14px;overflow:hidden;margin-bottom:24px">
+        <table class="report-table">
+          <thead><tr><th>Crop</th><th>Quality Grade</th><th>Quantity</th><th>Sessions</th></tr></thead>
+          <tbody>
+            ${rows.map(r => `<tr>
+              <td><strong>${r.crop_name}</strong></td>
+              <td><span class="fo-row-badge badge-${r.quality_grade === 'A' ? 'green' : r.quality_grade === 'B' ? 'yellow' : 'gray'}">Grade ${r.quality_grade}</span></td>
+              <td><strong style="color:#52b788">${Number(r.total_qty).toFixed(1)} ${r.unit || 'kg'}</strong></td>
               <td>${r.harvest_count}</td>
             </tr>`).join('')}
           </tbody>
-        </table>` : '<p class="fo-empty">No harvests recorded this month.</p>'}
-      </div>
+        </table>
+      </div>` : '<p class="fo-empty">No harvests found for this month.</p>'}
+    </div>
 
-      <div class="report-section">
-        <h4>\u{1F4CA} Orders Summary</h4>
-        <div class="report-kpi-row" style="max-width:400px">
-          <div class="report-kpi"><div class="report-kpi-val">${costs.order_count}</div><div class="report-kpi-lbl">Orders This Month</div></div>
-          <div class="report-kpi"><div class="report-kpi-val">NGN ${Number(costs.revenue).toLocaleString('en-NG')}</div><div class="report-kpi-lbl">Total Revenue</div></div>
-        </div>
-      </div>
-    `;
-  } catch(e) {
-    document.getElementById('report-content').innerHTML = `<p class="fo-empty">\u26A0\uFE0F Could not load report: ${e.message}</p>`;
-  }
+    <div class="report-section">
+      <h4>Detailed Harvest Activity Log</h4>
+      ${raw.length ? `
+      <div style="background:var(--fo-bg3);border:1px solid var(--fo-border);border-radius:14px;overflow:hidden">
+        <table class="report-table">
+          <thead><tr><th>Date</th><th>Crop</th><th>Grade</th><th>Quantity</th><th>Unit</th></tr></thead>
+          <tbody>
+            ${raw.map(h => `<tr>
+              <td>${fmtDate(h.harvest_date)}</td>
+              <td><strong>${h.crop_name}</strong></td>
+              <td>Grade ${h.quality_grade || 'A'}</td>
+              <td>${h.quantity}</td>
+              <td>${h.unit || 'kg'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : '<p class="fo-empty">No individual session records available.</p>'}
+    </div>
+  `;
 }
+
+async function renderAttendanceReport(month, year, mName, container) {
+  const data = await foApi('GET', `/reports/attendance?month=${month}&year=${year}`).catch(() => ({ workers:[], raw:[] }));
+  const workers = data.workers || [];
+
+  const totalDays  = workers.reduce((s, w) => s + (Number(w.days_worked)||0), 0);
+  const totalHours = workers.reduce((s, w) => s + (Number(w.hours_worked)||0), 0);
+
+  container.innerHTML = `
+    <div class="report-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h4>👷 Worker Attendance & Labour Report — ${mName} ${year}</h4>
+        <button class="fo-btn-secondary" onclick="exportReport('payroll')" style="font-size:.78rem;padding:6px 12px">📥 Download Payroll Excel</button>
+      </div>
+      <div class="report-kpi-row">
+        <div class="report-kpi"><div class="report-kpi-val">${workers.length}</div><div class="report-kpi-lbl">Total Registered Workers</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">${totalDays}</div><div class="report-kpi-lbl">Total Days Worked</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">${totalHours.toFixed(1)} hrs</div><div class="report-kpi-lbl">Total Hours Clocked</div></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h4>Worker Summary & Payslips</h4>
+      ${workers.length ? `
+      <div style="background:var(--fo-bg3);border:1px solid var(--fo-border);border-radius:14px;overflow:hidden">
+        <table class="report-table">
+          <thead><tr><th>Worker Name</th><th>Role</th><th>Pay Basis</th><th>Rate</th><th>Days Worked</th><th>Total Hours</th><th>Estimated Gross</th><th>Payslip</th></tr></thead>
+          <tbody>
+            ${workers.map(w => {
+              let gross = 0;
+              if (w.pay_type === 'monthly') gross = Number(w.pay_rate || 0);
+              else gross = (Number(w.days_worked)||0) * Number(w.pay_rate || 0);
+              const payslipUrl = `/api/exports/payslip/${w.id}?month=${month}&year=${year}&token=${encodeURIComponent(foToken())}`;
+              return `<tr>
+                <td><strong>${w.name}</strong></td>
+                <td><span style="font-size:.78rem;color:var(--fo-muted)">${(w.role || 'Worker').replace(/_/g,' ')}</span></td>
+                <td>${w.pay_type || 'daily'}</td>
+                <td>₦${Number(w.pay_rate||0).toLocaleString()}</td>
+                <td><strong>${w.days_worked || 0}</strong></td>
+                <td>${(Number(w.hours_worked)||0).toFixed(1)} hrs</td>
+                <td><strong style="color:#52b788">₦${gross.toLocaleString()}</strong></td>
+                <td><a href="${payslipUrl}" target="_blank" style="display:inline-block;background:rgba(82,183,136,.15);border:1px solid rgba(82,183,136,.3);color:#a3d9b8;padding:4px 10px;border-radius:6px;font-size:.74rem;font-weight:700;text-decoration:none">📄 PDF</a></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>` : '<p class="fo-empty">No workers recorded.</p>'}
+    </div>
+  `;
+}
+
+async function renderSpraysReport(month, year, mName, container) {
+  const data = await foApi('GET', `/reports/sprays?month=${month}&year=${year}`).catch(() => ({ rows:[] }));
+  const rows = data.rows || [];
+
+  container.innerHTML = `
+    <div class="report-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h4>💧 Chemical & Spraying Log Report — ${mName} ${year}</h4>
+      </div>
+      <div class="report-kpi-row" style="max-width:300px">
+        <div class="report-kpi"><div class="report-kpi-val">${rows.length}</div><div class="report-kpi-lbl">Spray Applications</div></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h4>Application History</h4>
+      ${rows.length ? `
+      <div style="background:var(--fo-bg3);border:1px solid var(--fo-border);border-radius:14px;overflow:hidden">
+        <table class="report-table">
+          <thead><tr><th>Date</th><th>Chemical Name</th><th>Dosage</th><th>Area / Field</th><th>Weather</th><th>Operator</th><th>Notes</th></tr></thead>
+          <tbody>
+            ${rows.map(s => `<tr>
+              <td>${fmtDate(s.spray_date)}</td>
+              <td><strong style="color:#60a5fa">${s.chemical_name}</strong></td>
+              <td>${s.dosage || '—'}</td>
+              <td>${s.area_sprayed || '—'}</td>
+              <td>${s.weather_conditions || '—'}</td>
+              <td>${s.sprayed_by || '—'}</td>
+              <td style="font-size:.78rem;color:var(--fo-muted)">${s.notes || '—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : '<p class="fo-empty">No spray applications logged for this period.</p>'}
+    </div>
+  `;
+}
+
+async function renderInputsReport(month, year, mName, container) {
+  const data = await foApi('GET', `/reports/inputs?month=${month}&year=${year}`).catch(() => ({ rows:[] }));
+  const rows = data.rows || [];
+  const totalCost = rows.reduce((s, r) => s + (Number(r.estimated_monthly_cost)||0), 0);
+
+  container.innerHTML = `
+    <div class="report-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h4>📦 Inputs & Supplies Usage Report — ${mName} ${year}</h4>
+      </div>
+      <div class="report-kpi-row" style="max-width:500px">
+        <div class="report-kpi"><div class="report-kpi-val">${rows.length}</div><div class="report-kpi-lbl">Inventory Items</div></div>
+        <div class="report-kpi"><div class="report-kpi-val">₦${totalCost.toLocaleString()}</div><div class="report-kpi-lbl">Est. Monthly Usage Cost</div></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h4>Stock & Consumption Summary</h4>
+      ${rows.length ? `
+      <div style="background:var(--fo-bg3);border:1px solid var(--fo-border);border-radius:14px;overflow:hidden">
+        <table class="report-table">
+          <thead><tr><th>Input Item</th><th>Category</th><th>Current Stock</th><th>Used This Month</th><th>Unit Cost</th><th>Monthly Cost</th></tr></thead>
+          <tbody>
+            ${rows.map(inp => `<tr>
+              <td><strong>${inp.name}</strong></td>
+              <td>${inp.type || 'General'}</td>
+              <td>${inp.current_stock || 0} ${inp.unit || 'kg'}</td>
+              <td><strong style="color:#fbbf24">${inp.used_this_month || 0} ${inp.unit || 'kg'}</strong></td>
+              <td>₦${Number(inp.cost_per_unit||0).toLocaleString()}</td>
+              <td><strong style="color:#52b788">₦${Number(inp.estimated_monthly_cost||0).toLocaleString()}</strong></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : '<p class="fo-empty">No input inventory records available.</p>'}
+    </div>
+  `;
+}
+
+// Global exports
+const loadReports = initReports;
+window.loadReports = initReports;
+window.initReports = initReports;
+window.generateReport = generateReport;
+window.switchReportView = switchReportView;
+window.runCurrentReport = runCurrentReport;
+window.exportReport = exportReport;
 
 // \u2500\u2500 TEAM / USER MANAGEMENT \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadTeam() {

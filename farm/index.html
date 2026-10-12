@@ -207,15 +207,42 @@
 
     <!-- REPORTS TAB -->
     <div id="fotab-reports" class="fo-tab">
-      <div class="fo-card" style="max-width:700px">
-        <h3 style="margin-bottom:20px">&#x1F4C8; Farm Reports</h3>
-        <div class="fo-report-grid">
-          <button class="fo-report-btn" onclick="generateReport('harvest_summary')">&#x1F9FA; Harvest Summary</button>
-          <button class="fo-report-btn" onclick="generateReport('worker_attendance')">&#x1F477; Worker Attendance</button>
-          <button class="fo-report-btn" onclick="generateReport('spray_log')">&#x1F4A7; Spray Log</button>
-          <button class="fo-report-btn" onclick="generateReport('inputs_usage')">&#x1F4E6; Inputs Usage</button>
+      <div class="fo-tab-toolbar" style="flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center">
+        <!-- Date Selector -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <label style="color:rgba(255,255,255,.7);font-size:.88rem;font-weight:600">Period:</label>
+          <select id="rpt-month" class="fo-select" style="width:140px" onchange="runCurrentReport()">
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+          <input type="number" id="rpt-year" class="fo-input" style="width:90px" value="2026" min="2024" max="2035" onchange="runCurrentReport()" />
+          <button class="fo-btn-primary" onclick="runCurrentReport()">🔄 Refresh Data</button>
         </div>
-        <p style="color:rgba(255,255,255,.4);font-size:.8rem;margin-top:24px">More reports coming soon. Data exports (Excel) will be available here.</p>
+
+        <!-- Export Actions -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="fo-btn-secondary" onclick="exportReport('monthly')" style="display:flex;align-items:center;gap:6px">📥 Full Monthly Excel</button>
+          <button class="fo-btn-secondary" onclick="exportReport('harvest')" style="display:flex;align-items:center;gap:6px">📥 Harvest Excel</button>
+          <button class="fo-btn-secondary" onclick="exportReport('payroll')" style="display:flex;align-items:center;gap:6px">📥 Payroll Excel</button>
+        </div>
+      </div>
+
+      <!-- Report Type Navigation Sub-tabs -->
+      <div class="report-nav-pills" style="display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 24px">
+        <button id="rpt-btn-financial" class="report-nav-pill active" onclick="switchReportView('financial')">💰 Financial &amp; Production</button>
+        <button id="rpt-btn-harvest" class="report-nav-pill" onclick="switchReportView('harvest')">🧺 Harvest Summary</button>
+        <button id="rpt-btn-attendance" class="report-nav-pill" onclick="switchReportView('attendance')">👷 Worker Attendance</button>
+        <button id="rpt-btn-sprays" class="report-nav-pill" onclick="switchReportView('sprays')">💧 Spraying Log</button>
+        <button id="rpt-btn-inputs" class="report-nav-pill" onclick="switchReportView('inputs')">📦 Inputs &amp; Supplies</button>
+      </div>
+
+      <!-- Report Content Container -->
+      <div id="report-view-container">
+        <div class="fo-empty">Loading reports…</div>
       </div>
     </div>
 

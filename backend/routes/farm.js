@@ -415,19 +415,36 @@ router.get('/reports/costs', requireAuth, async (req, res) => {
     const end   = new Date(year, month, 0).toISOString().slice(0, 10);
 
     // Labour cost from payroll
-    const { data: payroll } = await supabase.from('farm_payroll').select('gross_pay').gte('period_start', start).lte('period_start', end);
+    const { data: payroll } = await supabase.from('farm_payroll').select('gross_pay').gte('period_start', start).lte('period_start', end).catch(() => ({ data: [] }));
     const labourCost = (payroll || []).reduce((s, r) => s + (Number(r.gross_pay) || 0), 0);
 
-    // Inputs cost
-    const { data: usage } = await supabase.from('farm_input_usage').select('quantity_used, farm_inputs(cost_per_unit)').gte('use_date', start).lte('use_date', end);
-    const inputsCost = (usage || []).reduce((s, r) => s + (Number(r.quantity_used) || 0) * (Number(r.farm_inputs?.cost_per_unit) || 0), 0);
+    // Inputs cost safely (avoid fragile foreign join syntax)
+    const { data: usage } = await supabase.from('farm_input_usage').select('input_id, quantity_used').gte('use_date', start).lte('use_date', end).catch(() => ({ data: [] }));
+    const { data: inputs } = await supabase.from('farm_inputs').select('id, cost_per_unit').catch(() => ({ data: [] }));
+    const inputMap = {};
+    (inputs || []).forEach(inp => { inputMap[inp.id] = Number(inp.cost_per_unit) || 0; });
+    const inputsCost = (usage || []).reduce((s, r) => s + (Number(r.quantity_used) || 0) * (inputMap[r.input_id] || 0), 0);
 
     // Revenue from orders
     const { data: orders } = await supabase.from('orders').select('total').gte('created_at', start).lte('created_at', end + 'T23:59:59').neq('status', 'cancelled').catch(() => ({ data: [] }));
     const revenue = (orders || []).reduce((s, r) => s + (Number(r.total) || 0), 0);
 
-    res.json({ month, year, labour_cost: labourCost, inputs_cost: inputsCost, total_costs: labourCost + inputsCost, revenue, order_count: (orders || []).length, profit: revenue - labourCost - inputsCost });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    res.json({
+      month, year,
+      labour_cost: labourCost,
+      inputs_cost: inputsCost,
+      total_costs: labourCost + inputsCost,
+      revenue,
+      order_count: (orders || []).length,
+      profit: revenue - labourCost - inputsCost
+    });
+  } catch (e) {
+    res.json({
+      month: parseInt(req.query.month) || new Date().getMonth() + 1,
+      year: parseInt(req.query.year) || new Date().getFullYear(),
+      labour_cost: 0, inputs_cost: 0, total_costs: 0, revenue: 0, order_count: 0, profit: 0, error: e.message
+    });
+  }
 });
 
 router.get('/reports/harvest-summary', requireAuth, async (req, res) => {
@@ -437,18 +454,92 @@ router.get('/reports/harvest-summary', requireAuth, async (req, res) => {
     const start = new Date(year, month - 1, 1).toISOString().slice(0, 10);
     const end   = new Date(year, month, 0).toISOString().slice(0, 10);
 
-    const { data: harvests } = await supabase.from('farm_harvests').select('crop_name, quality_grade, quantity, unit').gte('harvest_date', start).lte('harvest_date', end);
+    const { data: harvests } = await supabase.from('farm_harvests').select('crop_name, quality_grade, quantity, unit, harvest_date').gte('harvest_date', start).lte('harvest_date', end).catch(() => ({ data: [] }));
 
-    // Group by crop_name + quality_grade in JS
     const groups = {};
+    let totalKg = 0;
     for (const h of (harvests || [])) {
-      const key = (h.crop_name || 'Unknown') + '|' + h.quality_grade;
-      if (!groups[key]) groups[key] = { crop_name: h.crop_name, quality_grade: h.quality_grade, unit: h.unit, total_qty: 0, harvest_count: 0 };
-      groups[key].total_qty     += Number(h.quantity) || 0;
+      const crop = h.crop_name || 'Produce';
+      const grade = h.quality_grade || 'A';
+      const unit = h.unit || 'kg';
+      const qty = Number(h.quantity) || 0;
+      const key = crop + '|' + grade;
+      if (!groups[key]) groups[key] = { crop_name: crop, quality_grade: grade, unit, total_qty: 0, harvest_count: 0 };
+      groups[key].total_qty     += qty;
       groups[key].harvest_count += 1;
+      totalKg += qty;
     }
-    res.json({ month, year, rows: Object.values(groups) });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    res.json({ month, year, total_kg: totalKg, total_events: (harvests || []).length, rows: Object.values(groups), raw: harvests || [] });
+  } catch (e) {
+    res.json({ month: parseInt(req.query.month) || new Date().getMonth() + 1, year: parseInt(req.query.year) || new Date().getFullYear(), total_kg: 0, total_events: 0, rows: [], raw: [], error: e.message });
+  }
+});
+
+router.get('/reports/attendance', requireAuth, async (req, res) => {
+  try {
+    const month = parseInt(req.query.month) || new Date().getMonth() + 1;
+    const year  = parseInt(req.query.year)  || new Date().getFullYear();
+    const start = new Date(year, month - 1, 1).toISOString().slice(0, 10);
+    const end   = new Date(year, month, 0).toISOString().slice(0, 10);
+
+    const [{ data: workers }, { data: attendance }] = await Promise.all([
+      supabase.from('farm_workers').select('*').catch(() => ({ data: [] })),
+      supabase.from('farm_attendance').select('*').gte('work_date', start).lte('work_date', end).catch(() => ({ data: [] })),
+    ]);
+
+    const workerMap = {};
+    (workers || []).forEach(w => {
+      workerMap[w.id] = { id: w.id, name: w.name, role: w.role, pay_type: w.pay_type, pay_rate: Number(w.pay_rate)||0, days_worked: 0, hours_worked: 0, status: w.status };
+    });
+
+    (attendance || []).forEach(a => {
+      if (workerMap[a.worker_id]) {
+        workerMap[a.worker_id].days_worked += 1;
+        workerMap[a.worker_id].hours_worked += Number(a.hours_worked) || 0;
+      }
+    });
+
+    res.json({ month, year, workers: Object.values(workerMap), raw: attendance || [] });
+  } catch (e) { res.json({ workers: [], raw: [], error: e.message }); }
+});
+
+router.get('/reports/sprays', requireAuth, async (req, res) => {
+  try {
+    const month = parseInt(req.query.month) || new Date().getMonth() + 1;
+    const year  = parseInt(req.query.year)  || new Date().getFullYear();
+    const start = new Date(year, month - 1, 1).toISOString().slice(0, 10);
+    const end   = new Date(year, month, 0).toISOString().slice(0, 10);
+
+    const { data: sprays } = await supabase.from('farm_sprays').select('*').gte('spray_date', start).lte('spray_date', end).order('spray_date', { ascending: false }).catch(() => ({ data: [] }));
+    res.json({ month, year, rows: sprays || [] });
+  } catch (e) { res.json({ rows: [], error: e.message }); }
+});
+
+router.get('/reports/inputs', requireAuth, async (req, res) => {
+  try {
+    const month = parseInt(req.query.month) || new Date().getMonth() + 1;
+    const year  = parseInt(req.query.year)  || new Date().getFullYear();
+    const start = new Date(year, month - 1, 1).toISOString().slice(0, 10);
+    const end   = new Date(year, month, 0).toISOString().slice(0, 10);
+
+    const [{ data: inputs }, { data: usage }] = await Promise.all([
+      supabase.from('farm_inputs').select('*').catch(() => ({ data: [] })),
+      supabase.from('farm_input_usage').select('*').gte('use_date', start).lte('use_date', end).catch(() => ({ data: [] })),
+    ]);
+
+    const usageByInput = {};
+    (usage || []).forEach(u => {
+      usageByInput[u.input_id] = (usageByInput[u.input_id] || 0) + (Number(u.quantity_used) || 0);
+    });
+
+    const rows = (inputs || []).map(inp => ({
+      ...inp,
+      used_this_month: usageByInput[inp.id] || 0,
+      estimated_monthly_cost: (usageByInput[inp.id] || 0) * (Number(inp.cost_per_unit) || 0)
+    }));
+
+    res.json({ month, year, rows });
+  } catch (e) { res.json({ rows: [], error: e.message }); }
 });
 
 // ── INPUT USAGE ────────────────────────────────────────────────────────────

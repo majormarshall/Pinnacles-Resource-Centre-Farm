@@ -101,7 +101,7 @@ function showFoTab(tab, el) {
   if (el) el.classList.add('active');
   const titles = { overview:'Farm Dashboard', fields:'Fields & Plots', plantings:'Planting Records', harvests:'Harvest Records', sprays:'Spraying Log', workers:'Farm Workers', attendance:'Attendance', inputs:'Inputs & Supplies', equipment:'Equipment', diary:'Farm Diary', reports:'Reports' };
   document.getElementById('fo-topbar-title').textContent = titles[tab] || tab;
-  const loaders = { fields:loadFields, plantings:loadPlantings, harvests:loadHarvests, sprays:loadSprays, workers:loadWorkers, attendance:loadAttendance, inputs:loadInputs, equipment:loadEquipment, diary:loadDiary };
+  const loaders = { overview:loadOverviewData, fields:loadFields, plantings:loadPlantings, harvests:loadHarvests, sprays:loadSprays, workers:loadWorkers, attendance:loadAttendance, inputs:loadInputs, equipment:loadEquipment, diary:loadDiary, reports: () => { if (typeof initReports === 'function') initReports(); } };
   if (loaders[tab]) loaders[tab]();
 }
 
@@ -711,7 +711,12 @@ function v(id) { const el = document.getElementById(id); return el ? el.value.tr
 function today() { return new Date().toISOString().slice(0,10); }
 
 function generateReport(type) {
-  foToast('\u{1F4CA} Report generation coming soon \u2014 check back!', 3000);
+  if (typeof window.generateReport === 'function' && window.generateReport !== generateReport) {
+    window.generateReport(type);
+    return;
+  }
+  showFoTab('reports', document.querySelector('.fo-nav-item[onclick*="reports"]'));
+  if (typeof switchReportView === 'function') switchReportView(type);
 }
 
 // \u2500\u2500 Init \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500

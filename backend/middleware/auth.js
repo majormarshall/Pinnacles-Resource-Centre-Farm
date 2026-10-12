@@ -4,7 +4,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'pinnacles_farm_secret_2026_jwt';
 
 function requireAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+  const token = (authHeader && authHeader.split(' ')[1]) || req.query.token;
   if (!token) return res.status(401).json({ error: 'Access denied. No token.' });
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
