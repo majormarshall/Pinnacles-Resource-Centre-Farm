@@ -976,22 +976,22 @@ function initAutoHeroInterchange() {
     });
   }
 
-  // Cross-fade interchange: photo (7 seconds) <-> video (12 seconds)
+  // Cross-fade interchange: photo (4 seconds) <-> video (5 seconds)
   let showingPhoto = true;
   function cycleHeroMedia() {
     if (!photo) return;
     if (showingPhoto) {
       photo.classList.add('fade-out');
       showingPhoto = false;
-      setTimeout(cycleHeroMedia, 12000); // Video layer plays for 12 seconds
+      setTimeout(cycleHeroMedia, 5000); // Video layer plays for 5 seconds
     } else {
       photo.classList.remove('fade-out');
       showingPhoto = true;
-      setTimeout(cycleHeroMedia, 7000);  // Photo layer displays for 7 seconds
+      setTimeout(cycleHeroMedia, 4000);  // Photo layer displays for 4 seconds
     }
   }
 
-  setTimeout(cycleHeroMedia, 7000);
+  setTimeout(cycleHeroMedia, 3500);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
