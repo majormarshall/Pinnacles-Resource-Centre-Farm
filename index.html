@@ -41,6 +41,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/chatbot.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#52b788" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Pinnacles Farm" />
 </head>
 <body>
 
@@ -68,8 +74,10 @@
         <li><a href="#about">About</a></li>
         <li><a href="#gallery">Gallery</a></li>
         <li><a href="#contact">Contact</a></li>
+        <li><a href="#products" class="nav-link" onclick="showWishlist()">❤️ Wishlist <span class="wishlist-badge" id="wishlist-badge">0</span></a></li>
         <li><a href="#" class="nav-cart-btn" onclick="toggleCart()">&#x1F6D2; Cart <span class="cart-badge" id="cart-badge">0</span></a></li>
       </ul>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
       <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()">&#x2630;</button>
     </div>
   
@@ -119,6 +127,24 @@
     </div>
   </div>
 
+  <!-- DEAL OF THE DAY -->
+  <div id="deal-banner" class="deal-banner" style="display:none">
+    <div class="deal-inner container">
+      <div class="deal-left">
+        <span class="deal-tag">🔥 Deal of the Day</span>
+        <div class="deal-name" id="deal-name"></div>
+        <div class="deal-meta">
+          <span class="deal-old-price" id="deal-old-price"></span>
+          <span class="deal-new-price" id="deal-new-price"></span>
+          <span class="deal-save" id="deal-save"></span>
+        </div>
+      </div>
+      <div class="deal-countdown" id="deal-countdown"></div>
+      <button class="deal-cta" id="deal-cta">🛒 Grab Deal</button>
+      <button class="deal-dismiss" onclick="document.getElementById('deal-banner').style.display='none'">✕</button>
+    </div>
+  </div>
+
   <!-- TODAY'S HARVEST BANNER -->
   <section class="harvest-today" id="harvest-today" style="display:none">
     <div class="container">
@@ -143,6 +169,13 @@
       </div>
 
       <!-- Filter Buttons -->
+      <!-- Search bar -->
+      <div class="product-search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="product-search" placeholder="Search products e.g. tomatoes, eggs..." oninput="filterBySearch(this.value)" autocomplete="off" />
+        <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</button>
+      </div>
+
       <div class="filter-bar">
         <button class="filter-btn active" onclick="filterProducts('all', this)">All Products</button>
         <button class="filter-btn" onclick="filterProducts('vegetables', this)">&#x1F966; Vegetables</button>

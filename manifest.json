@@ -1,0 +1,15 @@
+{
+  "name": "Pinnacles Resource Centre Farm",
+  "short_name": "Pinnacles Farm",
+  "description": "Order fresh farm produce from Pinnacles Resource Centre Farm, Offa, Kwara State.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d2818",
+  "theme_color": "#52b788",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/images/logo.svg", "sizes": "192x192", "type": "image/svg+xml" },
+    { "src": "/images/logo.svg", "sizes": "512x512", "type": "image/svg+xml" }
+  ],
+  "categories": ["food", "shopping"]
+}

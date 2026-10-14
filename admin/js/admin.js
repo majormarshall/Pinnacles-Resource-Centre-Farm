@@ -93,20 +93,41 @@ async function api(method, path, body = null, auth = true) {
 function showTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  const target = document.getElementById('tab-' + tab);
+  if (target) target.classList.add('active');
   if (el) el.classList.add('active');
   currentTab = tab;
-  const titles = { overview:'Dashboard Overview', orders:'Orders', products:'Products', gallery:'Farm Gallery', messages:'Messages', settings:'Settings', harvest:"Today's Harvest" };
+  const titles = {
+    overview: 'Dashboard Overview',
+    orders: 'Orders',
+    products: 'Products',
+    gallery: 'Farm Gallery',
+    messages: 'Messages',
+    settings: 'Settings',
+    harvest: "Today's Harvest",
+    preorders: 'Pre-orders',
+    payroll: 'Staff Payroll Calculator',
+    'harvest-calendar': 'Harvest Calendar'
+  };
   document.getElementById('topbar-title').textContent = titles[tab] || tab;
-  if (tab === 'overview') loadOverview();
-  if (tab === 'orders')   loadOrders();
-  if (tab === 'products') loadProducts();
-  if (tab === 'gallery')  loadGallery();
-  if (tab === 'messages') loadMessages();
+  switch (tab) {
+    case 'overview': loadOverview(); break;
+    case 'orders': loadOrders(); break;
+    case 'products': loadProducts(); break;
+    case 'gallery': loadGallery(); break;
+    case 'messages': loadMessages(); break;
+    case 'payroll': loadPayrollCalculator(); break;
+    case 'harvest-calendar':
+    case 'calendar': loadHarvestCalendar(); break;
+    case 'preorders': loadPreorders(); break;
+    case 'harvest': loadHarvestAdmin(); break;
+  }
 }
 
 // \u2500\u2500 Overview \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadOverview() {
+  checkLowStock();
+  loadWeatherWidget();
   const [ordersData, msgsData] = await Promise.all([
     api('GET', '/orders'),
     api('GET', '/messages')
@@ -114,7 +135,7 @@ async function loadOverview() {
   const s = ordersData.stats || {};
   setText('stat-total-orders', s.total || 0);
   setText('stat-pending', s.pending || 0);
-  setText('stat-revenue', `\u20A6${Number(s.revenue || 0).toLocaleString()}`);
+  setText('stat-revenue', `₦${Number(s.revenue || 0).toLocaleString()}`);
   setText('stat-msgs', msgsData.unread || 0);
   document.getElementById('pending-badge').textContent = s.pending || 0;
   document.getElementById('msg-badge').textContent = msgsData.unread || 0;
@@ -129,7 +150,7 @@ async function loadOverview() {
             <div style="font-size:.75rem;color:var(--text-muted)">${formatDate(o.created_at)}</div>
           </div>
           <div style="text-align:right">
-            <div style="font-weight:700;color:var(--green-light)">\u20A6${Number(o.total).toLocaleString()}</div>
+            <div style="font-weight:700;color:var(--green-light)">₦${Number(o.total).toLocaleString()}</div>
             <span class="status-badge status-${o.status}">${o.status}</span>
           </div>
         </div>`).join('')
@@ -140,10 +161,304 @@ async function loadOverview() {
   document.getElementById('recent-messages-list').innerHTML = recentMsgs.length
     ? recentMsgs.map(m => `
         <div class="recent-msg-row">
-          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">\u25CF NEW</span>'}</div>
-          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'\u2026':''}</div>
+          <div style="font-weight:600;font-size:.88rem">${m.name} ${m.is_read ? '' : '<span style="color:var(--green-light);font-size:.7rem">● NEW</span>'}</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${m.message.substring(0,80)}${m.message.length>80?'…':''}</div>
         </div>`).join('')
     : '<p style="color:var(--text-muted);font-size:.88rem;padding:20px 0;text-align:center">No messages yet</p>';
+
+  // Render Charts
+  renderSalesCharts();
+}
+
+// ── Sales Charts (Chart.js) ────────────────────────────────────
+async function renderSalesCharts() {
+  // Fetch orders data
+  let orders = [];
+  try {
+    const res = await api('GET', '/orders');
+    orders = Array.isArray(res) ? res : (res?.orders || []);
+  } catch { return; }
+  if (!Array.isArray(orders)) return;
+
+  // Revenue last 7 days
+  const days = {};
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days[d.toISOString().slice(0,10)] = 0;
+  }
+  orders.forEach(o => {
+    const d = (o.created_at||'').slice(0,10);
+    if (days[d] !== undefined) days[d] += Number(o.total||0);
+  });
+  const labels = Object.keys(days).map(d => { const dt = new Date(d); return dt.toLocaleDateString('en-NG',{weekday:'short',day:'numeric'}); });
+  const values = Object.values(days);
+
+  const rCtx = document.getElementById('revenue-chart');
+  if (rCtx && typeof Chart !== 'undefined') {
+    if (rCtx._chart) rCtx._chart.destroy();
+    rCtx._chart = new Chart(rCtx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{ label: 'Revenue (₦)', data: values, borderColor: '#52b788', backgroundColor: 'rgba(82,183,136,.1)', tension: .4, fill: true, pointBackgroundColor: '#52b788' }]
+      },
+      options: { responsive: true, plugins: { legend: { labels: { color: '#a3d9b8' } } }, scales: { x: { ticks: { color: '#666' } }, y: { ticks: { color: '#666', callback: v => '₦'+v.toLocaleString() } } } }
+    });
+  }
+
+  // Status breakdown
+  const statuses = {};
+  orders.forEach(o => { statuses[o.status||'pending'] = (statuses[o.status||'pending']||0)+1; });
+  const sCtx = document.getElementById('status-chart');
+  if (sCtx && typeof Chart !== 'undefined') {
+    if (sCtx._chart) sCtx._chart.destroy();
+    sCtx._chart = new Chart(sCtx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(statuses),
+        datasets: [{ data: Object.values(statuses), backgroundColor: ['#52b788','#fbbf24','#f87171','#60a5fa','#a78bfa'] }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#a3d9b8', font: { size: 11 } } } } }
+    });
+  }
+}
+
+// ── Low Stock Alert ────────────────────────────────────────────
+async function checkLowStock() {
+  try {
+    const raw = await api('GET', '/products');
+    const products = Array.isArray(raw) ? raw : (raw?.products || []);
+    const low = products.filter(p => Number(p.in_stock) === 0 || (p.stock !== undefined && Number(p.stock) < 5) || (p.stock_qty !== undefined && Number(p.stock_qty) < 5));
+    if (!low.length) return;
+    const container = document.getElementById('low-stock-alert');
+    if (!container) return;
+    container.style.display = 'block';
+    container.innerHTML = `
+      <div class="alert-banner alert-warning">
+        ⚠️ <strong>${low.length} product${low.length>1?'s':''} low/out of stock:</strong>
+        ${low.map(p => `<span class="stock-chip">${p.emoji||'🌿'} ${p.name}</span>`).join('')}
+        <a href="#" onclick="showTab('products', document.querySelector('[onclick*=products]'))" style="margin-left:12px;color:#fbbf24;font-weight:700">Manage Products →</a>
+      </div>
+    `;
+  } catch {}
+}
+
+// ── Weather Widget (Offa, Kwara) ──────────────────────────────
+async function loadWeatherWidget() {
+  const el = document.getElementById('weather-widget');
+  if (!el) return;
+  try {
+    // Using Open-Meteo API (free, no API key needed!) for Offa coordinates
+    // Offa, Kwara State: lat 8.15, lon 4.72
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=8.15&longitude=4.72&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Africa%2FLagos&forecast_days=3');
+    const data = await res.json();
+    const c = data.current;
+    const d = data.daily;
+    const wmoMap = { 0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️' };
+    const icon = wmoMap[c.weather_code] || '🌡️';
+    el.innerHTML = `
+      <div class="weather-card">
+        <div class="weather-header">
+          <span class="weather-icon">${icon}</span>
+          <div>
+            <div class="weather-temp">${Math.round(c.temperature_2m)}°C</div>
+            <div class="weather-loc">📍 Offa, Kwara</div>
+          </div>
+        </div>
+        <div class="weather-meta">
+          <span>💧 ${c.relative_humidity_2m}%</span>
+          <span>💨 ${c.wind_speed_10m} km/h</span>
+        </div>
+        <div class="weather-forecast">
+          ${d.time.slice(0,3).map((day,i) => `
+            <div class="forecast-day">
+              <span>${i===0?'Today':new Date(day).toLocaleDateString('en-NG',{weekday:'short'})}</span>
+              <span>${wmoMap[d.precipitation_sum[i]>2?61:0]||'🌡️'}</span>
+              <span>${Math.round(d.temperature_2m_max[i])}°</span>
+            </div>
+          `).join('')}
+        </div>
+        <p class="weather-note">🌾 ${c.temperature_2m > 35 ? 'Hot — ensure irrigation' : c.temperature_2m < 22 ? 'Cool — good for leafy crops' : 'Good farming conditions today'}</p>
+      </div>
+    `;
+  } catch { el.innerHTML = '<p style="font-size:.8rem;color:rgba(255,255,255,.35)">Weather unavailable</p>'; }
+}
+
+// ── Staff Payroll Calculator ──────────────────────────────────
+async function loadPayrollCalculator() {
+  const content = document.getElementById('tab-payroll') || document.getElementById('tab-content');
+  if (!content) return;
+  // First load workers and their attendance
+  let workers = [], attendance = [];
+  try {
+    const [wRes, aRes] = await Promise.all([
+      api('GET', '/farm/workers'),
+      api('GET', '/farm/attendance')
+    ]);
+    workers = Array.isArray(wRes) ? wRes : (wRes?.workers || []);
+    attendance = Array.isArray(aRes) ? aRes : (aRes?.attendance || []);
+  } catch {}
+  // Group attendance by worker for current month
+  const now = new Date();
+  const monthStr = now.toISOString().slice(0,7); // YYYY-MM
+  const workerDays = {};
+  attendance.forEach(a => {
+    if ((a.work_date||'').startsWith(monthStr)) {
+      workerDays[a.worker_id] = (workerDays[a.worker_id]||0) + (Number(a.hours_worked)||8);
+    }
+  });
+  content.innerHTML = `
+    <div class="admin-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:8px">
+        <h2>💰 Staff Payroll Calculator</h2>
+        <button class="btn-outline btn-sm" onclick="loadPayrollCalculator()">🔄 Refresh</button>
+      </div>
+      <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-bottom:24px">
+        Showing estimated payroll for ${now.toLocaleDateString('en-NG',{month:'long',year:'numeric'})} based on attendance records.
+      </p>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr>
+            <th>Worker</th><th>Role</th><th>Pay Type</th><th>Rate</th><th>Days/Hours Worked</th><th>Amount Due (₦)</th>
+          </tr></thead>
+          <tbody>
+            ${workers.length === 0 ? '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:30px">No workers recorded yet. Go to Farm Ops → Workers to add staff.</td></tr>' : workers.map(w => {
+              const hoursWorked = workerDays[w.id] || 0;
+              const daysWorked = w.pay_type === 'daily' ? Math.round(hoursWorked / 8) : hoursWorked;
+              const amount = w.pay_type === 'daily' ? daysWorked * (Number(w.pay_rate)||0) : hoursWorked * (Number(w.pay_rate)||0);
+              return `<tr>
+                <td><strong>${w.name}</strong></td>
+                <td>${w.role || '-'}</td>
+                <td>${w.pay_type || 'daily'}</td>
+                <td>₦${Number(w.pay_rate || 0).toLocaleString()}</td>
+                <td>${w.pay_type === 'daily' ? daysWorked + ' days' : hoursWorked + ' hrs'}</td>
+                <td style="font-weight:700;color:#a3d9b8">₦${amount.toLocaleString()}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr>
+            <td colspan="5" style="text-align:right;font-weight:700">Total Payroll:</td>
+            <td style="font-weight:800;color:#fbbf24">₦${workers.reduce((sum,w) => {
+              const h = workerDays[w.id]||0;
+              const d = w.pay_type === 'daily' ? Math.round(h/8) : h;
+              return sum + (w.pay_type==='daily' ? d*(Number(w.pay_rate)||0) : h*(Number(w.pay_rate)||0));
+            }, 0).toLocaleString()}</td>
+          </tr></tfoot>
+        </table>
+      </div>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.35);margin-top:16px">* Payroll is calculated from attendance records. Go to Farm Ops → Attendance to manage records.</p>
+    </div>
+  `;
+}
+
+// ── Harvest Calendar ──────────────────────────────────────────
+async function loadHarvestCalendar() {
+  const content = document.getElementById('tab-harvest-calendar') || document.getElementById('tab-calendar') || document.getElementById('tab-content');
+  if (!content) return;
+  let harvests = [];
+  try {
+    const res = await api('GET', '/farm/harvests');
+    harvests = Array.isArray(res) ? res : (res?.harvests || []);
+  } catch {}
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  // Group harvests by date
+  const harvestByDate = {};
+  harvests.forEach(h => {
+    const d = (h.harvest_date||'').slice(0,10);
+    if (!harvestByDate[d]) harvestByDate[d] = [];
+    harvestByDate[d].push(h);
+  });
+  const monthName = now.toLocaleDateString('en-NG', {month:'long',year:'numeric'});
+  let calHTML = `<div class="calendar-grid">`;
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    calHTML += `<div class="cal-header">${d}</div>`;
+  });
+  for (let i = 0; i < firstDay; i++) calHTML += '<div></div>';
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayHarvests = harvestByDate[dateStr] || [];
+    const isToday = day === now.getDate();
+    calHTML += `<div class="cal-day${isToday?' today':''}${dayHarvests.length?' has-harvest':''}">
+      <span class="cal-day-num">${day}</span>
+      ${dayHarvests.map(h => `<div class="cal-harvest-dot" title="${h.crop_name||'Harvest'}: ${h.quantity}${h.unit}">🌾 ${h.crop_name||''}</div>`).join('')}
+    </div>`;
+  }
+  calHTML += '</div>';
+  content.innerHTML = `
+    <div class="admin-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:8px">
+        <h2>📅 Harvest Calendar — ${monthName}</h2>
+        <div style="display:flex;gap:10px">
+          <button class="btn-outline btn-sm" onclick="loadHarvestCalendar()">🔄 Refresh</button>
+          <button class="btn-primary btn-sm" onclick="exportHarvestReportPDF()">📄 Export Today's Report</button>
+        </div>
+      </div>
+      <p style="color:rgba(255,255,255,.4);font-size:.83rem;margin-bottom:24px">Days with 🌾 had recorded harvests. Log new harvests in Farm Ops → Harvests.</p>
+      ${calHTML}
+    </div>
+  `;
+}
+
+// ── Daily Harvest Report (PDF / HTML Export) ───────────────────
+function exportHarvestReportPDF() {
+  // Get today's harvests from farm ops
+  api('GET', '/farm/harvests').then(data => {
+    const harvests = Array.isArray(data) ? data : (data?.harvests || []);
+    const today = new Date().toISOString().slice(0,10);
+    const todayHarvests = harvests.filter(h => (h.harvest_date||'').slice(0,10) === today);
+    const content = `
+      <html><head><title>Harvest Report ${today}</title>
+      <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; color: #1a1a1a; }
+        h1 { color: #1b4332; font-size: 1.4rem; margin-bottom: 4px; }
+        .meta { color: #666; font-size: .85rem; margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1b4332; color: white; padding: 10px 14px; text-align: left; font-size: .85rem; }
+        td { padding: 10px 14px; border-bottom: 1px solid #eee; font-size: .85rem; }
+        tr:nth-child(even) td { background: #f9f9f9; }
+        .total { font-weight: 700; background: #f0faf4; }
+        .footer { margin-top: 32px; font-size: .78rem; color: #999; text-align: center; }
+      </style></head><body>
+      <h1>🌾 Daily Harvest Report</h1>
+      <div class="meta">Pinnacles Resource Centre Farm | Date: ${today}</div>
+      ${todayHarvests.length === 0 
+        ? '<p style="color:#999">No harvests recorded today.</p>'
+        : `<table><thead><tr><th>Crop</th><th>Quantity</th><th>Unit</th><th>Quality</th><th>Field</th><th>Harvested By</th></tr></thead><tbody>
+        ${todayHarvests.map(h => `<tr><td>${h.crop_name||'-'}</td><td>${h.quantity}</td><td>${h.unit}</td><td>${h.quality_grade||'A'}</td><td>${h.field_name||'-'}</td><td>${h.harvested_by||'-'}</td></tr>`).join('')}
+        </tbody></table>`
+      }
+      <div class="footer">Generated ${new Date().toLocaleString('en-NG')} | Pinnacles Resource Centre Farm, Offa, Kwara State</div>
+      </body></html>`;
+    const blob = new Blob([content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `harvest-report-${today}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showAdminToast('📄 Harvest report downloaded!');
+  }).catch(() => showAdminToast('Could not load harvest data', 'error'));
+}
+
+// ── Admin Toast Utility ───────────────────────────────────────
+function showAdminToast(msg, type='success') {
+  let c = document.getElementById('admin-toast-container');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'admin-toast-container';
+    c.style.cssText = 'position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px';
+    document.body.appendChild(c);
+  }
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `background:${type==='error'?'#3b0f0f':'#1b4332'};color:${type==='error'?'#fca5a5':'#a3d9b8'};border:1px solid ${type==='error'?'rgba(248,113,113,.3)':'rgba(82,183,136,.3)'};padding:12px 20px;border-radius:12px;font-size:.88rem;font-weight:600;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translateY(-10px);transition:.3s`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='1'; t.style.transform='translateY(0)'; }, 10);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 400); }, 3500);
 }
 
 // \u2500\u2500 Orders \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500

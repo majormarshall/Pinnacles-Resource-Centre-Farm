@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -45,14 +46,16 @@
         </div>
       </div>
       <nav class="sidebar-nav">
-        <a href="#" class="nav-item" onclick="showTab('overview', this)">&#x1F4CA; <span class='nav-text'>Overview</span></a>
-        <a href="#" class="nav-item" onclick="showTab('orders', this)">&#x1F6D2; <span class='nav-text'>Orders </span><span class="nav-badge" id="pending-badge">0</span></a>
-        <a href="#" class="nav-item" onclick="showTab('products', this)">&#x1F33F; <span class='nav-text'>Products</span></a>
-        <a href="#" class="nav-item" onclick="showTab('harvest', this); loadHarvestAdmin()">&#x1F331; <span class='nav-text'>Today's Harvest</span></a>
-        <a href="#" class="nav-item" onclick="showTab('preorders', this); loadPreorders()">&#x23F3; <span class='nav-text'>Pre-orders </span><span class="nav-badge" id="preorder-badge">0</span></a>
-        <a href="#" class="nav-item" onclick="showTab('gallery', this)">&#x1F5BC;&#xFE0F; <span class='nav-text'>Gallery</span></a>
-        <a href="#" class="nav-item" onclick="showTab('messages', this)">&#x1F4AC; <span class='nav-text'>Messages </span><span class="nav-badge" id="msg-badge">0</span></a>
-        <a href="#" class="nav-item" onclick="showTab('settings', this)">&#x2699;&#xFE0F; <span class='nav-text'>Settings</span></a>
+        <a href="#" class="nav-item" onclick="showTab('overview', this)">📊 <span class='nav-text'>Overview</span></a>
+        <a href="#" class="nav-item" onclick="showTab('orders', this)">🛒 <span class='nav-text'>Orders </span><span class="nav-badge" id="pending-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('products', this)">🌿 <span class='nav-text'>Products</span></a>
+        <a href="#" class="nav-item" onclick="showTab('harvest', this); loadHarvestAdmin()">🌱 <span class='nav-text'>Today's Harvest</span></a>
+        <a href="#" class="nav-item" onclick="showTab('preorders', this); loadPreorders()">⏳ <span class='nav-text'>Pre-orders </span><span class="nav-badge" id="preorder-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('payroll', this)">💰 <span class='nav-text'>Payroll</span></a>
+        <a href="#" class="nav-item" onclick="showTab('harvest-calendar', this)">📅 <span class='nav-text'>Harvest Calendar</span></a>
+        <a href="#" class="nav-item" onclick="showTab('gallery', this)">🖼️ <span class='nav-text'>Gallery</span></a>
+        <a href="#" class="nav-item" onclick="showTab('messages', this)">💬 <span class='nav-text'>Messages </span><span class="nav-badge" id="msg-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('settings', this)">⚙️ <span class='nav-text'>Settings</span></a>
       </nav>
       <div class="sidebar-footer">
         <span id="admin-name-display">admin</span>
@@ -137,6 +140,9 @@
 
       <!-- OVERVIEW TAB -->
       <section id="tab-overview" class="tab-content active">
+        <div id="low-stock-alert" style="display:none"></div>
+        <div id="weather-widget" class="mb-4"></div>
+
         <div class="stats-grid">
           <div class="stat-card green">
             <div class="stat-icon">&#x1F6D2;</div>
@@ -168,7 +174,18 @@
           </div>
         </div>
 
-        <div class="overview-grid">
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h4>📈 Revenue — Last 7 Days</h4>
+            <canvas id="revenue-chart" height="180"></canvas>
+          </div>
+          <div class="chart-card">
+            <h4>🛒 Orders by Status</h4>
+            <canvas id="status-chart" height="180"></canvas>
+          </div>
+        </div>
+
+        <div class="overview-grid" style="margin-top:24px">
           <div class="card">
             <div class="card-header"><h3>Recent Orders</h3><button class="link-btn" onclick="showTab('orders', document.querySelector('[onclick*=orders]'))">View All &#x2192;</button></div>
             <div id="recent-orders-list"></div>
@@ -259,17 +276,26 @@
         </div>
       </section>
 
-    
-  <div id="tab-harvest" class="tab-content">
-    <div style="margin-bottom:20px">
-      <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-bottom:8px">&#x1F331; Today's Harvest</h2>
-      <p style="color:var(--text-muted);font-size:.88rem;line-height:1.6">Toggle products that were harvested today. They will appear in the live green banner on the customer website.</p>
-      <button class="btn-secondary" onclick="clearTodaysHarvest()" style="margin-top:12px">&#x1F5D1;&#xFE0F; Clear All Today's Harvest</button>
-    </div>
-    <div id="harvest-admin-list" style="display:flex;flex-direction:column;gap:12px;max-width:600px"></div>
-  </div>
+      <!-- PAYROLL TAB -->
+      <section id="tab-payroll" class="tab-content"></section>
 
-</main>
+      <!-- HARVEST CALENDAR TAB -->
+      <section id="tab-harvest-calendar" class="tab-content"></section>
+
+      <!-- TODAY'S HARVEST TAB -->
+      <section id="tab-harvest" class="tab-content">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-bottom:8px">🌱 Today's Harvest</h2>
+          <p style="color:var(--text-muted);font-size:.88rem;line-height:1.6">Toggle products that were harvested today. They will appear in the live green banner on the customer website.</p>
+          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn-secondary" onclick="clearTodaysHarvest()">🗑️ Clear All Today's Harvest</button>
+            <button class="btn-primary" onclick="exportHarvestReportPDF()">📄 Export Today's Harvest Report</button>
+          </div>
+        </div>
+        <div id="harvest-admin-list" style="display:flex;flex-direction:column;gap:12px;max-width:600px"></div>
+      </section>
+
+    </main>
   </div>
 
   <!-- PRODUCT MODAL -->
@@ -435,7 +461,7 @@
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+
 
 <!-- &#x2500;&#x2500; WALK-IN ORDER MODAL &#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500; -->
 <div id="walkin-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeWalkinModal()">

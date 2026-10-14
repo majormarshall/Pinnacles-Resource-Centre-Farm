@@ -28,12 +28,19 @@ let activeFilter = 'all';
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
   await loadProductsFromAPI();
+  initDealOfTheDay();
   renderProducts('all');
   await renderGallery();
   updateCartBadge();
+  updateWishlistBadge();
   initNavScroll();
   checkPaymentReturn(); // Handle PayIsland redirect back
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  }
 });
 
 // ===== FETCH PRODUCTS FROM BACKEND =====
@@ -103,6 +110,7 @@ function renderProducts(filter) {
       '<div class="product-img-wrap" onclick="openModal(' + p.id + ')" style="cursor:pointer">' +
         imgHtml +
         '<span class="product-tag">' + (p.tag||'') + '</span>' +
+        '<button class="wishlist-btn" onclick="toggleWishlist(event,' + p.id + ')" title="Save to wishlist">' + (isWishlisted(p.id) ? '❤️' : '🤍') + '</button>' +
         badge +
       '</div>' +
       '<div class="product-info">' +
@@ -147,6 +155,56 @@ function filterProducts(filter, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderProducts(filter);
+}
+
+function filterBySearch(query) {
+  const q = query.trim().toLowerCase();
+  const clearBtn = document.getElementById('search-clear');
+  if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+  if (!q) { renderProducts(activeFilter); return; }
+  const grid = document.getElementById('products-grid');
+  const filtered = products.filter(p =>
+    (p.name||'').toLowerCase().includes(q) ||
+    (p.category||'').toLowerCase().includes(q) ||
+    (p.tag||'').toLowerCase().includes(q) ||
+    (p.description||p.desc||'').toLowerCase().includes(q)
+  );
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted)"><div style="font-size:3rem;margin-bottom:12px">🔍</div><p>No products found for "${query}"</p></div>`;
+    return;
+  }
+  const inStock = p => p.in_stock !== 0;
+  grid.innerHTML = filtered.map(p => {
+    const waMsg = encodeURIComponent(`Hello Pinnacles Farm! I'd like to order:\n\n${p.emoji||''} *${p.name}* — ₦${Number(p.price||0).toLocaleString()} ${p.unit||''}\n\nPlease confirm availability and delivery cost.`);
+    return `
+    <div class="product-card${inStock(p) ? '' : ' out-of-stock'}" data-id="${p.id}">
+      <div class="product-img-wrap" onclick="openModal(${p.id})" style="cursor:pointer">
+        ${p.img ? `<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=product-emoji-placeholder>${p.emoji||''}</div>'" />` : `<div class="product-emoji-placeholder">${p.emoji||''}</div>`}
+        <span class="product-tag">${p.tag||''}</span>
+        <button class="wishlist-btn" onclick="toggleWishlist(event,${p.id})" title="Save to wishlist">${isWishlisted(p.id) ? '❤️' : '🤍'}</button>
+        <span class="avail-badge ${inStock(p) ? 'avail-in' : 'avail-out'}">${inStock(p) ? '🟢 In Stock' : '🔴 Out of Stock'}</span>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${p.emoji||''} ${p.name}</div>
+        <div class="product-price-row"><div class="product-price">₦${Number(p.price||0).toLocaleString()} <span>${p.unit||''}</span></div></div>
+        <div class="product-qty-row">
+          <button class="qty-btn" onclick="changeCardQty(${p.id},-1)" ${!inStock(p)?'disabled':''}>−</button>
+          <span class="qty-val" id="card-qty-${p.id}">1</span>
+          <button class="qty-btn" onclick="changeCardQty(${p.id},1)" ${!inStock(p)?'disabled':''}>+</button>
+        </div>
+        <div class="product-card-actions">
+          <button class="btn-cart" ${!inStock(p) ? 'disabled' : ''} onclick="addToCartWithQty(${p.id})">🛒 Add to Cart</button>
+          <a class="btn-wa-card" href="https://wa.me/2349037505632?text=${waMsg}" target="_blank" ${!inStock(p)?'style="opacity:.5;pointer-events:none"':''}>💬 WhatsApp</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearSearch() {
+  const inp = document.getElementById('product-search');
+  if (inp) inp.value = '';
+  filterBySearch('');
 }
 
 // ===== MODAL =====
@@ -1112,3 +1170,122 @@ function shareReferral() {
   const link = inp ? inp.value : location.origin;
   openWhatsApp(`🌿 Hey! I've been ordering fresh farm produce from Pinnacles Resource Centre Farm in Offa. The tomatoes, peppers and eggs are amazing! 🍅\n\nUse my link to order and we both get bonus loyalty points!\n\n${link}`);
 }
+
+// ── Wishlist ──────────────────────────────────────────────────
+let wishlist = JSON.parse(localStorage.getItem('pinnacles_wishlist') || '[]');
+
+function isWishlisted(id) { return wishlist.includes(id); }
+
+function toggleWishlist(e, id) {
+  e.stopPropagation();
+  const idx = wishlist.indexOf(id);
+  if (idx > -1) { wishlist.splice(idx, 1); } else { wishlist.push(id); }
+  localStorage.setItem('pinnacles_wishlist', JSON.stringify(wishlist));
+  updateWishlistBadge();
+  // re-render current filter to update heart icons
+  const query = document.getElementById('product-search')?.value?.trim();
+  if (query) filterBySearch(query); else renderProducts(activeFilter);
+  showToast(isWishlisted(id) ? '❤️ Added to wishlist' : '🤍 Removed from wishlist');
+}
+
+function showWishlist() {
+  const saved = wishlist.map(id => products.find(p => p.id === id)).filter(Boolean);
+  if (!saved.length) { showToast('Your wishlist is empty'); return; }
+  // Temporarily filter products grid to show wishlisted items
+  const grid = document.getElementById('products-grid');
+  const inStock = p => p.in_stock !== 0;
+  grid.innerHTML = saved.map(p => {
+    const waMsg = encodeURIComponent(`Hello Pinnacles Farm! I'd like to order:\n\n${p.emoji||''} *${p.name}* — ₦${Number(p.price||0).toLocaleString()} ${p.unit||''}`);
+    return `<div class="product-card${inStock(p)?'':' out-of-stock'}" data-id="${p.id}">
+      <div class="product-img-wrap" onclick="openModal(${p.id})" style="cursor:pointer">
+        ${p.img ? `<img src="${p.img}" alt="${p.name}" />` : `<div class="product-emoji-placeholder">${p.emoji||''}</div>`}
+        <span class="product-tag">${p.tag||''}</span>
+        <button class="wishlist-btn active" onclick="toggleWishlist(event,${p.id})">❤️</button>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${p.emoji||''} ${p.name}</div>
+        <div class="product-price-row"><div class="product-price">₦${Number(p.price||0).toLocaleString()} <span>${p.unit||''}</span></div></div>
+        <div class="product-card-actions">
+          <button class="btn-cart" ${!inStock(p)?'disabled':''} onclick="addToCart(${p.id})">🛒 Add to Cart</button>
+          <a class="btn-wa-card" href="https://wa.me/2349037505632?text=${waMsg}" target="_blank">💬 WhatsApp</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('products').scrollIntoView({behavior:'smooth'});
+}
+
+function updateWishlistBadge() {
+  const el = document.getElementById('wishlist-badge');
+  if (el) el.textContent = wishlist.length;
+}
+
+// ── Toast notifications ───────────────────────────────────────
+function showToast(msg, type='success', duration=2800) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add('toast-show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('toast-show');
+    setTimeout(() => toast.remove(), 400);
+  }, duration);
+}
+
+// ── Deal of the Day ───────────────────────────────────────────
+function initDealOfTheDay() {
+  // Pick a random in-stock product as today's deal (20% off)
+  const inStock = products.filter(p => p.in_stock !== 0);
+  if (!inStock.length) return;
+  // Seed random by day so it's consistent within the same day
+  const seed = new Date().toDateString();
+  let hash = 0;
+  for (let c of seed) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff;
+  const deal = inStock[Math.abs(hash) % inStock.length];
+  const discount = 0.20;
+  const newPrice = Math.round(deal.price * (1 - discount));
+  const banner = document.getElementById('deal-banner');
+  if (!banner) return;
+  document.getElementById('deal-name').textContent = `${deal.emoji||''} ${deal.name}`;
+  document.getElementById('deal-old-price').textContent = `₦${Number(deal.price||0).toLocaleString()}`;
+  document.getElementById('deal-new-price').textContent = `₦${newPrice.toLocaleString()}`;
+  document.getElementById('deal-save').textContent = `Save 20%`;
+  const ctaBtn = document.getElementById('deal-cta');
+  if (ctaBtn) ctaBtn.onclick = () => addToCart(deal.id);
+  // Countdown to midnight
+  function updateCountdown() {
+    const now = new Date();
+    const midnight = new Date(now); midnight.setHours(24,0,0,0);
+    const diff = midnight - now;
+    const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+    const el = document.getElementById('deal-countdown');
+    if (el) el.textContent = `⏱️ Ends in ${h}h ${m}m ${s}s`;
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+  banner.style.display = 'block';
+}
+
+// ── Theme toggle ──────────────────────────────────────────────
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('light-mode');
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('pinnacles_theme', isDark ? 'light' : 'dark');
+}
+function initTheme() {
+  const saved = localStorage.getItem('pinnacles_theme');
+  if (saved === 'light') {
+    document.body.classList.add('light-mode');
+    const btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = '☀️';
+  }
+}
+
