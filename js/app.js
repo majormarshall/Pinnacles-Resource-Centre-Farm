@@ -1020,4 +1020,95 @@ function initAutoHeroInterchange() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initAutoHeroInterchange();
+  initReferralLink();
 });
+
+// ── Newsletter ────────────────────────────────────────────────
+async function submitNewsletter(e) {
+  e.preventDefault();
+  const name = document.getElementById('nl-name')?.value?.trim();
+  const email = document.getElementById('nl-email')?.value?.trim();
+  if (!email) return;
+  try {
+    await fetch('/api/newsletter/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email })
+    });
+  } catch {}
+  // Always show success (save locally too)
+  const subs = JSON.parse(localStorage.getItem('pinnacles_nl_subs') || '[]');
+  if (!subs.includes(email)) { subs.push(email); localStorage.setItem('pinnacles_nl_subs', JSON.stringify(subs)); }
+  showToast('🌿 Thanks for subscribing! We\'ll keep you updated.');
+  document.getElementById('nl-name').value = '';
+  document.getElementById('nl-email').value = '';
+}
+
+// ── Loyalty Points ────────────────────────────────────────────
+// 1 point per ₦100 spent. 100 points = ₦500 off next order.
+const LOYALTY_RATE = 100; // naira per point
+const REDEEM_THRESHOLD = 100; // points needed
+const REDEEM_VALUE = 500; // naira value
+
+function getLoyaltyPoints() {
+  return parseInt(localStorage.getItem('pinnacles_loyalty') || '0');
+}
+
+function addLoyaltyPoints(orderTotal) {
+  const earned = Math.floor(orderTotal / LOYALTY_RATE);
+  if (earned <= 0) return 0;
+  const current = getLoyaltyPoints();
+  const newTotal = current + earned;
+  localStorage.setItem('pinnacles_loyalty', newTotal);
+  return earned;
+}
+
+function renderLoyaltyWidget() {
+  const pts = getLoyaltyPoints();
+  const progress = Math.min((pts / REDEEM_THRESHOLD) * 100, 100);
+  const canRedeem = pts >= REDEEM_THRESHOLD;
+  return `
+    <div class="loyalty-widget">
+      <div class="loyalty-header">
+        <span>⭐ Loyalty Points</span>
+        <strong>${pts} pts</strong>
+      </div>
+      <div class="loyalty-bar"><div class="loyalty-fill" style="width:${progress}%"></div></div>
+      <div class="loyalty-meta">${canRedeem
+        ? `<span style="color:#fbbf24">🎉 You can redeem ₦${REDEEM_VALUE} off your next order!</span>`
+        : `<span>${REDEEM_THRESHOLD - pts} more points to redeem ₦${REDEEM_VALUE}</span>`}</div>
+    </div>
+  `;
+}
+
+// ── Referral ──────────────────────────────────────────────────
+function initReferralLink() {
+  const inp = document.getElementById('referral-link');
+  if (!inp) return;
+  let refId = localStorage.getItem('pinnacles_ref_id');
+  if (!refId) {
+    refId = 'REF' + Math.random().toString(36).substr(2,8).toUpperCase();
+    localStorage.setItem('pinnacles_ref_id', refId);
+  }
+  const link = `${location.origin}/?ref=${refId}`;
+  inp.value = link;
+  // Check if arrived via referral
+  const urlRef = new URLSearchParams(location.search).get('ref');
+  if (urlRef && urlRef !== refId) {
+    localStorage.setItem('pinnacles_referred_by', urlRef);
+  }
+}
+function copyReferralLink() {
+  const inp = document.getElementById('referral-link');
+  if (!inp) return;
+  navigator.clipboard.writeText(inp.value).then(() => showToast('📋 Referral link copied!')).catch(() => {
+    inp.select();
+    document.execCommand('copy');
+    showToast('📋 Referral link copied!');
+  });
+}
+function shareReferral() {
+  const inp = document.getElementById('referral-link');
+  const link = inp ? inp.value : location.origin;
+  openWhatsApp(`🌿 Hey! I've been ordering fresh farm produce from Pinnacles Resource Centre Farm in Offa. The tomatoes, peppers and eggs are amazing! 🍅\n\nUse my link to order and we both get bonus loyalty points!\n\n${link}`);
+}

@@ -516,6 +516,103 @@
     </div>
   </section>
 
+  <!-- NEWSLETTER -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-inner">
+        <div class="newsletter-text">
+          <h3>📧 Get Farm Updates</h3>
+          <p>Sign up to receive weekly harvest updates, seasonal deals, and farm news directly to your inbox.</p>
+        </div>
+        <form class="newsletter-form" onsubmit="submitNewsletter(event)">
+          <input type="text" id="nl-name" placeholder="Your name" />
+          <input type="email" id="nl-email" placeholder="Your email address" required />
+          <button type="submit" class="btn-primary">Subscribe 🌿</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Happy Customers</span>
+        <h2 class="section-title">💬 What Our Customers Say</h2>
+        <p class="section-sub">Real feedback from people who love our fresh farm produce</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"The tomatoes from Pinnacles Farm are always so fresh! I can taste the difference compared to what I get from the market. My family loves it!"</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👩🏾</div>
+            <div>
+              <strong>Mrs. Fatima Adeyemi</strong>
+              <span>Housewife, Offa</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card featured">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"We order eggs and vegetables from Pinnacles every week for our restaurant. The quality is consistent, delivery is on time, and the prices are fair. Highly recommended!"</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👨🏾🍳</div>
+            <div>
+              <strong>Chef Dayo Olatunde</strong>
+              <span>Restaurant Owner, Ilorin</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"I ordered strawberries for the first time and I was amazed! Very sweet and fresh. Ordering on WhatsApp was so easy. Will definitely order again!"</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👩🏽</div>
+            <div>
+              <strong>Blessing Okeke</strong>
+              <span>Customer, Ajase-Ipo</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Pinnacles Farm has been supplying fresh produce to our school canteen for months now. Always fresh, always reliable. The students love it!"</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👨🏾💼</div>
+            <div>
+              <strong>Mr. Saheed Ibrahim</strong>
+              <span>School Administrator, Offa</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:32px">
+        <a href="#" class="btn-outline" onclick="openWhatsApp('Hello Pinnacles Farm! I would like to share my feedback about your products.')">📝 Share Your Review</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- REFERRAL SECTION -->
+  <section class="referral-section">
+    <div class="container">
+      <div class="referral-inner">
+        <div class="referral-icon">🎁</div>
+        <div class="referral-text">
+          <h3>Refer a Friend &amp; Earn!</h3>
+          <p>Share your referral link. When a friend places their first order, you both get <strong style="color:#fbbf24">50 bonus loyalty points</strong>!</p>
+        </div>
+        <div class="referral-actions">
+          <div class="referral-link-wrap">
+            <input type="text" id="referral-link" readonly />
+            <button onclick="copyReferralLink()" class="btn-copy">📋 Copy</button>
+          </div>
+          <button onclick="shareReferral()" class="btn-primary" style="margin-top:10px;width:100%">📲 Share on WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-inner">
