@@ -254,3 +254,23 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);heig
 .status-rejected { background: rgba(231,111,81,.15); color: var(--red); border: 1px solid rgba(231,111,81,.3); }
 
 
+
+/* -- Receipt OCR Upload Zone ----------------------------------- */
+.receipt-upload-zone {
+  border: 2px dashed rgba(82,183,136,.4);
+  border-radius: 16px;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  margin-bottom: 24px;
+  background: rgba(82,183,136,.03);
+}
+.receipt-upload-zone:hover,
+.receipt-upload-zone.drag-over {
+  border-color: #52b788;
+  background: rgba(82,183,136,.08);
+}
+.upload-icon { font-size: 2.8rem; margin-bottom: 10px; }
+.upload-label { font-size: .95rem; font-weight: 700; color: var(--text-light, #e0f0e0); margin-bottom: 6px; }
+.upload-sub { font-size: .78rem; color: rgba(255,255,255,.4); }
