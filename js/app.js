@@ -956,12 +956,27 @@ function sendBulkWhatsApp() {
 }
 
 
-// ── Hero Background Media Interchange ─────────────────────────
+// ── Hero Background Slideshow ──────────────────────────────────
 function initAutoHeroInterchange() {
   const photo = document.getElementById('hero-photo-layer');
   const vid   = document.getElementById('hero-video');
-  if (!photo && !vid) return;
+  if (!photo) return;
 
+  // All farm background slides — null = show the video layer
+  const slides = [
+    'images/farm_hero.png',
+    null,                        // video turn
+    'images/tomatoes.png',
+    'images/strawberry.png',
+    null,                        // video turn
+    'images/pepper.png',
+    'images/maize.png',
+    null,                        // video turn
+    'images/carrots.png',
+  ];
+  let idx = 0;
+
+  // Start video
   if (vid) {
     vid.muted = true;
     vid.setAttribute('playsinline', '');
@@ -976,22 +991,31 @@ function initAutoHeroInterchange() {
     });
   }
 
-  // Cross-fade interchange: photo (4 seconds) <-> video (5 seconds)
-  let showingPhoto = true;
-  function cycleHeroMedia() {
-    if (!photo) return;
-    if (showingPhoto) {
-      photo.classList.add('fade-out');
-      showingPhoto = false;
-      setTimeout(cycleHeroMedia, 5000); // Video layer plays for 5 seconds
-    } else {
+  function showSlide(i) {
+    const src = slides[i];
+    if (src) {
+      // Photo slide — set image then fade in
+      photo.style.backgroundImage = `url('${src}')`;
       photo.classList.remove('fade-out');
-      showingPhoto = true;
-      setTimeout(cycleHeroMedia, 4000);  // Photo layer displays for 4 seconds
+    } else {
+      // Video slide — fade photo out so video is visible
+      photo.classList.add('fade-out');
     }
   }
 
-  setTimeout(cycleHeroMedia, 3500);
+  function nextSlide() {
+    // Fade out current
+    photo.classList.add('fade-out');
+    setTimeout(() => {
+      idx = (idx + 1) % slides.length;
+      showSlide(idx);
+      setTimeout(nextSlide, slides[idx] ? 4000 : 5000);
+    }, 1200); // matches CSS transition duration
+  }
+
+  // Show first slide immediately
+  showSlide(0);
+  setTimeout(nextSlide, 4000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
