@@ -245,3 +245,12 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);heig
 .admin-table tbody tr:hover { background: rgba(255,255,255,.02); }
 .admin-table tfoot td { padding: 14px; border-top: 2px solid var(--border); background: var(--bg3); font-size: .95rem; }
 
+/* BANK PAYMENT VERIFICATION */
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .form-grid-2 { grid-template-columns: 1fr; } }
+.receipt-verify-form { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; max-width: 720px; margin-bottom: 24px; }
+.receipts-table-wrap { overflow-x: auto; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); }
+.status-verified { background: rgba(82,183,136,.15); color: var(--green-light); border: 1px solid rgba(82,183,136,.3); }
+.status-rejected { background: rgba(231,111,81,.15); color: var(--red); border: 1px solid rgba(231,111,81,.3); }
+
+

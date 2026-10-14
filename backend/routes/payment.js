@@ -168,4 +168,214 @@ router.get('/callback', async (req, res) => {
   }
 });
 
+// ── Bank Receipt Verification ──────────────────────────────────
+// POST /api/payment/verify-bank — admin inputs bank receipt details
+// GET  /api/payment/bank-receipts — list all verified bank receipts
+// GET  /api/payment/bank-receipt/:txnId — look up by transaction ID
+// PATCH /api/payment/bank-receipt/:id — update status
+
+// DB table needed:
+const CREATE_BANK_RECEIPTS_TABLE = `
+  CREATE TABLE IF NOT EXISTS bank_receipts (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER,
+    customer_name TEXT,
+    customer_phone TEXT,
+    bank_name TEXT NOT NULL,
+    account_name TEXT,
+    transaction_id TEXT NOT NULL UNIQUE,
+    amount REAL NOT NULL,
+    payment_date DATE NOT NULL,
+    payment_time TEXT,
+    verified_by TEXT,
+    status TEXT DEFAULT 'verified',
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  )
+`;
+
+// In-memory fallback in case Supabase is unavailable or table not created yet
+let _mockBankReceipts = [];
+let _mockIdSeq = 1;
+
+// POST /api/payment/verify-bank — saves bank receipt details
+router.post('/verify-bank', async (req, res) => {
+  try {
+    const {
+      bank_name,
+      transaction_id,
+      amount,
+      payment_date,
+      order_id,
+      customer_name,
+      customer_phone,
+      account_name,
+      payment_time,
+      notes,
+      status = 'verified',
+      verified_by,
+    } = req.body;
+
+    if (!bank_name || !transaction_id || amount === undefined || amount === null || !payment_date) {
+      return res.status(400).json({ error: 'bank_name, transaction_id, amount, and payment_date are required' });
+    }
+
+    const txnUpper = String(transaction_id).trim().toUpperCase();
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount) || numAmount < 0) {
+      return res.status(400).json({ error: 'amount must be a valid non-negative number' });
+    }
+
+    const adminUser = verified_by || req.admin?.username || req.user?.username || 'admin';
+
+    const insertData = {
+      bank_name: String(bank_name).trim(),
+      transaction_id: txnUpper,
+      amount: numAmount,
+      payment_date: String(payment_date).trim(),
+      order_id: order_id ? parseInt(order_id) : null,
+      customer_name: customer_name ? String(customer_name).trim() : null,
+      customer_phone: customer_phone ? String(customer_phone).trim() : null,
+      account_name: account_name ? String(account_name).trim() : null,
+      payment_time: payment_time ? String(payment_time).trim() : null,
+      notes: notes ? String(notes).trim() : null,
+      status: status || 'verified',
+      verified_by: adminUser,
+    };
+
+    let saved = null;
+    try {
+      const { data, error } = await supabase
+        .from('bank_receipts')
+        .insert(insertData)
+        .select()
+        .single();
+      if (error) throw error;
+      saved = data;
+    } catch (dbErr) {
+      console.warn('[BankReceipt] Supabase insert warning:', dbErr.message);
+      saved = {
+        id: _mockIdSeq++,
+        ...insertData,
+        created_at: new Date().toISOString()
+      };
+      _mockBankReceipts.unshift(saved);
+    }
+
+    // Link to order if order_id provided
+    if (insertData.order_id) {
+      try {
+        await supabase
+          .from('orders')
+          .update({
+            status: 'confirmed',
+            whatsapp_msg: `bank_txn:${txnUpper}`
+          })
+          .eq('id', insertData.order_id);
+      } catch (_) {}
+    }
+
+    return res.status(201).json({
+      id: saved.id,
+      transaction_id: saved.transaction_id,
+      message: 'Payment verified successfully',
+      receipt: saved,
+    });
+  } catch (e) {
+    console.error('Verify bank receipt error:', e.message);
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/payment/bank-receipts — returns all bank receipts (most recent first)
+router.get('/bank-receipts', async (req, res) => {
+  try {
+    let receipts = [];
+    try {
+      const { data, error } = await supabase
+        .from('bank_receipts')
+        .select('*')
+        .order('id', { ascending: false });
+      if (error) throw error;
+      receipts = data || [];
+    } catch (dbErr) {
+      console.warn('[BankReceipt] Supabase select warning:', dbErr.message);
+      receipts = _mockBankReceipts;
+    }
+    return res.json(receipts);
+  } catch (e) {
+    console.error('Get bank receipts error:', e.message);
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/payment/bank-receipt/:txnId — returns single receipt by transaction ID
+router.get('/bank-receipt/:txnId', async (req, res) => {
+  try {
+    const txnId = String(req.params.txnId).trim().toUpperCase();
+    let receipt = null;
+    try {
+      const { data, error } = await supabase
+        .from('bank_receipts')
+        .select('*')
+        .eq('transaction_id', txnId)
+        .maybeSingle();
+      if (error) throw error;
+      receipt = data;
+    } catch (dbErr) {
+      console.warn('[BankReceipt] Supabase lookup by txnId warning:', dbErr.message);
+      receipt = _mockBankReceipts.find(r => r.transaction_id === txnId) || null;
+    }
+
+    if (!receipt) {
+      return res.status(404).json({ error: 'Bank receipt not found' });
+    }
+    return res.json(receipt);
+  } catch (e) {
+    console.error('Get bank receipt error:', e.message);
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+// PATCH /api/payment/bank-receipt/:id — update status (e.g. 'verified', 'pending', 'rejected')
+router.patch('/bank-receipt/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { status, notes } = req.body;
+    const updatePayload = {};
+    if (status) updatePayload.status = status;
+    if (notes !== undefined) updatePayload.notes = notes;
+
+    let updated = null;
+    try {
+      const { data, error } = await supabase
+        .from('bank_receipts')
+        .update(updatePayload)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      updated = data;
+    } catch (dbErr) {
+      console.warn('[BankReceipt] Supabase patch warning:', dbErr.message);
+      const found = _mockBankReceipts.find(r => r.id === id);
+      if (found) {
+        if (status) found.status = status;
+        if (notes !== undefined) found.notes = notes;
+        updated = found;
+      }
+    }
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Bank receipt not found' });
+    }
+    return res.json({ message: 'Receipt updated successfully', receipt: updated });
+  } catch (e) {
+    console.error('Update bank receipt error:', e.message);
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+router.CREATE_BANK_RECEIPTS_TABLE = CREATE_BANK_RECEIPTS_TABLE;
+
 module.exports = router;

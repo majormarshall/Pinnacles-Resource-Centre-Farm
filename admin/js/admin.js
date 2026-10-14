@@ -100,6 +100,7 @@ function showTab(tab, el) {
   const titles = {
     overview: 'Dashboard Overview',
     orders: 'Orders',
+    payments: 'Bank Payment Verification',
     products: 'Products',
     gallery: 'Farm Gallery',
     messages: 'Messages',
@@ -113,6 +114,7 @@ function showTab(tab, el) {
   switch (tab) {
     case 'overview': loadOverview(); break;
     case 'orders': loadOrders(); break;
+    case 'payments': loadPaymentVerification(); break;
     case 'products': loadProducts(); break;
     case 'gallery': loadGallery(); break;
     case 'messages': loadMessages(); break;
@@ -1543,3 +1545,152 @@ async function saveHeroSettings(e) {
 document.addEventListener('DOMContentLoaded', () => {
   loadHeroSettings();
 });
+
+// ── Bank Payment Verification ──────────────────────────────────
+function showAdminToast(msg) {
+  if (typeof showToast === 'function') {
+    showToast(msg);
+  } else {
+    alert(msg);
+  }
+}
+
+async function loadPaymentVerification() {
+  const content = document.getElementById('tab-payments') || document.getElementById('tab-content');
+  if (!content) return;
+  content.innerHTML = `
+    <div class="admin-section">
+      <h2>💳 Bank Payment Verification</h2>
+      <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-bottom:24px">Input customer bank transfer receipt details. The Transaction ID will be automatically added to the farm receipt.</p>
+      
+      <!-- Input Form -->
+      <div class="receipt-verify-form">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Bank Name *</label>
+            <input id="rv-bank" type="text" placeholder="e.g. GTBank, First Bank, UBA" />
+          </div>
+          <div class="form-group">
+            <label>Transaction ID / Reference *</label>
+            <input id="rv-txn" type="text" placeholder="e.g. FBN2024101400012345" style="text-transform:uppercase" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Amount Paid (₦) *</label>
+            <input id="rv-amount" type="number" placeholder="5000" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Payment Date *</label>
+            <input id="rv-date" type="date" value="${new Date().toISOString().slice(0,10)}" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Account Name (Sender)</label>
+            <input id="rv-acctname" type="text" placeholder="Name on bank account" />
+          </div>
+          <div class="form-group">
+            <label>Payment Time</label>
+            <input id="rv-time" type="time" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Customer Name</label>
+            <input id="rv-customer" type="text" placeholder="Customer full name" />
+          </div>
+          <div class="form-group">
+            <label>Customer Phone</label>
+            <input id="rv-phone" type="tel" placeholder="08XXXXXXXXX" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Order ID (optional — links to existing order)</label>
+          <input id="rv-orderid" type="number" placeholder="Order ID from orders list" />
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="rv-notes" placeholder="Any additional info about this payment" rows="2"></textarea>
+        </div>
+        <div id="rv-error" style="display:none;color:#f87171;font-size:.83rem;margin-bottom:8px"></div>
+        <button onclick="submitBankReceipt()" class="btn-primary" style="width:100%">✅ Verify & Save Payment</button>
+      </div>
+      
+      <!-- Recent Verified Payments -->
+      <h3 style="margin-top:36px;margin-bottom:16px;font-size:1rem;color:#a3d9b8">📋 Recent Verified Payments</h3>
+      <div id="bank-receipts-list">Loading...</div>
+    </div>
+  `;
+  loadBankReceipts();
+}
+
+async function submitBankReceipt() {
+  const bank = document.getElementById('rv-bank')?.value?.trim();
+  const txn  = document.getElementById('rv-txn')?.value?.trim().toUpperCase();
+  const amount = parseFloat(document.getElementById('rv-amount')?.value);
+  const date = document.getElementById('rv-date')?.value;
+  const errEl = document.getElementById('rv-error');
+  if (!bank || !txn || !amount || !date) {
+    if (errEl) {
+      errEl.textContent = 'Bank name, Transaction ID, amount and date are required.';
+      errEl.style.display = 'block';
+    }
+    return;
+  }
+  if (errEl) errEl.style.display = 'none';
+  try {
+    const res = await api('POST', '/payment/verify-bank', {
+      bank_name: bank,
+      transaction_id: txn,
+      amount,
+      payment_date: date,
+      payment_time: document.getElementById('rv-time')?.value || null,
+      account_name: document.getElementById('rv-acctname')?.value?.trim() || null,
+      customer_name: document.getElementById('rv-customer')?.value?.trim() || null,
+      customer_phone: document.getElementById('rv-phone')?.value?.trim() || null,
+      order_id: parseInt(document.getElementById('rv-orderid')?.value) || null,
+      notes: document.getElementById('rv-notes')?.value?.trim() || null,
+    });
+    if (res.error) throw new Error(res.error);
+    showAdminToast(`✅ Payment verified! Transaction ID: ${txn}`);
+    // Clear form
+    ['rv-bank','rv-txn','rv-amount','rv-acctname','rv-customer','rv-phone','rv-orderid','rv-notes','rv-time'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.value='';
+    });
+    const dateEl = document.getElementById('rv-date');
+    if (dateEl) dateEl.value = new Date().toISOString().slice(0,10);
+    loadBankReceipts();
+  } catch(e) {
+    if (errEl) {
+      errEl.textContent = e.message;
+      errEl.style.display = 'block';
+    }
+  }
+}
+
+async function loadBankReceipts() {
+  const container = document.getElementById('bank-receipts-list');
+  if (!container) return;
+  try {
+    const data = await api('GET', '/payment/bank-receipts');
+    if (!Array.isArray(data) || !data.length) {
+      container.innerHTML = '<p style="color:rgba(255,255,255,.4);font-size:.85rem">No verified payments yet.</p>';
+      return;
+    }
+    container.innerHTML = `<div class="receipts-table-wrap"><table class="admin-table"><thead><tr>
+      <th>Date</th><th>Bank</th><th>Transaction ID</th><th>Amount</th><th>Customer</th><th>Order</th><th>Status</th>
+    </tr></thead><tbody>${data.map(r => `<tr>
+      <td>${r.payment_date || '-'}</td>
+      <td>${r.bank_name || '-'}</td>
+      <td style="font-family:monospace;font-size:.82rem;color:#fbbf24">${r.transaction_id || '-'}</td>
+      <td>₦${Number(r.amount || 0).toLocaleString()}</td>
+      <td>${r.customer_name || '-'}</td>
+      <td>${r.order_id || '-'}</td>
+      <td><span class="status-badge status-${r.status || 'verified'}">${r.status || 'verified'}</span></td>
+    </tr>`).join('')}</tbody></table></div>`;
+  } catch(e) {
+    container.innerHTML = `<p style="color:#f87171">${e.message}</p>`;
+  }
+}
+

@@ -48,6 +48,7 @@
       <nav class="sidebar-nav">
         <a href="#" class="nav-item" onclick="showTab('overview', this)">📊 <span class='nav-text'>Overview</span></a>
         <a href="#" class="nav-item" onclick="showTab('orders', this)">🛒 <span class='nav-text'>Orders </span><span class="nav-badge" id="pending-badge">0</span></a>
+        <a href="#" class="nav-item" onclick="showTab('payments', this)">💳 <span class='nav-text'>Payments</span></a>
         <a href="#" class="nav-item" onclick="showTab('products', this)">🌿 <span class='nav-text'>Products</span></a>
         <a href="#" class="nav-item" onclick="showTab('harvest', this); loadHarvestAdmin()">🌱 <span class='nav-text'>Today's Harvest</span></a>
         <a href="#" class="nav-item" onclick="showTab('preorders', this); loadPreorders()">⏳ <span class='nav-text'>Pre-orders </span><span class="nav-badge" id="preorder-badge">0</span></a>
@@ -215,6 +216,11 @@
           <button class="btn-outline" onclick="openReportModal()">&#x1F4CA; Monthly Report</button>
         </div>
         <div id="orders-list" class="list-container"></div>
+      </section>
+
+      <!-- PAYMENTS TAB -->
+      <section id="tab-payments" class="tab-content">
+        <div id="tab-content"></div>
       </section>
 
       <!-- PRODUCTS TAB -->

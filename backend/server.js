@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Pinnacles Resource Centre Farm â€” Express Server
 // ============================================================
 require('dotenv').config();
@@ -82,13 +82,25 @@ app.get('/receipt/:id/:token', async (req, res) => {
     const { data: order } = await supabase.from('orders').select('*').eq('id', id).single();
     if (!order) return res.status(404).send('<h2 style="font-family:sans-serif;padding:40px;">Order not found.</h2>');
     order.items = JSON.parse(order.items_json || '[]');
-    return res.send(buildReceiptHtml(order));
+
+    let bankReceipt = null;
+    try {
+      const { data: br } = await supabase
+        .from('bank_receipts')
+        .select('transaction_id, bank_name, amount')
+        .eq('order_id', id)
+        .limit(1)
+        .maybeSingle();
+      if (br) bankReceipt = br;
+    } catch (_) {}
+
+    return res.send(buildReceiptHtml(order, bankReceipt));
   } catch (e) {
     return res.status(500).send('<h2 style="font-family:sans-serif;padding:40px;">Error: ' + e.message + '</h2>');
   }
 });
 
-// â”€â”€ PDF receipt download (/receipt/:id/:token/pdf) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PDF receipt download (/receipt/:id/:token/pdf) ───────────
 app.get('/receipt/:id/:token/pdf', async (req, res) => {
   const { id, token } = req.params;
   if (!verifyToken(id, token)) {
@@ -99,7 +111,56 @@ app.get('/receipt/:id/:token/pdf', async (req, res) => {
     const { data: order } = await supabase.from('orders').select('*').eq('id', id).single();
     if (!order) return res.status(404).send('Order not found.');
     order.items = JSON.parse(order.items_json || '[]');
-    return streamReceiptPdf(order, res, req);
+
+    let bankReceipt = null;
+    try {
+      const { data: br } = await supabase
+        .from('bank_receipts')
+        .select('transaction_id, bank_name, amount')
+        .eq('order_id', id)
+        .limit(1)
+        .maybeSingle();
+      if (br) bankReceipt = br;
+    } catch (_) {}
+
+    return streamReceiptPdf(order, res, req, bankReceipt);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+// ── GET /api/receipt/:orderId endpoint ─────────────────────────
+app.get('/api/receipt/:orderId', async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    const supabase = require('./db');
+    const { data: order } = await supabase.from('orders').select('*').eq('id', orderId).single();
+    if (!order) return res.status(404).json({ error: 'Order not found.' });
+    order.items = JSON.parse(order.items_json || '[]');
+
+    let bankReceipt = null;
+    try {
+      const { data: br } = await supabase
+        .from('bank_receipts')
+        .select('transaction_id, bank_name, amount')
+        .eq('order_id', orderId)
+        .limit(1)
+        .maybeSingle();
+      if (br) bankReceipt = br;
+    } catch (_) {}
+
+    const receiptHtml = buildReceiptHtml(order, bankReceipt);
+
+    if (req.query.format === 'html' || req.headers.accept?.includes('text/html')) {
+      return res.send(receiptHtml);
+    }
+    return res.json({
+      order,
+      bank_receipt: bankReceipt,
+      bank_transaction_id: bankReceipt?.transaction_id || null,
+      bank_name: bankReceipt?.bank_name || null,
+      receipt_html: receiptHtml
+    });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
