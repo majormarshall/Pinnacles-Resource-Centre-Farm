@@ -274,3 +274,62 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);heig
 .upload-icon { font-size: 2.8rem; margin-bottom: 10px; }
 .upload-label { font-size: .95rem; font-weight: 700; color: var(--text-light, #e0f0e0); margin-bottom: 6px; }
 .upload-sub { font-size: .78rem; color: rgba(255,255,255,.4); }
+
+/* ── ORDER CROSS-REFERENCE & RECEIPT ATTACH ── */
+.order-match-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: background .2s, border-color .2s;
+}
+.order-match-card:hover {
+  background: rgba(82,183,136,.07);
+  border-color: rgba(82,183,136,.3);
+}
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+@media(max-width:768px) { .form-grid-3 { grid-template-columns: 1fr; } }
+.rv-section-label {
+  font-size: .72rem;
+  font-weight: 800;
+  color: #52b788;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  margin-bottom: 10px;
+  margin-top: 18px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(82,183,136,.15);
+}
+.ocr-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 8px;
+}
+@media(max-width:768px) { .ocr-result-grid { grid-template-columns: 1fr; } }
+.ocr-label { font-size: .78rem; color: #52b788; font-weight: 700; margin-bottom: 8px; }
+.ocr-raw-box {
+  background: rgba(0,0,0,.3);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: .72rem;
+  font-family: monospace;
+  color: rgba(255,255,255,.6);
+  max-height: 320px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+.ocr-status-bar {
+  margin-top: 10px;
+  font-size: .83rem;
+  color: #fbbf24;
+  min-height: 20px;
+}

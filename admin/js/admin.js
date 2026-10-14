@@ -466,13 +466,25 @@ function showAdminToast(msg, type='success') {
 // \u2500\u2500 Orders \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadOrders() {
   const status = document.getElementById('order-status-filter')?.value || '';
-  const data = await api('GET', `/orders${status ? '?status=' + status : ''}`);
-  const orders = data.orders || [];
+  const [orderData, paymentData] = await Promise.all([
+    api('GET', `/orders${status ? '?status=' + status : ''}`),
+    api('GET', '/payment/bank-receipts').catch(() => [])
+  ]);
+  const orders = orderData.orders || [];
+  const payments = Array.isArray(paymentData) ? paymentData : [];
+  // Map order_id -> transaction_id
+  const paymentMap = {};
+  payments.forEach(p => { if(p.order_id) paymentMap[p.order_id] = p.transaction_id; });
+
   document.getElementById('orders-list').innerHTML = orders.length
-    ? orders.map(o => `
+    ? orders.map(o => {
+        const txnId = paymentMap[o.id];
+        return `
         <div class="order-item">
           <div class="order-info">
-            <div class="order-id">#${o.id} \u00B7 ${formatDate(o.created_at)}</div>
+            <div class="order-id">#${o.id} \u00B7 ${formatDate(o.created_at)}
+              ${txnId ? `<span style="background:rgba(82,183,136,.15);border:1px solid rgba(82,183,136,.35);color:#52b788;font-size:.68rem;padding:2px 8px;border-radius:10px;margin-left:8px;font-family:monospace">&#x2705; TXN: ${txnId.slice(-8)}</span>` : ''}
+            </div>
             <div class="order-name">${o.customer_name || 'Customer'}</div>
             <div class="order-meta">\u{1F4F1} ${o.customer_phone || 'No phone'}</div>
             <div class="order-meta" style="margin-top:4px">
@@ -487,11 +499,13 @@ async function loadOrders() {
               <button class="btn-outline btn-sm" onclick="openOrderModal(${o.id})">View</button>
               <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">\u{1F4AC} WhatsApp</button>
               <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">\u{1F4C4} Receipt</button>
+              <button class="btn-outline btn-sm" onclick="openAttachReceiptModal(${o.id}, '${(o.customer_name||'').replace(/'/g,'')}', ${Number(o.total||0)})" style="border-color:rgba(82,183,136,.4);color:#52b788">&#x1F4F7; ${txnId ? 'Update Receipt' : 'Attach Receipt'}</button>
               <button class="btn-outline btn-sm btn-danger" onclick="deleteOrder(${o.id})">Delete</button>
             </div>
           </div>
           <div class="order-total">\u20A6${Number(o.total).toLocaleString()}</div>
-        </div>`).join('')
+        </div>`;
+      }).join('')
     : '<div style="text-align:center;padding:60px;color:var(--text-muted)">No orders found</div>';
 }
 
@@ -1558,14 +1572,15 @@ function showAdminToast(msg) {
 async function loadPaymentVerification() {
   const content = document.getElementById('tab-payments') || document.getElementById('tab-content');
   if (!content) return;
+  const today = new Date().toISOString().slice(0,10);
   content.innerHTML = `
     <div class="admin-section">
       <h2>&#x1F4B3; Bank Payment Verification</h2>
-      <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-bottom:24px">
-        Upload a screenshot of the customer's bank receipt &mdash; the system will automatically read the Transaction ID and fill in the details for you.
+      <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-bottom:20px">
+        Upload a screenshot of the customer&#39;s bank receipt &mdash; all transaction details will be read automatically.
       </p>
 
-      <!-- RECEIPT SCREENSHOT UPLOAD -->
+      <!-- UPLOAD ZONE -->
       <div class="receipt-upload-zone" id="receipt-upload-zone"
            onclick="document.getElementById('receipt-img-input').click()"
            ondragover="event.preventDefault();this.classList.add('drag-over')"
@@ -1573,203 +1588,261 @@ async function loadPaymentVerification() {
            ondrop="handleReceiptDrop(event)">
         <div class="upload-icon">&#x1F4F7;</div>
         <div class="upload-label">Click or drag &amp; drop bank receipt screenshot here</div>
-        <div class="upload-sub">Supports PNG, JPG &mdash; GTBank, First Bank, UBA, Access, Zenith, OPay, Kuda&hellip;</div>
+        <div class="upload-sub">PNG &bull; JPG &bull; JPEG &mdash; Works with GTBank, First Bank, UBA, Access, Zenith, OPay, Kuda, Moniepoint&hellip;</div>
         <input type="file" id="receipt-img-input" accept="image/*" style="display:none"
                onchange="scanReceiptImage(this.files[0])" />
       </div>
 
-      <!-- Preview + OCR progress -->
-      <div id="ocr-preview-wrap" style="display:none;margin-bottom:20px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+      <!-- SCAN RESULT PANEL -->
+      <div id="ocr-preview-wrap" style="display:none;margin-bottom:24px">
+        <div class="ocr-result-grid">
           <div>
-            <p style="font-size:.78rem;color:#52b788;font-weight:700;margin-bottom:8px">&#x1F4F7; Uploaded Receipt</p>
+            <p class="ocr-label">&#x1F4F7; Uploaded Receipt</p>
             <img id="receipt-preview-img" src="" alt="Receipt"
-                 style="width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.15);max-height:320px;object-fit:contain;background:#000" />
+                 style="width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.12);max-height:380px;object-fit:contain;background:#0a150a;cursor:pointer"
+                 onclick="this.style.maxHeight=this.style.maxHeight==='none'?'380px':'none'" title="Click to toggle full size" />
+            <p style="font-size:.7rem;color:rgba(255,255,255,.25);margin-top:4px;text-align:center">Click image to expand/collapse</p>
           </div>
           <div>
-            <p style="font-size:.78rem;color:#52b788;font-weight:700;margin-bottom:8px">&#x1F50D; Extracted Text</p>
-            <div id="ocr-raw-text"
-                 style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;font-size:.72rem;font-family:monospace;color:rgba(255,255,255,.6);max-height:320px;overflow-y:auto;white-space:pre-wrap;line-height:1.6">
-              Waiting for scan&hellip;
-            </div>
+            <p class="ocr-label">&#x1F50D; Extracted Text (raw)</p>
+            <div id="ocr-raw-text" class="ocr-raw-box">Waiting for scan&hellip;</div>
+            <div id="ocr-status" class="ocr-status-bar"></div>
           </div>
         </div>
-        <div id="ocr-status" style="margin-top:12px;font-size:.83rem;color:#fbbf24"></div>
+
+        <!-- Detected fields summary -->
+        <div id="ocr-summary" style="display:none;margin-top:16px;background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.25);border-radius:14px;padding:16px">
+          <p style="font-size:.8rem;font-weight:700;color:#52b788;margin-bottom:10px">&#x2728; Detected from receipt image</p>
+          <div id="ocr-summary-chips" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        </div>
       </div>
 
-      <!-- FORM (pre-filled by OCR or manual) -->
-      <div class="receipt-verify-form" style="margin-top:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <p style="font-size:.85rem;font-weight:700;color:#a3d9b8">
-            &#x1F4DD; Receipt Details
-            <span style="font-size:.75rem;font-weight:400;color:rgba(255,255,255,.35)">(auto-filled from scan &mdash; review &amp; correct if needed)</span>
-          </p>
+      <!-- FULL DETAILS FORM -->
+      <div class="receipt-verify-form">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <p style="font-size:.9rem;font-weight:800;color:#a3d9b8;margin:0">&#x1F4DD; Full Transaction Details</p>
           <button onclick="document.getElementById('receipt-img-input').click()"
-                  style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:8px;padding:6px 14px;font-size:.78rem;cursor:pointer;font-family:inherit">
-            &#x1F504; Re-scan
+                  style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.55);border-radius:8px;padding:7px 16px;font-size:.78rem;cursor:pointer;font-family:inherit">
+            &#x1F504; Upload New Screenshot
           </button>
         </div>
 
+        <!-- ROW 1: Bank + Transaction ID -->
+        <div class="rv-section-label">&#x1F3E6; Transfer Details</div>
         <div class="form-grid-2">
           <div class="form-group">
             <label>Bank Name *</label>
             <input id="rv-bank" type="text" placeholder="e.g. GTBank, First Bank, UBA" />
           </div>
           <div class="form-group">
-            <label>Transaction ID / Reference *
-              <span id="txn-ocr-badge"
-                    style="display:none;background:rgba(82,183,136,.2);color:#52b788;font-size:.68rem;padding:2px 8px;border-radius:10px;margin-left:6px">
-                &#x2728; Auto-detected
-              </span>
+            <label>
+              Transaction ID / Reference *
+              <span id="txn-ocr-badge" style="display:none;background:rgba(82,183,136,.2);color:#52b788;font-size:.67rem;padding:2px 9px;border-radius:10px;margin-left:6px;vertical-align:middle">&#x2728; Auto-read</span>
             </label>
             <input id="rv-txn" type="text" placeholder="e.g. FBN2024101400012345"
-                   style="text-transform:uppercase;font-family:monospace;font-size:.92rem;letter-spacing:.04em" />
+                   style="font-family:monospace;font-size:.93rem;letter-spacing:.04em;text-transform:uppercase" />
           </div>
         </div>
-        <div class="form-grid-2">
+
+        <!-- ROW 2: Amount + Date + Time -->
+        <div class="form-grid-3">
           <div class="form-group">
-            <label>Amount Paid (&#x20A6;) *</label>
-            <input id="rv-amount" type="number" placeholder="5000" min="0" />
+            <label>Amount (&#x20A6;) *</label>
+            <input id="rv-amount" type="number" placeholder="5000" min="0" step="0.01" />
           </div>
           <div class="form-group">
             <label>Payment Date *</label>
-            <input id="rv-date" type="date" value="${new Date().toISOString().slice(0,10)}" />
-          </div>
-        </div>
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label>Account Name (Sender)</label>
-            <input id="rv-acctname" type="text" placeholder="Name on bank account" />
+            <input id="rv-date" type="date" value="${today}" />
           </div>
           <div class="form-group">
             <label>Payment Time</label>
             <input id="rv-time" type="time" />
           </div>
         </div>
+
+        <!-- ROW 3: Sender -->
+        <div class="rv-section-label">&#x1F4E4; Sender (Customer)</div>
         <div class="form-grid-2">
           <div class="form-group">
-            <label>Customer Name</label>
-            <input id="rv-customer" type="text" placeholder="Customer full name" />
+            <label>Sender Account Name</label>
+            <input id="rv-acctname" type="text" placeholder="Name on sender&#39;s bank account" />
           </div>
+          <div class="form-group">
+            <label>Sender Account Number</label>
+            <input id="rv-acctnum" type="text" placeholder="10-digit account number" maxlength="11" style="font-family:monospace;letter-spacing:.08em" />
+          </div>
+        </div>
+        <div class="form-grid-2">
           <div class="form-group">
             <label>Customer Phone</label>
             <input id="rv-phone" type="tel" placeholder="08XXXXXXXXX" />
           </div>
+          <div class="form-group">
+            <label>Sender Bank</label>
+            <input id="rv-sender-bank" type="text" placeholder="Auto-filled or enter manually" />
+          </div>
+        </div>
+
+        <!-- ROW 4: Recipient -->
+        <div class="rv-section-label">&#x1F4E5; Recipient (Farm Account)</div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Recipient Account Name</label>
+            <input id="rv-recip-name" type="text" placeholder="Pinnacles Resource Centre Farm" />
+          </div>
+          <div class="form-group">
+            <label>Recipient Account Number</label>
+            <input id="rv-recip-acct" type="text" placeholder="Farm account number" style="font-family:monospace;letter-spacing:.08em" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Recipient Bank</label>
+            <input id="rv-recip-bank" type="text" placeholder="Bank receiving the payment" />
+          </div>
+          <div class="form-group">
+            <label>Transaction Status</label>
+            <select id="rv-status" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.88rem;outline:none">
+              <option value="verified">&#x2705; Verified / Successful</option>
+              <option value="pending">&#x23F3; Pending</option>
+              <option value="failed">&#x274C; Failed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ROW 5: Narration + Order link -->
+        <div class="rv-section-label">&#x1F4CB; Order Link &amp; Notes</div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Customer Name <span style="font-size:.72rem;color:rgba(255,255,255,.35)">(if different from account name)</span></label>
+            <input id="rv-customer" type="text" placeholder="Full name of person who ordered" />
+          </div>
+          <div class="form-group">
+            <label>Order ID <span style="font-size:.72rem;color:rgba(255,255,255,.35)">(links payment to order)</span></label>
+            <input id="rv-orderid" type="number" placeholder="Order ID from orders list" />
+          </div>
         </div>
         <div class="form-group">
-          <label>Order ID (optional &mdash; links to existing order)</label>
-          <input id="rv-orderid" type="number" placeholder="Order ID from orders list" />
+          <label>Narration / Description <span style="font-size:.72rem;color:rgba(255,255,255,.35)">(from receipt)</span></label>
+          <input id="rv-narration" type="text" placeholder="e.g. Transfer to Pinnacles Farm" />
         </div>
         <div class="form-group">
-          <label>Notes</label>
-          <textarea id="rv-notes" placeholder="Any additional info about this payment" rows="2"></textarea>
+          <label>Additional Notes</label>
+          <textarea id="rv-notes" placeholder="Any extra info for your records" rows="2"></textarea>
         </div>
-        <div id="rv-error" style="display:none;color:#f87171;font-size:.83rem;margin-bottom:8px"></div>
-        <button onclick="submitBankReceipt()" class="btn-primary" style="width:100%">&#x2705; Verify &amp; Save Payment</button>
+
+        <div id="rv-error" style="display:none;color:#f87171;font-size:.83rem;margin-bottom:10px;padding:10px 14px;background:rgba(248,113,113,.08);border-radius:10px;border:1px solid rgba(248,113,113,.2)"></div>
+        <button onclick="submitBankReceipt()" class="btn-primary" style="width:100%;padding:14px;font-size:.95rem">
+          &#x2705; Verify &amp; Save Payment Record
+        </button>
+        <p style="font-size:.75rem;color:rgba(255,255,255,.3);text-align:center;margin-top:10px">
+          The Transaction ID will automatically appear on the Pinnacles receipt for the accountant.
+        </p>
       </div>
 
-      <!-- Recent Verified Payments -->
-      <h3 style="margin-top:36px;margin-bottom:16px;font-size:1rem;color:#a3d9b8">&#x1F4CB; Recent Verified Payments</h3>
+      <!-- RECENT PAYMENTS TABLE -->
+      <h3 style="margin-top:40px;margin-bottom:14px;font-size:1rem;color:#a3d9b8">&#x1F4CB; Recent Verified Payments</h3>
       <div id="bank-receipts-list">Loading&hellip;</div>
     </div>
   `;
   loadBankReceipts();
 }
 
-// ── OCR Receipt Drop Handler ───────────────────────────────────────────────
+// ── Drop Handler ──────────────────────────────────────────────────────────
 function handleReceiptDrop(e) {
   e.preventDefault();
-  const zone = document.getElementById('receipt-upload-zone');
+  var zone = document.getElementById('receipt-upload-zone');
   if (zone) zone.classList.remove('drag-over');
-  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
   if (file && file.type.startsWith('image/')) scanReceiptImage(file);
 }
 
-// ── OCR Scanner ────────────────────────────────────────────────────────────
+// ── OCR Scanner ───────────────────────────────────────────────────────────
 async function scanReceiptImage(file) {
   if (!file) return;
-  const previewWrap = document.getElementById('ocr-preview-wrap');
-  const previewImg  = document.getElementById('receipt-preview-img');
-  const rawText     = document.getElementById('ocr-raw-text');
-  const statusEl    = document.getElementById('ocr-status');
+  var previewWrap = document.getElementById('ocr-preview-wrap');
+  var previewImg  = document.getElementById('receipt-preview-img');
+  var rawText     = document.getElementById('ocr-raw-text');
+  var statusEl    = document.getElementById('ocr-status');
 
-  const reader = new FileReader();
+  var reader = new FileReader();
   reader.onload = async function(ev) {
     previewImg.src = ev.target.result;
     previewWrap.style.display = 'block';
-    rawText.textContent = 'Scanning receipt…';
-    statusEl.textContent = '⏳ Reading your receipt — please wait…';
+    rawText.textContent = 'Scanning… please wait';
+    if (statusEl) statusEl.textContent = '⏳ Loading OCR engine…';
 
-    // Load Tesseract.js from CDN on demand
+    // Load Tesseract.js on demand
     if (!window.Tesseract) {
       await new Promise(function(resolve, reject) {
         var s = document.createElement('script');
         s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-        s.onload = resolve;
-        s.onerror = reject;
+        s.onload = resolve; s.onerror = reject;
         document.head.appendChild(s);
       });
     }
 
     try {
+      if (statusEl) statusEl.textContent = '⏳ Reading text from image… 0%';
       var result = await Tesseract.recognize(ev.target.result, 'eng', {
         logger: function(m) {
           if (m.status === 'recognizing text' && statusEl) {
-            var pct = Math.round((m.progress || 0) * 100);
-            statusEl.textContent = '⏳ Scanning… ' + pct + '%';
+            statusEl.textContent = '⏳ Scanning… ' + Math.round((m.progress||0)*100) + '%';
           }
         }
       });
-
       var text = (result.data && result.data.text) || '';
-      rawText.textContent = text || '(no text detected)';
-      statusEl.textContent = '✅ Scan complete — fields auto-filled below. Please review and correct if needed.';
+      rawText.textContent = text || '(no readable text found)';
+      if (statusEl) statusEl.textContent = '✅ Scan complete — all detected details have been filled below. Review & correct as needed.';
       parseAndFillReceiptFields(text);
-
     } catch(err) {
-      statusEl.textContent = '❌ Scan failed — please fill in the details manually below.';
+      if (statusEl) statusEl.textContent = '❌ Scan failed — please fill in the details manually.';
       rawText.textContent = 'Error: ' + (err.message || err);
     }
   };
   reader.readAsDataURL(file);
 }
 
-// ── OCR Field Parser ───────────────────────────────────────────────────────
+// ── Comprehensive Field Parser ────────────────────────────────────────────
 function parseAndFillReceiptFields(text) {
   var lines = text.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
   var full  = text.toUpperCase();
 
-  // 1. Transaction ID
-  var txnPatterns = [
-    /(?:transaction\s*(?:id|ref(?:erence)?|no\.?)|ref(?:erence)?\s*(?:no\.?|number)?|session\s*id|tran\s*id|trn\s*ref|payment\s*ref)[:\s]+([A-Z0-9\/\-]{6,40})/i,
-    /(?:ftref|ft\s*ref)[:\s]+([A-Z0-9\/\-]{6,40})/i,
-  ];
-  var txnId = '';
-  for (var tp = 0; tp < txnPatterns.length; tp++) {
-    var tm = text.match(txnPatterns[tp]);
-    if (tm && tm[1]) { txnId = tm[1].replace(/\s/g,'').toUpperCase(); break; }
+  // Helper: find value after a label on same or next line
+  function afterLabel(patterns, src) {
+    for (var i=0;i<patterns.length;i++) {
+      var m = src.match(patterns[i]);
+      if (m && m[1]) return m[1].replace(/\|/g,'').trim();
+    }
+    return '';
   }
+
+  // ── 1. Transaction ID ─────────────────────────────────────────────────
+  var txnId = '';
+  txnId = afterLabel([
+    /(?:transaction\s*(?:id|ref(?:erence)?|no\.?)|ref(?:erence)?\s*(?:no\.?|number)?|session\s*id|tran\s*id|trn\s*ref|payment\s*ref|trans\.?\s*ref)[:\s]+([A-Z0-9\/\-]{6,40})/i,
+    /(?:ftref|ft\s*ref|narration\s*ref)[:\s]+([A-Z0-9\/\-]{6,40})/i,
+    /(?:ref)[:\s]+([A-Z0-9\/\-]{8,35})/i,
+  ], text);
   if (!txnId) {
-    for (var li = 0; li < lines.length; li++) {
-      var lu = lines[li].toUpperCase();
-      if (/REF|SESSION|TRAN|FT[A-Z]/.test(lu)) {
-        var lm = lu.match(/([A-Z0-9\/\-]{8,40})/);
-        if (lm) { txnId = lm[1]; break; }
+    for (var li=0;li<lines.length;li++) {
+      var lu=lines[li].toUpperCase();
+      if (/\bREF\b|SESSION|TRAN\s*ID|FT[A-Z0-9]/.test(lu)) {
+        var lm=lu.match(/([A-Z0-9\/\-]{8,40})/);
+        if (lm) { txnId=lm[1]; break; }
       }
     }
   }
-  if (!txnId) {
-    var sm = text.match(/\b([A-Z]{1,5}[0-9]{8,}[A-Z0-9]*)\b/);
-    if (sm) txnId = sm[1];
-  }
+  if (!txnId) { var sm=text.match(/\b([A-Z]{1,5}[0-9]{8,}[A-Z0-9]*)\b/); if(sm) txnId=sm[1]; }
+  if (!txnId) { var nm=text.match(/\b([0-9]{10,20})\b/); if(nm) txnId=nm[1]; }
 
-  // 2. Bank Name
+  // ── 2. Bank Name (sender bank) ────────────────────────────────────────
   var bankMap = {
-    'GUARANTY TRUST':'GTBank','GTBANK':'GTBank','GTB':'GTBank',
-    'FIRST BANK':'First Bank','FBN':'First Bank','FIRSTBANK':'First Bank',
+    'GUARANTY TRUST':'GTBank','GTBANK':'GTBank','GTB':'GTBank','GT BANK':'GTBank',
+    'FIRST BANK':'First Bank','FBN':'First Bank','FIRSTBANK':'First Bank','FIRST CITY MONUMENT':'FCMB',
     'ZENITH BANK':'Zenith Bank','ZENITH':'Zenith Bank',
-    'ACCESS BANK':'Access Bank','ACCESS':'Access Bank',
-    'UNITED BANK':'UBA','UBA':'UBA',
+    'ACCESS BANK':'Access Bank',
+    'UNITED BANK FOR AFRICA':'UBA','UNITED BANK':'UBA','UBA':'UBA',
     'FIDELITY BANK':'Fidelity Bank','FIDELITY':'Fidelity Bank',
     'STANBIC IBTC':'Stanbic IBTC','STANBIC':'Stanbic IBTC',
     'STERLING BANK':'Sterling Bank','STERLING':'Sterling Bank',
@@ -1777,136 +1850,682 @@ function parseAndFillReceiptFields(text) {
     'ECOBANK':'Ecobank','ECO BANK':'Ecobank',
     'POLARIS BANK':'Polaris Bank','POLARIS':'Polaris Bank',
     'WEMA BANK':'Wema Bank','WEMA':'Wema Bank',
-    'FCMB':'FCMB','FIRST CITY':'FCMB',
+    'FCMB':'FCMB',
     'KEYSTONE BANK':'Keystone Bank','KEYSTONE':'Keystone Bank',
     'HERITAGE BANK':'Heritage Bank',
-    'OPAY':'OPay','KUDA':'Kuda Bank','PALMPAY':'PalmPay','MONIEPOINT':'Moniepoint',
+    'PROVIDUS BANK':'Providus Bank','PROVIDUS':'Providus Bank',
+    'JAIZ BANK':'Jaiz Bank','JAIZ':'Jaiz Bank',
+    'OPAY':'OPay','O-PAY':'OPay',
+    'KUDA BANK':'Kuda Bank','KUDA':'Kuda Bank',
+    'PALMPAY':'PalmPay','PALM PAY':'PalmPay',
+    'MONIEPOINT':'Moniepoint','MONIE POINT':'Moniepoint',
+    'CARBON':'Carbon','ONE FINANCE':'One Finance',
+    'VFD':'VFD Microfinance','VFD MICROFINANCE':'VFD Microfinance',
+    'SPARKLE':'Sparkle','RUBIES':'Rubies Bank',
   };
-  var bankName = '';
-  var bankKeys = Object.keys(bankMap);
-  for (var bi = 0; bi < bankKeys.length; bi++) {
-    if (full.indexOf(bankKeys[bi]) !== -1) { bankName = bankMap[bankKeys[bi]]; break; }
+  var bankName='', bankKeys=Object.keys(bankMap);
+  for (var bi=0;bi<bankKeys.length;bi++) {
+    if (full.indexOf(bankKeys[bi])!==-1) { bankName=bankMap[bankKeys[bi]]; break; }
   }
+  // Try to find explicit "Bank:" label
+  var bankLabelM = afterLabel([/(?:bank|from\s*bank|sending\s*bank)[:\s]+([A-Za-z ]{4,30})/i], text);
+  if (bankLabelM && !bankName) bankName = bankLabelM.trim();
 
-  // 3. Amount
-  var amount = '';
-  var amtPats = [
-    /(?:amount|amt|total|credit|debit|transferred?)[:\s\u20a6NGN]+([0-9,]+(?:\.[0-9]{1,2})?)/i,
+  // ── 3. Amount ─────────────────────────────────────────────────────────
+  var amount='';
+  amount = afterLabel([
+    /(?:amount|amt|total\s*amount|credit|debit|sum|value|transferred?)[:\s\u20a6NGN]+([0-9,]+(?:\.[0-9]{1,2})?)/i,
     /(?:NGN|\u20a6)\s*([0-9,]+(?:\.[0-9]{1,2})?)/i,
     /([0-9,]{4,}(?:\.[0-9]{2})?)\s*(?:NGN|naira)/i,
-  ];
-  for (var ap = 0; ap < amtPats.length; ap++) {
-    var am = text.match(amtPats[ap]);
-    if (am) { amount = am[1].replace(/,/g,''); break; }
+  ], text);
+  if (amount) amount = amount.replace(/,/g,'');
+  // Last resort: biggest number in doc (likely the transfer amount)
+  if (!amount) {
+    var allNums = text.match(/[0-9,]{4,}(?:\.[0-9]{2})?/g) || [];
+    var biggest = 0;
+    allNums.forEach(function(n){ var v=parseFloat(n.replace(/,/g,'')); if(v>biggest && v<999999999) biggest=v; });
+    if (biggest > 0) amount = String(biggest);
   }
 
-  // 4. Date
+  // ── 4. Date ───────────────────────────────────────────────────────────
   var dateVal = new Date().toISOString().slice(0,10);
-  var dm = text.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
-  if (dm) {
-    try {
-      var d = new Date(dm[3] + '-' + dm[2].padStart(2,'0') + '-' + dm[1].padStart(2,'0'));
-      if (!isNaN(d.getTime())) dateVal = d.toISOString().slice(0,10);
-    } catch(e) {}
+  var datePats = [
+    /(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/,
+    /(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/,
+    /(\d{1,2})\s+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{4})/i,
+    /(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2}),?\s+(\d{4})/i,
+  ];
+  for (var dpi=0;dpi<datePats.length;dpi++) {
+    var dm2=text.match(datePats[dpi]);
+    if (dm2) {
+      try {
+        var d2;
+        if (datePats[dpi].source.startsWith('(\\d{4})')) {
+          d2=new Date(dm2[1]+'-'+dm2[2].padStart(2,'0')+'-'+dm2[3].padStart(2,'0'));
+        } else if (isNaN(Number(dm2[2]))) {
+          d2=new Date(dm2[2]+' '+dm2[1]+' '+dm2[3]);
+        } else if (isNaN(Number(dm2[1]))) {
+          d2=new Date(dm2[1]+' '+dm2[2]+' '+dm2[3]);
+        } else {
+          d2=new Date(dm2[3]+'-'+dm2[2].padStart(2,'0')+'-'+dm2[1].padStart(2,'0'));
+        }
+        if (!isNaN(d2.getTime())) { dateVal=d2.toISOString().slice(0,10); break; }
+      } catch(e2) {}
+    }
   }
 
-  // 5. Time
-  var timeVal = '';
-  var timem = text.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*([APap][Mm])?/);
+  // ── 5. Time ───────────────────────────────────────────────────────────
+  var timeVal='';
+  var timem=text.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*([APap][Mm])?/);
   if (timem) {
-    var h = parseInt(timem[1]), mn = timem[2];
-    var ampm = (timem[3]||'').toUpperCase();
-    if (ampm === 'PM' && h < 12) h += 12;
-    if (ampm === 'AM' && h === 12) h = 0;
-    timeVal = String(h).padStart(2,'0') + ':' + mn;
+    var h=parseInt(timem[1]),mn=timem[2],ap=(timem[3]||'').toUpperCase();
+    if(ap==='PM'&&h<12)h+=12; if(ap==='AM'&&h===12)h=0;
+    timeVal=String(h).padStart(2,'0')+':'+mn;
   }
 
-  // 6. Sender Name
-  var senderName = '';
-  var snm = text.match(/(?:sender|from|account\s*name|benefactor|initiator)[:\s]+([A-Za-z ]{4,40})/i);
-  if (snm) senderName = snm[1].trim();
+  // ── 6. Sender Account Name ────────────────────────────────────────────
+  var senderName='';
+  senderName=afterLabel([
+    /(?:sender|from|initiator|account\s*name|debit\s*account\s*name|source\s*account\s*name)[:\s]+([A-Za-z ]{3,50})/i,
+    /(?:from\s*account)[:\s]+([A-Za-z ]{3,50})/i,
+  ], text);
 
-  // Fill fields
-  function fillField(id, val) { var el = document.getElementById(id); if (el && val) el.value = val; }
-  fillField('rv-txn',      txnId);
-  fillField('rv-bank',     bankName);
-  fillField('rv-amount',   amount);
-  fillField('rv-date',     dateVal);
-  fillField('rv-time',     timeVal);
-  fillField('rv-acctname', senderName);
+  // ── 7. Sender Account Number ──────────────────────────────────────────
+  var senderAcctNum='';
+  senderAcctNum=afterLabel([
+    /(?:sender|from|debit|source)\s*(?:account|acct)\s*(?:no\.?|number)?[:\s]+([0-9]{10})/i,
+    /(?:account\s*(?:no\.?|number))[:\s]+([0-9]{10})/i,
+  ], text);
+  // Fallback: grab standalone 10-digit account numbers
+  if (!senderAcctNum) {
+    var accNums=text.match(/\b([0-9]{10})\b/g)||[];
+    if (accNums.length>0) senderAcctNum=accNums[0];
+  }
 
-  // Show auto-detected badge on Transaction ID
-  var badge = document.getElementById('txn-ocr-badge');
-  if (badge) badge.style.display = txnId ? 'inline' : 'none';
+  // ── 8. Sender Bank ────────────────────────────────────────────────────
+  var senderBank=bankName; // default to detected bank
 
-  // Highlight required fields that weren't detected
-  ['rv-bank','rv-txn','rv-amount'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.style.borderColor = el.value ? 'rgba(82,183,136,.5)' : 'rgba(248,113,113,.5)';
+  // ── 9. Recipient Name ─────────────────────────────────────────────────
+  var recipName='';
+  recipName=afterLabel([
+    /(?:recipient|beneficiary|credit\s*account\s*name|to\s*account\s*name|receiver|payee)[:\s]+([A-Za-z ]{3,60})/i,
+    /(?:to|credited\s*to)[:\s]+([A-Za-z ]{3,60})/i,
+  ], text);
+
+  // ── 10. Recipient Account Number ──────────────────────────────────────
+  var recipAcct='';
+  recipAcct=afterLabel([
+    /(?:recipient|beneficiary|credit|to)\s*(?:account|acct)\s*(?:no\.?|number)?[:\s]+([0-9]{10})/i,
+    /(?:destination|dest\.?)\s*(?:account|acct)[:\s]+([0-9]{10})/i,
+  ], text);
+  // Use second 10-digit number if we already used first for sender
+  if (!recipAcct && senderAcctNum) {
+    var accNums2=text.match(/\b([0-9]{10})\b/g)||[];
+    if (accNums2.length>1) recipAcct=accNums2[1];
+  }
+
+  // ── 11. Recipient Bank ────────────────────────────────────────────────
+  var recipBank='';
+  recipBank=afterLabel([
+    /(?:recipient|beneficiary|to|credit)\s*bank[:\s]+([A-Za-z ]{3,30})/i,
+    /(?:destination\s*bank)[:\s]+([A-Za-z ]{3,30})/i,
+  ], text);
+  // detect bank name appearing after "to" in the text
+  if (!recipBank) {
+    var toIdx=full.indexOf(' TO ');
+    if (toIdx>-1) {
+      var afterTo=full.slice(toIdx+4,toIdx+80);
+      for (var rbi=0;rbi<bankKeys.length;rbi++) {
+        if (afterTo.indexOf(bankKeys[rbi])!==-1) { recipBank=bankMap[bankKeys[rbi]]; break; }
+      }
+    }
+  }
+
+  // ── 12. Narration / Description ───────────────────────────────────────
+  var narration='';
+  narration=afterLabel([
+    /(?:narration|description|remark|memo|reason|purpose|payment\s*for|note)[:\s]+(.{4,80})/i,
+    /(?:transaction\s*description)[:\s]+(.{4,80})/i,
+  ], text);
+
+  // ── 13. Status ────────────────────────────────────────────────────────
+  var statusVal='verified';
+  if (/SUCCESSFUL|SUCCESS|APPROVED|COMPLETED/i.test(text)) statusVal='verified';
+  else if (/PENDING|PROCESSING/i.test(text)) statusVal='pending';
+  else if (/FAILED|DECLINED|REJECTED|ERROR/i.test(text)) statusVal='failed';
+
+  // ── Fill all form fields ──────────────────────────────────────────────
+  function fill(id,val) { var el=document.getElementById(id); if(el&&val) el.value=val.toString().trim(); }
+  fill('rv-txn',         txnId.toUpperCase());
+  fill('rv-bank',        bankName);
+  fill('rv-amount',      amount);
+  fill('rv-date',        dateVal);
+  fill('rv-time',        timeVal);
+  fill('rv-acctname',    senderName);
+  fill('rv-acctnum',     senderAcctNum);
+  fill('rv-phone',       '');  // phones rarely on receipts, leave for manual
+  fill('rv-sender-bank', senderBank);
+  fill('rv-recip-name',  recipName);
+  fill('rv-recip-acct',  recipAcct);
+  fill('rv-recip-bank',  recipBank);
+  fill('rv-narration',   narration);
+
+  // Status select
+  var selEl=document.getElementById('rv-status');
+  if (selEl) selEl.value=statusVal;
+
+  // ── Show "auto-detected" badge on Transaction ID ─────────────────────
+  var badge=document.getElementById('txn-ocr-badge');
+  if (badge) badge.style.display=txnId?'inline':'none';
+
+  // ── Highlight required fields: green if filled, red if empty ─────────
+  ['rv-bank','rv-txn','rv-amount'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.style.borderColor=el.value?'rgba(82,183,136,.55)':'rgba(248,113,113,.55)';
   });
+
+  // ── Show summary chips ────────────────────────────────────────────────
+  var fields=[
+    {label:'Transaction ID',val:txnId},
+    {label:'Bank',val:bankName},
+    {label:'Amount',val:amount?'\u20a6'+Number(amount).toLocaleString():''},
+    {label:'Date',val:dateVal},
+    {label:'Time',val:timeVal},
+    {label:'Sender',val:senderName},
+    {label:'Sender Acct',val:senderAcctNum},
+    {label:'Recipient',val:recipName},
+    {label:'Recipient Acct',val:recipAcct},
+    {label:'Recipient Bank',val:recipBank},
+    {label:'Narration',val:narration},
+    {label:'Status',val:statusVal},
+  ];
+  var detected=fields.filter(function(f){return f.val;});
+  var summary=document.getElementById('ocr-summary');
+  var chips=document.getElementById('ocr-summary-chips');
+  if (summary&&chips) {
+    chips.innerHTML=detected.map(function(f){
+      return '<span style="background:rgba(82,183,136,.12);border:1px solid rgba(82,183,136,.25);border-radius:20px;padding:4px 12px;font-size:.75rem;color:#a3d9b8">'
+        +'<strong style="color:#52b788">'+f.label+':</strong> '+f.val+'</span>';
+    }).join('');
+    summary.style.display=detected.length?'block':'none';
+  }
+
+  // ── Cross-reference matching orders ──────────────────────────
+  crossReferenceOrders(dateVal, amount ? parseFloat(amount) : 0);
 }
 
+// ── Submit ────────────────────────────────────────────────────────────────
 async function submitBankReceipt() {
-  const bank   = document.getElementById('rv-bank')?.value?.trim();
-  const txn    = document.getElementById('rv-txn')?.value?.trim().toUpperCase();
-  const amount = parseFloat(document.getElementById('rv-amount')?.value);
-  const date   = document.getElementById('rv-date')?.value;
-  const errEl  = document.getElementById('rv-error');
-  if (!bank || !txn || !amount || !date) {
-    if (errEl) { errEl.textContent = 'Bank name, Transaction ID, amount and date are required.'; errEl.style.display = 'block'; }
+  var bank   = (document.getElementById('rv-bank')?.value||'').trim();
+  var txn    = (document.getElementById('rv-txn')?.value||'').trim().toUpperCase();
+  var amount = parseFloat(document.getElementById('rv-amount')?.value||0);
+  var date   = document.getElementById('rv-date')?.value||'';
+  var errEl  = document.getElementById('rv-error');
+  if (!bank||!txn||!amount||!date) {
+    if(errEl){errEl.textContent='Bank name, Transaction ID, amount and date are required.';errEl.style.display='block';}
     return;
   }
-  if (errEl) errEl.style.display = 'none';
+  if(errEl) errEl.style.display='none';
+
+  // Build notes from extra extracted fields
+  var extras=[];
+  var acctnum=(document.getElementById('rv-acctnum')?.value||'').trim();
+  var recipName=(document.getElementById('rv-recip-name')?.value||'').trim();
+  var recipAcct=(document.getElementById('rv-recip-acct')?.value||'').trim();
+  var recipBank=(document.getElementById('rv-recip-bank')?.value||'').trim();
+  var narration=(document.getElementById('rv-narration')?.value||'').trim();
+  var senderBank=(document.getElementById('rv-sender-bank')?.value||'').trim();
+  if(acctnum)  extras.push('Sender Acct: '+acctnum);
+  if(senderBank) extras.push('Sender Bank: '+senderBank);
+  if(recipName) extras.push('Recipient: '+recipName);
+  if(recipAcct) extras.push('Recipient Acct: '+recipAcct);
+  if(recipBank) extras.push('Recipient Bank: '+recipBank);
+  if(narration) extras.push('Narration: '+narration);
+  var manualNotes=(document.getElementById('rv-notes')?.value||'').trim();
+  var fullNotes=[manualNotes].concat(extras).filter(Boolean).join(' | ');
+
   try {
-    const res = await api('POST', '/payment/verify-bank', {
-      bank_name: bank, transaction_id: txn, amount, payment_date: date,
-      payment_time:   document.getElementById('rv-time')?.value     || null,
-      account_name:   document.getElementById('rv-acctname')?.value?.trim() || null,
-      customer_name:  document.getElementById('rv-customer')?.value?.trim() || null,
-      customer_phone: document.getElementById('rv-phone')?.value?.trim()    || null,
-      order_id:       parseInt(document.getElementById('rv-orderid')?.value) || null,
-      notes:          document.getElementById('rv-notes')?.value?.trim()     || null,
+    var res=await api('POST','/payment/verify-bank',{
+      bank_name:    bank,
+      transaction_id: txn,
+      amount:       amount,
+      payment_date: date,
+      payment_time: document.getElementById('rv-time')?.value||null,
+      account_name: document.getElementById('rv-acctname')?.value?.trim()||null,
+      customer_name:document.getElementById('rv-customer')?.value?.trim()||null,
+      customer_phone:document.getElementById('rv-phone')?.value?.trim()||null,
+      order_id:     parseInt(document.getElementById('rv-orderid')?.value)||null,
+      notes:        fullNotes||null,
     });
-    if (res.error) throw new Error(res.error);
-    showAdminToast('\u2705 Payment verified! Transaction ID: ' + txn);
-    ['rv-bank','rv-txn','rv-amount','rv-acctname','rv-customer','rv-phone','rv-orderid','rv-notes','rv-time'].forEach(function(id) {
-      var el = document.getElementById(id); if(el) el.value = '';
+    if(res.error) throw new Error(res.error);
+    showAdminToast('\u2705 Payment verified! Txn ID: '+txn);
+    // Reset form
+    ['rv-bank','rv-txn','rv-amount','rv-acctname','rv-acctnum','rv-phone','rv-sender-bank',
+     'rv-recip-name','rv-recip-acct','rv-recip-bank','rv-narration','rv-notes','rv-customer','rv-orderid','rv-time'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
     });
-    var dateEl = document.getElementById('rv-date');
-    if (dateEl) dateEl.value = new Date().toISOString().slice(0,10);
-    var wrap = document.getElementById('ocr-preview-wrap');
-    if (wrap) wrap.style.display = 'none';
+    var dateEl=document.getElementById('rv-date');
+    if(dateEl) dateEl.value=new Date().toISOString().slice(0,10);
+    var wrap=document.getElementById('ocr-preview-wrap');
+    if(wrap) wrap.style.display='none';
+    var summary=document.getElementById('ocr-summary');
+    if(summary) summary.style.display='none';
     loadBankReceipts();
   } catch(e) {
-    if (errEl) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    if(errEl){errEl.textContent=e.message;errEl.style.display='block';}
   }
 }
 
+// ── Recent Payments Table ─────────────────────────────────────────────────
 async function loadBankReceipts() {
-  const container = document.getElementById('bank-receipts-list');
-  if (!container) return;
+  var container=document.getElementById('bank-receipts-list');
+  if(!container) return;
   try {
-    const data = await api('GET', '/payment/bank-receipts');
-    if (!Array.isArray(data) || !data.length) {
-      container.innerHTML = '<p style="color:rgba(255,255,255,.4);font-size:.85rem">No verified payments yet.</p>';
+    var data=await api('GET','/payment/bank-receipts');
+    if(!Array.isArray(data)||!data.length){
+      container.innerHTML='<p style="color:rgba(255,255,255,.4);font-size:.85rem">No verified payments yet.</p>';
       return;
     }
-    container.innerHTML = '<div class="receipts-table-wrap"><table class="admin-table"><thead><tr>' +
-      '<th>Date</th><th>Bank</th><th>Transaction ID</th><th>Amount</th><th>Customer</th><th>Order</th><th>Status</th>' +
-      '</tr></thead><tbody>' +
-      data.map(function(r) {
-        return '<tr>' +
-          '<td>' + (r.payment_date||'-') + '</td>' +
-          '<td>' + (r.bank_name||'-') + '</td>' +
-          '<td style="font-family:monospace;font-size:.82rem;color:#fbbf24">' + (r.transaction_id||'-') + '</td>' +
-          '<td>&#x20A6;' + Number(r.amount||0).toLocaleString() + '</td>' +
-          '<td>' + (r.customer_name||'-') + '</td>' +
-          '<td>' + (r.order_id||'-') + '</td>' +
-          '<td><span class="status-badge status-' + (r.status||'verified') + '">' + (r.status||'verified') + '</span></td>' +
+    container.innerHTML='<div class="receipts-table-wrap"><table class="admin-table"><thead><tr>'+
+      '<th>Date</th><th>Bank</th><th>Transaction ID</th><th>Amount</th><th>Customer / Sender</th><th>Order</th><th>Status</th>'+
+      '</tr></thead><tbody>'+
+      data.map(function(r){
+        return '<tr>'+
+          '<td>'+(r.payment_date||'-')+'</td>'+
+          '<td>'+(r.bank_name||'-')+'</td>'+
+          '<td style="font-family:monospace;font-size:.82rem;color:#fbbf24">'+(r.transaction_id||'-')+'</td>'+
+          '<td>&#x20A6;'+Number(r.amount||0).toLocaleString()+'</td>'+
+          '<td>'+(r.customer_name||r.account_name||'-')+'</td>'+
+          '<td>'+(r.order_id||'-')+'</td>'+
+          '<td><span class="status-badge status-'+(r.status||'verified')+'">'+(r.status||'verified')+'</span></td>'+
           '</tr>';
-      }).join('') +
+      }).join('')+
       '</tbody></table></div>';
   } catch(e) {
-    container.innerHTML = '<p style="color:#f87171">' + e.message + '</p>';
+    container.innerHTML='<p style="color:#f87171">'+e.message+'</p>';
   }
+}
+
+// ── Order Cross-referencing after OCR Scan ───────────────────────────────
+async function crossReferenceOrders(dateVal, amountVal) {
+  // Remove any previous match panel
+  var prev = document.getElementById('order-match-panel');
+  if (prev) prev.remove();
+
+  var form = document.querySelector('.receipt-verify-form');
+  if (!form) return;
+
+  // Create panel placeholder
+  var panel = document.createElement('div');
+  panel.id = 'order-match-panel';
+  panel.style.cssText = 'margin-bottom:24px;border:1px solid rgba(82,183,136,.3);border-radius:16px;overflow:hidden';
+  panel.innerHTML = '<div style="background:rgba(82,183,136,.08);padding:14px 18px;font-size:.85rem;font-weight:700;color:#a3d9b8">&#x1F50E; Searching orders that match this receipt&hellip;</div>';
+  form.parentNode.insertBefore(panel, form);
+
+  try {
+    var data = await api('GET', '/orders');
+    var orders = (data.orders || data || []);
+    if (!Array.isArray(orders)) orders = [];
+
+    var refDate = dateVal ? new Date(dateVal) : new Date();
+    var matched = orders.filter(function(o) {
+      var orderDate = new Date((o.created_at || '').slice(0, 10));
+      var dayDiff = Math.abs((refDate - orderDate) / (1000 * 60 * 60 * 24));
+      var dateOk = dayDiff <= 3;
+      if (!dateOk) return false;
+      if (amountVal > 0) {
+        var orderTotal = Number(o.total || 0);
+        var diff = Math.abs(orderTotal - amountVal) / Math.max(orderTotal, amountVal);
+        return diff <= 0.30; // within 30%
+      }
+      return true;
+    });
+
+    // Also fetch existing bank receipts to show which orders already have payments
+    var existingPayments = [];
+    try {
+      var pr = await api('GET', '/payment/bank-receipts');
+      existingPayments = Array.isArray(pr) ? pr.map(function(p){ return p.order_id; }) : [];
+    } catch(e) {}
+
+    if (!matched.length) {
+      panel.innerHTML = '<div style="background:rgba(82,183,136,.05);padding:14px 18px;font-size:.83rem;color:rgba(255,255,255,.4);">&#x1F50E; No orders found matching this receipt date/amount. Enter the Order ID manually below if needed.</div>';
+      return;
+    }
+
+    var html = '<div style="background:rgba(82,183,136,.08);padding:14px 18px;font-size:.85rem;font-weight:700;color:#a3d9b8">'
+      + '&#x1F4CB; ' + matched.length + ' Matching Order' + (matched.length>1?'s':'') + ' Found &mdash; click one to link this payment:</div>'
+      + '<div style="padding:12px;display:flex;flex-direction:column;gap:8px">';
+
+    matched.forEach(function(o) {
+      var alreadyLinked = existingPayments.indexOf(o.id) !== -1;
+      var dateStr = o.created_at ? o.created_at.slice(0,10) : '-';
+      var timeStr = o.created_at && o.created_at.length > 10 ? o.created_at.slice(11,16) : '';
+      var itemNames = Array.isArray(o.items) ? o.items.map(function(i){ return (i.emoji||'') + ' ' + i.name; }).join(', ') : '';
+      html += '<div class="order-match-card" id="omatch-' + o.id + '" onclick="selectMatchedOrder(' + o.id + ', this)" style="cursor:pointer">'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">'
+        + '<div>'
+        + '<div style="font-weight:800;color:#e0f0e0;font-size:.88rem">Order #' + o.id + ' &bull; ' + (o.customer_name||'Customer') + '</div>'
+        + '<div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-top:2px">&#x1F4C5; ' + dateStr + (timeStr?' &bull; &#x23F0; '+timeStr:'') + ' &bull; &#x1F4DE; ' + (o.customer_phone||'No phone') + '</div>'
+        + (itemNames ? '<div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:3px">' + itemNames + '</div>' : '')
+        + '</div>'
+        + '<div style="text-align:right;flex-shrink:0">'
+        + '<div style="font-weight:800;color:#fbbf24;font-size:.95rem">&#x20A6;' + Number(o.total||0).toLocaleString() + '</div>'
+        + '<div style="font-size:.72rem;margin-top:3px"><span class="status-badge status-' + o.status + '">' + o.status + '</span></div>'
+        + (alreadyLinked ? '<div style="font-size:.7rem;color:#52b788;margin-top:4px">&#x2705; Payment already linked</div>' : '')
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    });
+
+    html += '</div>';
+    panel.innerHTML = html;
+
+  } catch(e) {
+    panel.innerHTML = '<div style="padding:14px 18px;font-size:.82rem;color:#f87171">Could not load orders: ' + e.message + '</div>';
+  }
+}
+
+function selectMatchedOrder(orderId, el) {
+  // Deselect all
+  document.querySelectorAll('.order-match-card').forEach(function(c){
+    c.style.background = 'rgba(255,255,255,.03)';
+    c.style.borderColor = 'rgba(255,255,255,.08)';
+  });
+  // Highlight selected
+  el.style.background = 'rgba(82,183,136,.12)';
+  el.style.borderColor = 'rgba(82,183,136,.4)';
+  // Fill order ID field
+  var orderIdEl = document.getElementById('rv-orderid');
+  if (orderIdEl) {
+    orderIdEl.value = orderId;
+    orderIdEl.style.borderColor = 'rgba(82,183,136,.55)';
+    orderIdEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  showAdminToast('&#x1F4CB; Order #' + orderId + ' selected — click Verify & Save to link this payment.');
+}
+
+// ── Attach Bank Receipt directly to an Order ─────────────────────────────
+function openAttachReceiptModal(orderId, customerName, orderTotal) {
+  // Create or reuse modal
+  var modal = document.getElementById('attach-receipt-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'attach-receipt-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);align-items:center;justify-content:center';
+    modal.innerHTML = '<div id="attach-receipt-inner" style="background:#111f11;border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:28px;width:min(600px,94vw);max-height:90vh;overflow-y:auto;position:relative"></div>';
+    modal.onclick = function(e) { if(e.target===modal) closeAttachReceiptModal(); };
+    document.body.appendChild(modal);
+  }
+
+  var safeCustomerName = String(customerName || '').replace(/'/g, "\\'");
+
+  document.getElementById('attach-receipt-inner').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div>
+        <h3 style="font-size:1rem;font-weight:800;color:#a3d9b8;margin:0">&#x1F4F7; Attach Bank Receipt to Order #${orderId}</h3>
+        <p style="font-size:.8rem;color:rgba(255,255,255,.4);margin:4px 0 0">${customerName} &bull; &#x20A6;${Number(orderTotal).toLocaleString()}</p>
+      </div>
+      <button onclick="closeAttachReceiptModal()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.4rem;cursor:pointer;padding:4px">&#x2715;</button>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="receipt-upload-zone" id="attach-upload-zone"
+         onclick="document.getElementById('attach-img-input').click()"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleAttachDrop(event,${orderId})">
+      <div class="upload-icon">&#x1F4F7;</div>
+      <div class="upload-label">Drop or click to upload the bank receipt screenshot</div>
+      <div class="upload-sub">The system will scan and extract all transaction details</div>
+      <input type="file" id="attach-img-input" accept="image/*" style="display:none"
+             onchange="scanAndAttachReceipt(this.files[0], ${orderId}, ${orderTotal})" />
+    </div>
+
+    <!-- Preview -->
+    <div id="attach-preview-wrap" style="display:none;margin-bottom:16px">
+      <img id="attach-preview-img" src="" style="width:100%;max-height:220px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0a150a" />
+      <div id="attach-ocr-status" style="margin-top:8px;font-size:.83rem;color:#fbbf24"></div>
+    </div>
+
+    <!-- Detected info + save -->      
+    <div id="attach-detected" style="display:none">
+      <div style="background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.2);border-radius:14px;padding:16px;margin-bottom:16px">
+        <p style="font-size:.8rem;font-weight:700;color:#52b788;margin-bottom:10px">&#x2728; Detected from receipt:</p>
+        <div id="attach-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Transaction ID *</label>
+            <input id="attach-txn" type="text" style="text-transform:uppercase;font-family:monospace;font-size:.9rem" />
+          </div>
+          <div class="form-group">
+            <label>Bank Name *</label>
+            <input id="attach-bank" type="text" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Amount (&#x20A6;)</label>
+            <input id="attach-amount" type="number" />
+          </div>
+          <div class="form-group">
+            <label>Payment Date</label>
+            <input id="attach-date" type="date" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Sender Account Name</label>
+          <input id="attach-sender" type="text" />
+        </div>
+      </div>
+      <div id="attach-error" style="display:none;color:#f87171;font-size:.83rem;margin-bottom:10px"></div>
+      <button onclick="saveAttachedReceipt(${orderId}, '${safeCustomerName}')" class="btn-primary" style="width:100%">
+        &#x1F4BE; Save Payment &amp; Link to Order #${orderId}
+      </button>
+      <p style="font-size:.73rem;color:rgba(255,255,255,.3);text-align:center;margin-top:8px">Transaction ID will appear on the Pinnacles receipt for this order.</p>
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function closeAttachReceiptModal() {
+  var modal = document.getElementById('attach-receipt-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function handleAttachDrop(e, orderId) {
+  e.preventDefault();
+  var zone = document.getElementById('attach-upload-zone');
+  if (zone) zone.classList.remove('drag-over');
+  var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    scanAndAttachReceipt(file, orderId, 0);
+  }
+}
+
+async function scanAndAttachReceipt(file, orderId, orderTotal) {
+  if (!file) return;
+  var previewWrap = document.getElementById('attach-preview-wrap');
+  var previewImg  = document.getElementById('attach-preview-img');
+  var statusEl    = document.getElementById('attach-ocr-status');
+  var detectedDiv = document.getElementById('attach-detected');
+
+  var reader = new FileReader();
+  reader.onload = async function(ev) {
+    previewImg.src = ev.target.result;
+    previewWrap.style.display = 'block';
+    detectedDiv.style.display = 'none';
+    if (statusEl) statusEl.textContent = '\u23f3 Scanning receipt...';
+
+    if (!window.Tesseract) {
+      await new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    try {
+      var result = await Tesseract.recognize(ev.target.result, 'eng', {
+        logger: function(m) {
+          if (m.status === 'recognizing text' && statusEl)
+            statusEl.textContent = '\u23f3 Scanning... ' + Math.round((m.progress||0)*100) + '%';
+        }
+      });
+
+      var text = (result.data && result.data.text) || '';
+      if (statusEl) statusEl.textContent = '\u2705 Scan complete!';
+
+      // Parse using the same logic
+      var parsed = parseReceiptText(text);
+
+      // Fill attach form
+      function fillA(id, val) { var el = document.getElementById(id); if(el&&val) el.value=val; }
+      fillA('attach-txn',    parsed.txnId);
+      fillA('attach-bank',   parsed.bankName);
+      fillA('attach-amount', parsed.amount);
+      fillA('attach-date',   parsed.dateVal);
+      fillA('attach-sender', parsed.senderName);
+
+      // Show chips
+      var chipsEl = document.getElementById('attach-chips');
+      if (chipsEl) {
+        var chip = function(label, val) {
+          return val ? '<span style="background:rgba(82,183,136,.12);border:1px solid rgba(82,183,136,.25);border-radius:20px;padding:4px 12px;font-size:.73rem;color:#a3d9b8"><strong style="color:#52b788">'+label+':</strong> '+val+'</span>' : '';
+        };
+        chipsEl.innerHTML = [
+          chip('Txn ID', parsed.txnId),
+          chip('Bank', parsed.bankName),
+          chip('Amount', parsed.amount ? '\u20a6'+Number(parsed.amount).toLocaleString() : ''),
+          chip('Date', parsed.dateVal),
+          chip('Time', parsed.timeVal),
+          chip('Sender', parsed.senderName),
+          chip('Sender Acct', parsed.senderAcctNum),
+          chip('Recipient', parsed.recipName),
+          chip('Status', parsed.statusVal),
+        ].filter(Boolean).join('');
+      }
+
+      detectedDiv.style.display = 'block';
+    } catch(err) {
+      if (statusEl) statusEl.textContent = '\u274c Scan failed. Fill in manually.';
+      detectedDiv.style.display = 'block';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveAttachedReceipt(orderId, customerName) {
+  var txn    = (document.getElementById('attach-txn')?.value||'').trim().toUpperCase();
+  var bank   = (document.getElementById('attach-bank')?.value||'').trim();
+  var amount = parseFloat(document.getElementById('attach-amount')?.value||0);
+  var date   = document.getElementById('attach-date')?.value||new Date().toISOString().slice(0,10);
+  var sender = (document.getElementById('attach-sender')?.value||'').trim();
+  var errEl  = document.getElementById('attach-error');
+
+  if (!txn || !bank) {
+    if(errEl){errEl.textContent='Transaction ID and Bank Name are required.';errEl.style.display='block';}
+    return;
+  }
+  if(errEl) errEl.style.display='none';
+
+  try {
+    var res = await api('POST', '/payment/verify-bank', {
+      transaction_id: txn,
+      bank_name:      bank,
+      amount:         amount || null,
+      payment_date:   date,
+      account_name:   sender || null,
+      customer_name:  customerName || null,
+      order_id:       orderId,
+      notes:          'Attached via order receipt upload',
+    });
+    if (res.error) throw new Error(res.error);
+    showAdminToast('\u2705 Payment saved! Txn ID: ' + txn + ' linked to Order #' + orderId);
+    closeAttachReceiptModal();
+    loadOrders();
+  } catch(e) {
+    if(errEl){errEl.textContent=e.message;errEl.style.display='block';}
+  }
+}
+
+// ── Shared receipt text parser (used by both payment tab and order attach) ─
+function parseReceiptText(text) {
+  var full = text.toUpperCase();
+  var lines = text.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+
+  function afterLabel(patterns, src) {
+    for (var i=0;i<patterns.length;i++) {
+      var m=src.match(patterns[i]);
+      if(m&&m[1]) return m[1].replace(/\|/g,'').trim();
+    }
+    return '';
+  }
+
+  // Transaction ID
+  var txnId='';
+  txnId=afterLabel([
+    /(?:transaction\s*(?:id|ref(?:erence)?|no\.?)|ref(?:erence)?\s*(?:no\.?|number)?|session\s*id|tran\s*id|trn\s*ref|payment\s*ref)[:\s]+([A-Z0-9\/\-]{6,40})/i,
+    /(?:ftref|ft\s*ref|narration\s*ref)[:\s]+([A-Z0-9\/\-]{6,40})/i,
+    /(?:\bref\b)[:\s]+([A-Z0-9\/\-]{8,35})/i,
+  ], text);
+  if(!txnId){
+    for(var li=0;li<lines.length;li++){
+      var lu=lines[li].toUpperCase();
+      if(/\bREF\b|SESSION|TRAN\s*ID|FT[A-Z0-9]/.test(lu)){
+        var lm=lu.match(/([A-Z0-9\/\-]{8,40})/); if(lm){txnId=lm[1];break;}
+      }
+    }
+  }
+  if(!txnId){var sm=text.match(/\b([A-Z]{1,5}[0-9]{8,}[A-Z0-9]*)\b/);if(sm)txnId=sm[1];}
+  if(!txnId){var nm=text.match(/\b([0-9]{10,20})\b/);if(nm)txnId=nm[1];}
+
+  // Bank
+  var bankMap={'GUARANTY TRUST':'GTBank','GTBANK':'GTBank','GTB':'GTBank','GT BANK':'GTBank','FIRST BANK':'First Bank','FBN':'First Bank','FIRSTBANK':'First Bank','ZENITH BANK':'Zenith Bank','ZENITH':'Zenith Bank','ACCESS BANK':'Access Bank','UNITED BANK FOR AFRICA':'UBA','UNITED BANK':'UBA','UBA':'UBA','FIDELITY BANK':'Fidelity Bank','FIDELITY':'Fidelity Bank','STANBIC IBTC':'Stanbic IBTC','STANBIC':'Stanbic IBTC','STERLING BANK':'Sterling Bank','STERLING':'Sterling Bank','UNION BANK':'Union Bank','ECOBANK':'Ecobank','ECO BANK':'Ecobank','POLARIS BANK':'Polaris Bank','WEMA BANK':'Wema Bank','WEMA':'Wema Bank','FCMB':'FCMB','KEYSTONE BANK':'Keystone Bank','HERITAGE BANK':'Heritage Bank','OPAY':'OPay','KUDA BANK':'Kuda Bank','KUDA':'Kuda Bank','PALMPAY':'PalmPay','MONIEPOINT':'Moniepoint'};
+  var bankName='';
+  var bankKeys=Object.keys(bankMap);
+  for(var bi=0;bi<bankKeys.length;bi++){if(full.indexOf(bankKeys[bi])!==-1){bankName=bankMap[bankKeys[bi]];break;}}
+
+  // Amount
+  var amount='';
+  var amtPats=[/(?:amount|amt|total|credit|debit|transferred?)[:\s\u20a6NGN]+([0-9,]+(?:\.[0-9]{1,2})?)/i,/(?:NGN|\u20a6)\s*([0-9,]+(?:\.[0-9]{1,2})?)/i,/([0-9,]{4,}(?:\.[0-9]{2})?)\s*(?:NGN|naira)/i];
+  for(var ap=0;ap<amtPats.length;ap++){var am=text.match(amtPats[ap]);if(am){amount=am[1].replace(/,/g,'');break;}}
+  if(!amount){var allN=text.match(/[0-9,]{4,}(?:\.[0-9]{2})?/g)||[];var biggest=0;allN.forEach(function(n){var v=parseFloat(n.replace(/,/g,''));if(v>biggest&&v<999999999)biggest=v;});if(biggest>0)amount=String(biggest);}
+
+  // Date
+  var dateVal=new Date().toISOString().slice(0,10);
+  var dm2=text.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+  if(dm2){try{var d2=new Date(dm2[3]+'-'+dm2[2].padStart(2,'0')+'-'+dm2[1].padStart(2,'0'));if(!isNaN(d2.getTime()))dateVal=d2.toISOString().slice(0,10);}catch(e2){}}
+  if(dateVal===new Date().toISOString().slice(0,10)){var d4=text.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+    if(d4){try{var d5=new Date(d4[1]+'-'+d4[2].padStart(2,'0')+'-'+d4[3].padStart(2,'0'));if(!isNaN(d5.getTime()))dateVal=d5.toISOString().slice(0,10);}catch(e3){}}
+  }
+
+  // Time
+  var timeVal='';
+  var timem=text.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*([APap][Mm])?/);
+  if(timem){var h=parseInt(timem[1]),mn=timem[2],ap2=(timem[3]||'').toUpperCase();if(ap2==='PM'&&h<12)h+=12;if(ap2==='AM'&&h===12)h=0;timeVal=String(h).padStart(2,'0')+':'+mn;}
+
+  // Sender
+  var senderName=afterLabel([/(?:sender|from|initiator|account\s*name|debit\s*account\s*name)[:\s]+([A-Za-z ]{3,50})/i],text);
+  var senderAcctNum='';
+  var accNums=text.match(/\b([0-9]{10})\b/g)||[];
+  if(accNums.length>0)senderAcctNum=accNums[0];
+
+  // Recipient
+  var recipName=afterLabel([/(?:recipient|beneficiary|credit\s*account\s*name|to\s*account\s*name)[:\s]+([A-Za-z ]{3,60})/i],text);
+  var recipAcct=accNums.length>1?accNums[1]:'';
+  var recipBank=afterLabel([/(?:recipient|beneficiary|to|credit)\s*bank[:\s]+([A-Za-z ]{3,30})/i],text);
+
+  // Narration
+  var narration=afterLabel([/(?:narration|description|remark|memo|reason|purpose)[:\s]+(.{4,80})/i],text);
+
+  // Status
+  var statusVal='verified';
+  if(/SUCCESSFUL|SUCCESS|APPROVED|COMPLETED/i.test(text))statusVal='verified';
+  else if(/PENDING|PROCESSING/i.test(text))statusVal='pending';
+  else if(/FAILED|DECLINED|REJECTED|ERROR/i.test(text))statusVal='failed';
+
+  return {txnId:txnId?txnId.toUpperCase():'',bankName,amount,dateVal,timeVal,senderName,senderAcctNum,recipName,recipAcct,recipBank,narration,statusVal};
 }
