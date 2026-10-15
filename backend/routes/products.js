@@ -149,4 +149,18 @@ router.patch('/:id/stock', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── PATCH /api/products/:id — partial product updates (stock, in_stock, price) ──
+router.patch('/:id', requireAuth, async (req, res) => {
+  try {
+    const updates = {};
+    if (req.body.in_stock !== undefined) updates.in_stock = Number(req.body.in_stock);
+    if (req.body.stock !== undefined) updates.stock = Number(req.body.stock);
+    if (req.body.price !== undefined) updates.price = Number(req.body.price);
+    if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'No fields to update.' });
+    const { error } = await supabase.from('products').update(updates).eq('id', req.params.id);
+    if (error) throw new Error(error.message);
+    res.json({ message: 'Product updated successfully.' });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

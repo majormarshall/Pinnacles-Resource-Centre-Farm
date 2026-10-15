@@ -56,6 +56,15 @@ router.post('/hero', requireAuth, (req, res) => {
     images: Array.isArray(images) && images.length > 0 ? images : DEFAULT_HERO.images
   });
   res.json({ ok: true, settings: updated });
+// GET /api/settings/email-status - Check email configuration status
+router.get('/email-status', requireAuth, (req, res) => {
+  const emailUser = process.env.EMAIL_USER || process.env.SMTP_USER;
+  const emailPass = process.env.EMAIL_PASS || process.env.SMTP_PASS;
+  const configured = Boolean(emailUser && emailPass && emailPass !== 'your_gmail_app_password_here');
+  res.json({
+    configured,
+    email_user: configured ? emailUser : null
+  });
 });
 
 module.exports = router;

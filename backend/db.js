@@ -34,5 +34,105 @@ function sbErr(error, context) {
   throw new Error(msg);
 }
 
+// ── runAsync / allAsync compatibility helpers ──────────────
+supabase.runAsync = async function(sql, params = []) {
+  try {
+    if (/^\s*CREATE\s+TABLE/i.test(sql)) {
+      try { await supabase.rpc('exec_sql', { query: sql }); } catch (_) {}
+      return { ok: true, lastID: 1 };
+    }
+    if (/INSERT\s+INTO\s+product_reviews/i.test(sql)) {
+      const [product_id, customer_name, customer_phone, rating, review_text] = params;
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .insert({
+          product_id: Number(product_id),
+          customer_name,
+          customer_phone: customer_phone || null,
+          rating: Number(rating),
+          review_text: review_text || null,
+          approved: false
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      return { lastID: data?.id, rows: [data] };
+    }
+    if (/UPDATE\s+product_reviews\s+SET\s+approved=\?\s+WHERE\s+id=\?/i.test(sql)) {
+      const [approved, id] = params;
+      const { error } = await supabase
+        .from('product_reviews')
+        .update({ approved: approved === true || approved === 1 || approved === 'true' })
+        .eq('id', id);
+      if (error) throw error;
+      return { changes: 1 };
+    }
+    if (/INSERT\s+INTO\s+farm_expenses/i.test(sql)) {
+      const [category, description, amount, expense_date, paid_to, receipt_ref, recorded_by] = params;
+      const { data, error } = await supabase
+        .from('farm_expenses')
+        .insert({
+          category: category || 'general',
+          description,
+          amount: Number(amount),
+          expense_date,
+          paid_to: paid_to || null,
+          receipt_ref: receipt_ref || null,
+          recorded_by: recorded_by || null
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      return { lastID: data?.id, rows: [data] };
+    }
+    if (/DELETE\s+FROM\s+farm_expenses\s+WHERE\s+id=\?/i.test(sql)) {
+      const [id] = params;
+      const { error } = await supabase.from('farm_expenses').delete().eq('id', id);
+      if (error) throw error;
+      return { changes: 1 };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.warn('[db.runAsync]:', err.message);
+    throw err;
+  }
+};
+
+supabase.allAsync = async function(sql, params = []) {
+  try {
+    if (/FROM\s+product_reviews\s+WHERE\s+product_id=\?\s+AND\s+approved=true/i.test(sql)) {
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .eq('product_id', params[0])
+        .eq('approved', true)
+        .order('created_at', { ascending: false });
+      if (error) return [];
+      return data || [];
+    }
+    if (/FROM\s+product_reviews/i.test(sql)) {
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) return [];
+      return data || [];
+    }
+    if (/FROM\s+farm_expenses/i.test(sql)) {
+      const { data, error } = await supabase
+        .from('farm_expenses')
+        .select('*')
+        .order('expense_date', { ascending: false });
+      if (error) return [];
+      return data || [];
+    }
+    return [];
+  } catch (err) {
+    console.warn('[db.allAsync]:', err.message);
+    return [];
+  }
+};
+
 module.exports = supabase;
 module.exports.sbErr = sbErr;
+

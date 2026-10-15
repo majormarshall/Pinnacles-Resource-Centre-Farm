@@ -1289,3 +1289,288 @@ function initTheme() {
   }
 }
 
+
+
+// ════════════════════════════════════════════════════════════════
+// CUSTOMER SHOP UPGRADES
+// ════════════════════════════════════════════════════════════════
+
+// ── Order Tracking ────────────────────────────────────────────
+function openOrderTracking() {
+  let modal = document.getElementById('track-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'track-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center';
+    modal.innerHTML = `
+      <div style="background:#111f11;border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:28px;width:min(480px,92vw);max-height:85vh;overflow-y:auto;position:relative">
+        <button onclick="document.getElementById('track-modal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.4rem;cursor:pointer">&#x2715;</button>
+        <h3 style="font-size:1.1rem;font-weight:800;color:#a3d9b8;margin-bottom:6px">&#x1F4E6; Track My Order</h3>
+        <p style="font-size:.83rem;color:rgba(255,255,255,.4);margin-bottom:20px">Enter your phone number or order ID to check your order status.</p>
+        <div style="display:flex;gap:10px;margin-bottom:14px">
+          <input id="track-input" type="text" placeholder="Phone number or Order ID" style="flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:.9rem;outline:none" onkeydown="if(event.key==='Enter')trackOrder()" />
+          <button onclick="trackOrder()" style="background:linear-gradient(135deg,#1b4332,#52b788);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">Track</button>
+        </div>
+        <div id="track-result"></div>
+      </div>`;
+    modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+    document.body.appendChild(modal);
+  }
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('track-input')?.focus(), 100);
+}
+
+async function trackOrder() {
+  const input = (document.getElementById('track-input')?.value || '').trim();
+  const resultEl = document.getElementById('track-result');
+  if (!input || !resultEl) return;
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,.5)">&#x23F3; Searching...</div>';
+  try {
+    const isPhone = /^[0-9+]{7,}$/.test(input.replace(/\s/g,''));
+    const query = isPhone ? '?phone=' + encodeURIComponent(input) : '?order_id=' + encodeURIComponent(input);
+    const res = await fetch(API_BASE + '/orders/track' + query);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Order not found');
+    const orders = Array.isArray(data) ? data : (data.orders || [data]);
+    if (!orders.length) { resultEl.innerHTML = '<p style="color:#f87171;text-align:center;padding:16px">No orders found for that phone/ID.</p>'; return; }
+    const statusColors = { pending:'#fbbf24', confirmed:'#60a5fa', processing:'#a78bfa', delivered:'#52b788', cancelled:'#f87171' };
+    resultEl.innerHTML = orders.map(o => {
+      const items = (o.items || []).map(i => (i.emoji||'') + ' ' + i.name + ' x' + i.qty).join(', ');
+      const color = statusColors[o.status] || '#fff';
+      return `<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div style="font-weight:800;color:#e0f0e0">Order #${o.id}</div>
+          <span style="background:rgba(255,255,255,.07);color:${color};border:1px solid ${color};border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:700">${o.status?.toUpperCase()}</span>
+        </div>
+        <div style="font-size:.83rem;color:rgba(255,255,255,.6);margin-bottom:6px">${items || 'No items'}</div>
+        <div style="font-size:.83rem;color:rgba(255,255,255,.5)">&#x1F4C5; ${o.created_at ? new Date(o.created_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'}) : '-'}</div>
+        <div style="font-weight:800;color:#fbbf24;margin-top:6px">Total: &#x20A6;${Number(o.total||0).toLocaleString()}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    resultEl.innerHTML = '<p style="color:#f87171;text-align:center;padding:16px">' + e.message + '</p>';
+  }
+}
+
+// ── Recently Viewed ───────────────────────────────────────────
+function trackRecentlyViewed(productId) {
+  let viewed = JSON.parse(localStorage.getItem('pinnacles_viewed') || '[]');
+  viewed = [productId, ...viewed.filter(id => id !== productId)].slice(0, 6);
+  localStorage.setItem('pinnacles_viewed', JSON.stringify(viewed));
+}
+
+function renderRecentlyViewed() {
+  const viewed = JSON.parse(localStorage.getItem('pinnacles_viewed') || '[]');
+  const section = document.getElementById('recently-viewed-section');
+  if (!section || !viewed.length || !products.length) return;
+  const viewedProducts = viewed.map(id => products.find(p => p.id === id)).filter(Boolean);
+  if (!viewedProducts.length) return;
+  section.style.display = 'block';
+  const grid = document.getElementById('recently-viewed-grid');
+  if (!grid) return;
+  grid.innerHTML = viewedProducts.map(p => {
+    const inStock = p.in_stock !== 0;
+    return `<div class="rv-card" onclick="openModal(${p.id})">
+      <div class="rv-img">${p.img ? '<img src="'+p.img+'" alt="'+p.name+'" />' : '<div style="font-size:2rem">'+p.emoji+'</div>'}</div>
+      <div class="rv-name">${p.emoji} ${p.name}</div>
+      <div class="rv-price">&#x20A6;${p.price.toLocaleString()}</div>
+      <div class="rv-stock">${inStock ? '<span style="color:#52b788">&#x2714; In Stock</span>' : '<span style="color:#f87171">&#x274C; Out</span>'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Product Comparison ────────────────────────────────────────
+let compareList = JSON.parse(localStorage.getItem('pinnacles_compare') || '[]');
+
+function toggleCompare(id, el) {
+  if (compareList.includes(id)) {
+    compareList = compareList.filter(x => x !== id);
+    el?.classList.remove('compare-active');
+  } else {
+    if (compareList.length >= 2) { showToast('You can only compare 2 products at a time', 'error'); return; }
+    compareList.push(id);
+    el?.classList.add('compare-active');
+  }
+  localStorage.setItem('pinnacles_compare', JSON.stringify(compareList));
+  renderCompareBar();
+}
+
+function renderCompareBar() {
+  let bar = document.getElementById('compare-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'compare-bar';
+    bar.style.cssText = 'display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:8000;background:#1b4332;border:1px solid rgba(82,183,136,.4);border-radius:50px;padding:12px 24px;box-shadow:0 8px 30px rgba(0,0,0,.5);display:flex;align-items:center;gap:14px;white-space:nowrap';
+    document.body.appendChild(bar);
+  }
+  if (!compareList.length) { bar.style.display = 'none'; return; }
+  const names = compareList.map(id => products.find(p => p.id === id)?.name || 'Product').join(' vs ');
+  bar.style.display = 'flex';
+  bar.innerHTML = '<span style="font-size:.88rem;color:#a3d9b8;font-weight:600">&#x2194; ' + names + '</span>'
+    + (compareList.length === 2 ? '<button onclick="openCompareModal()" style="background:#52b788;color:#0d2818;border:none;border-radius:25px;padding:7px 18px;font-weight:800;cursor:pointer;font-family:inherit">Compare Now</button>' : '')
+    + '<button onclick="compareList=[];localStorage.removeItem(&quot;pinnacles_compare&quot;);renderCompareBar()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">&#x2715;</button>';
+}
+
+function openCompareModal() {
+  if (compareList.length < 2) return;
+  const [p1, p2] = compareList.map(id => products.find(p => p.id === id)).filter(Boolean);
+  if (!p1 || !p2) return;
+  let modal = document.getElementById('compare-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'compare-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);align-items:center;justify-content:center';
+    modal.onclick = e => { if(e.target===modal) modal.style.display='none'; };
+    document.body.appendChild(modal);
+  }
+  const row = (label, v1, v2) => `<tr><td style="color:rgba(255,255,255,.4);font-size:.83rem;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07)">${label}</td><td style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);text-align:center">${v1}</td><td style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);text-align:center">${v2}</td></tr>`;
+  modal.innerHTML = `<div style="background:#111f11;border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:24px;width:min(640px,94vw);max-height:85vh;overflow-y:auto;position:relative">
+    <button onclick="document.getElementById('compare-modal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.4rem;cursor:pointer">&#x2715;</button>
+    <h3 style="color:#a3d9b8;margin-bottom:18px">&#x2194; Product Comparison</h3>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+      <thead><tr><th style="padding:10px 14px;text-align:left;color:rgba(255,255,255,.3)"></th>
+        <th style="padding:10px 14px;text-align:center;color:#e0f0e0">${p1.emoji} ${p1.name}</th>
+        <th style="padding:10px 14px;text-align:center;color:#e0f0e0">${p2.emoji} ${p2.name}</th>
+      </tr></thead><tbody>
+        ${row('Price','<strong style="color:#fbbf24">&#x20A6;'+p1.price.toLocaleString()+' '+p1.unit+'</strong>','<strong style="color:#fbbf24">&#x20A6;'+p2.price.toLocaleString()+' '+p2.unit+'</strong>')}
+        ${row('Category',p1.category||'-',p2.category||'-')}
+        ${row('Availability',p1.in_stock!==0?'<span style="color:#52b788">&#x2714; In Stock</span>':'<span style="color:#f87171">Out of Stock</span>',p2.in_stock!==0?'<span style="color:#52b788">&#x2714; In Stock</span>':'<span style="color:#f87171">Out of Stock</span>')}
+        ${row('Tag',p1.tag||'-',p2.tag||'-')}
+      </tbody>
+    </table></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px">
+      <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello! I want to order: '+p1.emoji+' '+p1.name+' — ₦'+p1.price.toLocaleString()+' '+p1.unit)}" target="_blank" style="display:block;background:#25D366;color:#fff;text-align:center;border-radius:12px;padding:11px;font-weight:700;text-decoration:none">&#x1F4AC; Order ${p1.name}</a>
+      <a href="https://wa.me/2349037505632?text=${encodeURIComponent('Hello! I want to order: '+p2.emoji+' '+p2.name+' — ₦'+p2.price.toLocaleString()+' '+p2.unit)}" target="_blank" style="display:block;background:#25D366;color:#fff;text-align:center;border-radius:12px;padding:11px;font-weight:700;text-decoration:none">&#x1F4AC; Order ${p2.name}</a>
+    </div>
+  </div>`;
+  modal.style.display = 'flex';
+}
+
+// ── Abandoned Cart Recovery ───────────────────────────────────
+function checkAbandonedCart() {
+  const cartData = JSON.parse(localStorage.getItem('pinnacles_cart') || '[]');
+  if (!cartData.length) return;
+  const lastActivity = parseInt(localStorage.getItem('pinnacles_cart_time') || '0');
+  const thirtyMin = 30 * 60 * 1000;
+  const dismissed = localStorage.getItem('pinnacles_cart_dismissed');
+  if (!lastActivity || Date.now() - lastActivity < thirtyMin || dismissed === new Date().toDateString()) return;
+  showAbandonedCartToast(cartData);
+}
+
+function showAbandonedCartToast(cartItems) {
+  let el = document.getElementById('abandoned-cart-toast');
+  if (el) el.remove();
+  el = document.createElement('div');
+  el.id = 'abandoned-cart-toast';
+  el.style.cssText = 'position:fixed;bottom:90px;right:20px;z-index:8500;background:#1b4332;border:1px solid rgba(82,183,136,.4);border-radius:18px;padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:300px;animation:slideInRight .4s ease';
+  el.innerHTML = '<div style="font-size:.9rem;font-weight:700;color:#a3d9b8;margin-bottom:6px">&#x1F6D2; Items left in cart!</div>'
+    + '<div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:14px">You left ' + cartItems.length + ' item(s) in your cart. Ready to order?</div>'
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    + '<button onclick="toggleCart();document.getElementById(\"abandoned-cart-toast\").remove()" style="flex:1;background:#52b788;color:#0d2818;border:none;border-radius:10px;padding:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem">View Cart</button>'
+    + '<button onclick="localStorage.setItem(&quot;pinnacles_cart_dismissed&quot;,new Date().toDateString());document.getElementById(&quot;abandoned-cart-toast&quot;).remove()" style="background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.5);border-radius:10px;padding:8px 12px;cursor:pointer;font-family:inherit;font-size:.82rem">Dismiss</button>'
+    + '</div>';
+  document.body.appendChild(el);
+}
+
+// Update cart time on add to cart
+const _origAddToCart = typeof addToCart === 'function' ? addToCart : null;
+
+// ── Flash Sale Banner ─────────────────────────────────────────
+async function loadFlashSale() {
+  try {
+    const res = await fetch(API_BASE + '/promotions/active-flash-sale');
+    const sale = await res.json();
+    if (!sale) return;
+    let bar = document.getElementById('flash-sale-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'flash-sale-bar';
+      bar.className = 'flash-sale-bar';
+      bar.style.display = 'none';
+      const navbar = document.querySelector('nav') || document.querySelector('.navbar');
+      if (navbar) navbar.insertAdjacentElement('afterend', bar);
+      else document.body.insertAdjacentElement('afterbegin', bar);
+    }
+    const endsAt = new Date(sale.ends_at);
+    bar.innerHTML = '<div class="flash-inner"><span class="flash-emoji">&#x26A1;</span>'
+      + '<span style="font-weight:800;color:#fff">' + sale.title + ' — ' + sale.discount_percent + '% OFF</span>'
+      + '<span class="flash-countdown" id="flash-countdown"></span>'
+      + '<a href="#products" class="flash-cta">Shop Now</a>'
+      + '<button onclick="this.parentElement.parentElement.style.display=\'none\'" class="flash-dismiss">&#x2715;</button>'
+      + '</div>';
+    bar.style.display = 'block';
+    function updateFlashCountdown() {
+      const now = new Date();
+      const diff = endsAt - now;
+      if (diff <= 0) { bar.style.display = 'none'; return; }
+      const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+      const el = document.getElementById('flash-countdown');
+      if (el) el.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      setTimeout(updateFlashCountdown, 1000);
+    }
+    updateFlashCountdown();
+  } catch(e) { /* silent */ }
+}
+
+// ── Discount Code in Cart ─────────────────────────────────────
+let cartDiscount = null;
+
+async function applyDiscountCode() {
+  const input = document.getElementById('discount-code-input');
+  const code = (input?.value || '').trim().toUpperCase();
+  if (!code) return;
+  try {
+    const res = await fetch(API_BASE + '/promotions/validate-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Invalid code', 'error'); return; }
+    cartDiscount = data;
+    showToast('\u2705 Code applied: ' + (data.type === 'percent' ? data.value + '% off' : '\u20A6' + data.value + ' off'), 'success');
+    if (typeof renderCartItems === 'function') renderCartItems();
+  } catch(e) { showToast('Could not apply code', 'error'); }
+}
+
+// ── Stock Countdown ───────────────────────────────────────────
+// (Injected into renderProducts via CSS classes — handled in renderProducts upgrade)
+
+// ── Push Notifications ────────────────────────────────────────
+async function initPushNotifications() {
+  if (!('Notification' in window) || !navigator.serviceWorker) return;
+  const dismissed = localStorage.getItem('pinnacles_push_dismissed');
+  if (dismissed || Notification.permission === 'granted') return;
+  if (Notification.permission === 'denied') return;
+  // Show gentle banner after 5s
+  setTimeout(showPushBanner, 5000);
+}
+
+function showPushBanner() {
+  let banner = document.getElementById('push-banner');
+  if (banner) return;
+  banner = document.createElement('div');
+  banner.id = 'push-banner';
+  banner.style.cssText = 'position:fixed;top:70px;right:16px;z-index:7000;background:#1b4332;border:1px solid rgba(82,183,136,.35);border-radius:16px;padding:16px 18px;max-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.4)';
+  banner.innerHTML = '<div style="font-size:.88rem;font-weight:700;color:#a3d9b8;margin-bottom:6px">&#x1F514; Enable Notifications</div>'
+    + '<div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:12px">Get alerts for new deals, harvests and promotions.</div>'
+    + '<div style="display:flex;gap:8px"><button onclick="requestPushPermission()" style="flex:1;background:#52b788;color:#0d2818;border:none;border-radius:8px;padding:7px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem">Enable</button><button onclick="localStorage.setItem(&quot;pinnacles_push_dismissed&quot;,&quot;1&quot;);document.getElementById(&quot;push-banner&quot;).remove()" style="background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.4);border-radius:8px;padding:7px 10px;cursor:pointer">No thanks</button></div>';
+  document.body.appendChild(banner);
+}
+
+async function requestPushPermission() {
+  const perm = await Notification.requestPermission();
+  const banner = document.getElementById('push-banner');
+  if (banner) banner.remove();
+  if (perm === 'granted') {
+    showToast('\u2705 Notifications enabled! You\'ll get alerts for deals.', 'success');
+    localStorage.setItem('pinnacles_push_granted', '1');
+  } else {
+    localStorage.setItem('pinnacles_push_dismissed', '1');
+  }
+}
+
+// ── Init on DOMContentLoaded ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(checkAbandonedCart, 3000);
+  setTimeout(loadFlashSale, 1000);
+  setTimeout(initPushNotifications, 2000);
+  setTimeout(renderRecentlyViewed, 2000);
+  renderCompareBar();
+});

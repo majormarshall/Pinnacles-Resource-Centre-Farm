@@ -196,6 +196,14 @@
     </div>
   </section>
 
+  
+  <!-- RECENTLY VIEWED -->
+  <section id="recently-viewed-section" style="display:none;padding:40px 0;background:var(--bg2)">
+    <div class="container">
+      <h3 style="font-size:1rem;font-weight:700;color:var(--text-light);margin-bottom:16px;display:flex;align-items:center;gap:8px">&#x1F440; Recently Viewed</h3>
+      <div id="recently-viewed-grid" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px"></div>
+    </div>
+  </section>
   <!-- CART SIDEBAR -->
   <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
   <aside class="cart-sidebar" id="cart-sidebar">
@@ -804,5 +812,10 @@
   </div>
 </div>
 
+
+  <!-- TRACK ORDER BUTTON -->
+  <button id="track-order-btn" onclick="openOrderTracking()" style="position:fixed;bottom:90px;left:20px;z-index:8000;background:#1b4332;border:1px solid rgba(82,183,136,.4);color:#52b788;border-radius:50px;padding:10px 18px;font-family:'Outfit',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.4);display:flex;align-items:center;gap:7px">
+    &#x1F4E6; Track Order
+  </button>
 </body>
 </html>

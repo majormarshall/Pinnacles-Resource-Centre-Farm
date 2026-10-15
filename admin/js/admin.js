@@ -123,6 +123,14 @@ function showTab(tab, el) {
     case 'calendar': loadHarvestCalendar(); break;
     case 'preorders': loadPreorders(); break;
     case 'harvest': loadHarvestAdmin(); break;
+    case 'reviews': loadAdminReviews(); break;
+    case 'customers': loadCustomerDatabase(); break;
+    case 'expenses': loadExpenseTracker(); break;
+    case 'inventory': loadInventoryManager(); break;
+    case 'flash-sales': loadFlashSaleManager(); break;
+    case 'wa-templates': loadWhatsAppTemplates(); break;
+    case 'activity': loadActivityLog(); break;
+    case 'admin-users-tab': loadAdminUsersTab(); break;
   }
 }
 
@@ -2528,4 +2536,432 @@ function parseReceiptText(text) {
   else if(/FAILED|DECLINED|REJECTED|ERROR/i.test(text))statusVal='failed';
 
   return {txnId:txnId?txnId.toUpperCase():'',bankName,amount,dateVal,timeVal,senderName,senderAcctNum,recipName,recipAcct,recipBank,narration,statusVal};
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// REVIEWS — Admin Tab
+// ═══════════════════════════════════════════════════════════════
+async function loadAdminReviews() {
+  const el = document.getElementById('reviews-content');
+  if (!el) return;
+  el.innerHTML = '<div class="admin-section"><h2>&#x2B50; Product Reviews</h2><div id="reviews-list-wrap">Loading...</div></div>';
+  try {
+    const data = await api('GET', '/reviews');
+    const reviews = Array.isArray(data) ? data : [];
+    const wrap = document.getElementById('reviews-list-wrap');
+    if (!reviews.length) { wrap.innerHTML = '<p style="color:rgba(255,255,255,.4)">No reviews yet.</p>'; return; }
+    wrap.innerHTML = '<div style="display:flex;flex-direction:column;gap:14px">' + reviews.map(r => `
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-weight:700;color:#e0f0e0">${r.customer_name} <span style="color:rgba(255,255,255,.35);font-weight:400;font-size:.8rem">on Product #${r.product_id}</span></div>
+            <div style="color:#fbbf24;font-size:1.1rem;margin:4px 0">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+            ${r.review_text ? `<div style="font-size:.87rem;color:rgba(255,255,255,.6);line-height:1.6;margin-top:4px">${r.review_text}</div>` : ''}
+            <div style="font-size:.73rem;color:rgba(255,255,255,.3);margin-top:6px">${new Date(r.created_at).toLocaleDateString('en-NG', {day:'numeric',month:'short',year:'numeric'})}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <span class="status-badge ${r.approved ? 'status-confirmed' : 'status-pending'}">${r.approved ? '✅ Approved' : '⏳ Pending'}</span>
+            ${!r.approved ? `<button onclick="approveReview(${r.id},true)" style="background:rgba(82,183,136,.2);border:1px solid rgba(82,183,136,.4);color:#52b788;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;font-size:.8rem">&#x2714; Approve</button>` : ''}
+            <button onclick="approveReview(${r.id},false);this.closest('[style]').remove()" style="background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:#f87171;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;font-size:.8rem">&#x1F5D1; Delete</button>
+          </div>
+        </div>
+      </div>`).join('') + '</div>';
+  } catch(e) { const w=document.getElementById('reviews-list-wrap'); if(w) w.innerHTML='<p style="color:#f87171">'+e.message+'</p>'; }
+}
+async function approveReview(id, approved) {
+  try {
+    if (!approved) { await api('DELETE', '/reviews/'+id); showAdminToast('Review deleted'); }
+    else { await api('PATCH', '/reviews/'+id+'/approve', { approved: true }); showAdminToast('Review approved!'); }
+    loadAdminReviews();
+  } catch(e) { showAdminToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CUSTOMER DATABASE — Admin Tab
+// ═══════════════════════════════════════════════════════════════
+async function loadCustomerDatabase() {
+  const el = document.getElementById('customers-content');
+  if (!el) return;
+  el.innerHTML = '<div class="admin-section"><h2>&#x1F465; Customer Database</h2><div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap"><input id="cust-search" type="text" placeholder="Search by name or phone..." oninput="filterCustomers()" style="flex:1;min-width:200px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.87rem" /><button onclick="exportCustomersCSV()" style="background:rgba(82,183,136,.15);border:1px solid rgba(82,183,136,.35);color:#52b788;border-radius:10px;padding:10px 18px;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700">&#x1F4E5; Export CSV</button></div><div id="customers-table-wrap">Loading...</div></div>';
+  try {
+    const data = await api('GET', '/analytics/customers');
+    window._allCustomers = Array.isArray(data) ? data : (data.customers || []);
+    renderCustomersTable(window._allCustomers);
+  } catch(e) { const w=document.getElementById('customers-table-wrap'); if(w) w.innerHTML='<p style="color:#f87171">'+e.message+'</p>'; }
+}
+function filterCustomers() {
+  const q=(document.getElementById('cust-search')?.value||'').toLowerCase();
+  const filtered=(window._allCustomers||[]).filter(c=>(c.customer_name||'').toLowerCase().includes(q)||(c.customer_phone||'').includes(q));
+  renderCustomersTable(filtered);
+}
+function renderCustomersTable(customers) {
+  const wrap=document.getElementById('customers-table-wrap');
+  if(!wrap) return;
+  if(!customers.length){wrap.innerHTML='<p style="color:rgba(255,255,255,.4)">No customers found.</p>';return;}
+  wrap.innerHTML='<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Last Order</th><th>Actions</th></tr></thead><tbody>'
+    +customers.map(c=>'<tr><td style="font-weight:600">'+( c.customer_name||'-')+'</td><td style="font-family:monospace">'+(c.customer_phone||'-')+'</td><td style="text-align:center">'+(c.order_count||0)+'</td><td style="color:#fbbf24;font-weight:700">&#x20A6;'+Number(c.total_spend||0).toLocaleString()+'</td><td>'+(c.last_order_date?c.last_order_date.slice(0,10):'-')+'</td><td><a href="https://wa.me/'+(c.customer_phone||'').replace(/\D/g,'')+'" target="_blank" style="background:#25D366;color:#fff;border-radius:8px;padding:4px 10px;font-size:.75rem;font-weight:700;text-decoration:none;white-space:nowrap">&#x1F4F1; WhatsApp</a></td></tr>').join('')
+    +'</tbody></table></div><p style="font-size:.78rem;color:rgba(255,255,255,.3);margin-top:10px">'+customers.length+' customers total</p>';
+}
+function exportCustomersCSV() {
+  const customers=window._allCustomers||[];
+  if(!customers.length){showAdminToast('No customers to export','error');return;}
+  const header='Name,Phone,Orders,Total Spent,Last Order';
+  const rows=customers.map(c=>[c.customer_name||'',c.customer_phone||'',c.order_count||0,c.total_spend||0,c.last_order_date||''].join(','));
+  const csv=header+'\n'+rows.join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='pinnacles-customers-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  URL.revokeObjectURL(url);
+  showAdminToast('\u2705 Customers exported!');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPENSE TRACKER — Admin Tab
+// ═══════════════════════════════════════════════════════════════
+async function loadExpenseTracker() {
+  const el = document.getElementById('expenses-content');
+  if (!el) return;
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = `<div class="admin-section">
+    <h2>&#x1F4B8; Expense Tracker</h2>
+    <div id="expense-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px">Loading summary...</div>
+    <div class="receipt-verify-form" style="margin-bottom:28px">
+      <div style="font-size:.85rem;font-weight:700;color:#a3d9b8;margin-bottom:14px">&#x2795; Add New Expense</div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Category</label>
+          <select id="exp-cat" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px;color:#fff;font-family:inherit">
+            <option value="seeds">Seeds</option><option value="fertilizer">Fertilizer</option><option value="labour">Labour</option>
+            <option value="equipment">Equipment</option><option value="utilities">Utilities</option><option value="transport">Transport</option><option value="general">General</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Amount (&#x20A6;) *</label><input id="exp-amount" type="number" placeholder="5000" min="0" /></div>
+      </div>
+      <div class="form-group"><label>Description *</label><input id="exp-desc" type="text" placeholder="e.g. Bought 20kg NPK fertilizer" /></div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Date *</label><input id="exp-date" type="date" value="${today}" /></div>
+        <div class="form-group"><label>Paid To</label><input id="exp-paid-to" type="text" placeholder="Supplier or person paid" /></div>
+      </div>
+      <button onclick="addExpense()" class="btn-primary" style="width:100%">&#x1F4BE; Save Expense</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <h3 style="font-size:1rem;color:#a3d9b8;margin:0">Recent Expenses</h3>
+      <button onclick="exportExpensesCSV()" style="background:rgba(82,183,136,.15);border:1px solid rgba(82,183,136,.35);color:#52b788;border-radius:8px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:.8rem">&#x1F4E5; Export CSV</button>
+    </div>
+    <div id="expenses-list">Loading...</div>
+  </div>`;
+  loadExpenseSummary();
+  loadExpensesList();
+}
+async function loadExpenseSummary() {
+  try {
+    const data=await api('GET','/expenses/summary');
+    const wrap=document.getElementById('expense-summary-cards');
+    if(!wrap) return;
+    const cats={'seeds':'&#x1F331;','fertilizer':'&#x1F9EA;','labour':'&#x1F477;','equipment':'&#x1F528;','utilities':'&#x1F4A1;','transport':'&#x1F69A;','general':'&#x1F4CB;'};
+    wrap.innerHTML=[
+      {label:'This Month',val:'&#x20A6;'+Number(data.total_month||0).toLocaleString(),icon:'&#x1F4C5;'},
+      {label:'This Year',val:'&#x20A6;'+Number(data.total_year||0).toLocaleString(),icon:'&#x1F4CA;'},
+      {label:'All Time',val:'&#x20A6;'+Number(data.total_all||0).toLocaleString(),icon:'&#x1F4B0;'},
+      {label:'Transactions',val:data.count||0,icon:'&#x1F4CB;'},
+    ].map(s=>'<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;text-align:center"><div style="font-size:1.6rem;margin-bottom:6px">'+s.icon+'</div><div style="font-size:1.1rem;font-weight:800;color:#fbbf24">'+s.val+'</div><div style="font-size:.75rem;color:rgba(255,255,255,.45);margin-top:3px">'+s.label+'</div></div>').join('');
+  } catch(e) {}
+}
+async function loadExpensesList() {
+  const wrap=document.getElementById('expenses-list'); if(!wrap) return;
+  try {
+    const data=await api('GET','/expenses');
+    const expenses=Array.isArray(data)?data:[];
+    if(!expenses.length){wrap.innerHTML='<p style="color:rgba(255,255,255,.4)">No expenses recorded yet.</p>';return;}
+    wrap.innerHTML='<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid To</th><th></th></tr></thead><tbody>'
+      +expenses.map(e=>'<tr><td>'+e.expense_date+'</td><td><span class="status-badge status-pending">'+e.category+'</span></td><td>'+e.description+'</td><td style="color:#f87171;font-weight:700">&#x20A6;'+Number(e.amount).toLocaleString()+'</td><td>'+(e.paid_to||'-')+'</td><td><button onclick="deleteExpense('+e.id+')" style="background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:#f87171;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:.75rem">&#x1F5D1;</button></td></tr>').join('')
+      +'</tbody></table></div>';
+  } catch(e) { wrap.innerHTML='<p style="color:#f87171">'+e.message+'</p>'; }
+}
+async function addExpense() {
+  const desc=(document.getElementById('exp-desc')?.value||'').trim();
+  const amount=parseFloat(document.getElementById('exp-amount')?.value||0);
+  const date=document.getElementById('exp-date')?.value;
+  if(!desc||!amount||!date){showAdminToast('Description, amount and date are required','error');return;}
+  try {
+    await api('POST','/expenses',{category:document.getElementById('exp-cat')?.value||'general',description:desc,amount,expense_date:date,paid_to:(document.getElementById('exp-paid-to')?.value||'').trim()||null});
+    showAdminToast('\u2705 Expense saved!');
+    ['exp-desc','exp-amount','exp-paid-to'].forEach(id=>{var el=document.getElementById(id);if(el)el.value='';});
+    loadExpenseSummary(); loadExpensesList();
+  } catch(e) { showAdminToast(e.message,'error'); }
+}
+async function deleteExpense(id) {
+  if(!confirm('Delete this expense?')) return;
+  try { await api('DELETE','/expenses/'+id); showAdminToast('Deleted'); loadExpensesList(); loadExpenseSummary(); }
+  catch(e) { showAdminToast(e.message,'error'); }
+}
+function exportExpensesCSV() {
+  const rows=document.querySelectorAll('#expenses-list tbody tr');
+  if(!rows.length){showAdminToast('No expenses to export','error');return;}
+  let csv='Date,Category,Description,Amount,Paid To\n';
+  rows.forEach(r=>{const cells=[...r.querySelectorAll('td')].map(c=>'"'+(c.textContent||'').replace(/[\n\r]+/g,' ').replace(/"/g,"'").trim()+'"');csv+=cells.join(',')+'\n';});
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='expenses-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showAdminToast('\u2705 Expenses exported!');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INVENTORY MANAGER — Admin Tab
+// ═══════════════════════════════════════════════════════════════
+async function loadInventoryManager() {
+  const el = document.getElementById('inventory-content');
+  if (!el) return;
+  el.innerHTML = '<div class="admin-section"><h2>&#x1F4E6; Inventory Management</h2><div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap"><label style="display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.6);font-size:.85rem;cursor:pointer"><input type="checkbox" id="low-stock-only" onchange="filterInventory()"> Show low stock only (&le;5)</label></div><div id="inventory-table">Loading...</div></div>';
+  try {
+    const data=await api('GET','/products');
+    window._inventoryProducts=Array.isArray(data)?data:(data.products||[]);
+    renderInventoryTable(window._inventoryProducts);
+  } catch(e) { const w=document.getElementById('inventory-table'); if(w) w.innerHTML='<p style="color:#f87171">'+e.message+'</p>'; }
+}
+function filterInventory() {
+  const lowOnly=document.getElementById('low-stock-only')?.checked;
+  const products=(window._inventoryProducts||[]);
+  renderInventoryTable(lowOnly?products.filter(p=>Number(p.in_stock||0)<=5):products);
+}
+function renderInventoryTable(products) {
+  const wrap=document.getElementById('inventory-table'); if(!wrap) return;
+  if(!products.length){wrap.innerHTML='<p style="color:rgba(255,255,255,.4)">No products.</p>';return;}
+  const rows = products.map(function(p) {
+    const stock = Number(p.in_stock||0);
+    const color = stock===0?'#f87171':stock<=5?'#fbbf24':'#52b788';
+    const dec = 'var el=document.getElementById(\"inv-'+p.id+'\");el.value=Math.max(0,(parseInt(el.value)||0)-1)';
+    const inc = 'var el=document.getElementById(\"inv-'+p.id+'\");el.value=(parseInt(el.value)||0)+1';
+    return '<tr>'
+      + '<td style="font-weight:600">'+(p.emoji||'')+'&nbsp;'+(p.name||'-')+'</td>'
+      + '<td>'+(p.category||'-')+'</td>'
+      + '<td style="font-weight:800;color:'+color+'">'+stock+'</td>'
+      + '<td><div style="display:flex;align-items:center;gap:8px">'
+      + '<button onclick="'+dec+'" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;cursor:pointer;font-size:1rem">−</button>'
+      + '<input id="inv-'+p.id+'" type="number" value="'+stock+'" min="0" style="width:60px;text-align:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px;color:#fff;font-family:inherit" />'
+      + '<button onclick="'+inc+'" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;cursor:pointer;font-size:1rem">+</button>'
+      + '</div></td>'
+      + '<td><button onclick="saveInventoryStock('+p.id+')" style="background:rgba(82,183,136,.2);border:1px solid rgba(82,183,136,.4);color:#52b788;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:.8rem;font-family:inherit">&#x1F4BE; Save</button></td>'
+      + '</tr>';
+  });
+  wrap.innerHTML='<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Product</th><th>Category</th><th>Current Stock</th><th>Update Stock</th><th>Save</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+}
+
+async function saveInventoryStock(productId) {
+  const el=document.getElementById('inv-'+productId); if(!el) return;
+  try {
+    await api('PATCH','/products/'+productId,{in_stock:parseInt(el.value)||0});
+    showAdminToast('\u2705 Stock updated!');
+    loadInventoryManager();
+  } catch(e) { showAdminToast(e.message,'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FLASH SALE MANAGER — Admin Tab
+// ═══════════════════════════════════════════════════════════════
+async function loadFlashSaleManager() {
+  const el = document.getElementById('flash-sales-content');
+  if (!el) return;
+  const now = new Date();
+  const inOneHour = new Date(now.getTime()+60*60*1000).toISOString().slice(0,16);
+  const inSixHours = new Date(now.getTime()+6*60*60*1000).toISOString().slice(0,16);
+  el.innerHTML = `<div class="admin-section">
+    <h2>&#x26A1; Flash Sale Manager</h2>
+    <p style="color:rgba(255,255,255,.4);font-size:.85rem;margin-bottom:20px">Create a timed discount that appears as a banner on the website for all shoppers.</p>
+    <div class="receipt-verify-form" style="margin-bottom:28px">
+      <div style="font-size:.85rem;font-weight:700;color:#a3d9b8;margin-bottom:14px">&#x26A1; Create New Flash Sale</div>
+      <div class="form-group"><label>Sale Title *</label><input id="fs-title" type="text" placeholder="e.g. Friday Flash Sale! 🔥" /></div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Discount % *</label><input id="fs-discount" type="number" placeholder="20" min="1" max="90" /></div>
+        <div class="form-group"><label>Applies To</label>
+          <select id="fs-applies" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px;color:#fff;font-family:inherit">
+            <option value="all">All Products</option>
+            <option value="vegetables">Vegetables</option>
+            <option value="fruits">Fruits</option>
+            <option value="poultry">Poultry / Eggs</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Start Time</label><input id="fs-start" type="datetime-local" value="${inOneHour}" /></div>
+        <div class="form-group"><label>End Time *</label><input id="fs-end" type="datetime-local" value="${inSixHours}" /></div>
+      </div>
+      <button onclick="createFlashSale()" class="btn-primary" style="width:100%">&#x26A1; Launch Flash Sale</button>
+    </div>
+    <h3 style="font-size:1rem;color:#a3d9b8;margin-bottom:14px">Recent Flash Sales</h3>
+    <div id="flash-sales-list">Loading...</div>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:28px 0">
+    <h3 style="font-size:1rem;color:#a3d9b8;margin-bottom:14px">&#x1F3AB; Discount Codes</h3>
+    <div class="receipt-verify-form" style="margin-bottom:20px">
+      <div class="form-grid-2">
+        <div class="form-group"><label>Code *</label><input id="dc-code" type="text" placeholder="e.g. FARM20" style="text-transform:uppercase" /></div>
+        <div class="form-group"><label>Type</label>
+          <select id="dc-type" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px;color:#fff;font-family:inherit">
+            <option value="percent">Percent off (%)</option>
+            <option value="flat">Flat amount (&#x20A6;)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Value</label><input id="dc-value" type="number" placeholder="10" /></div>
+        <div class="form-group"><label>Max Uses</label><input id="dc-uses" type="number" placeholder="100" /></div>
+      </div>
+      <div class="form-group"><label>Expiry Date (optional)</label><input id="dc-expires" type="date" /></div>
+      <button onclick="createDiscountCode()" style="background:rgba(82,183,136,.15);border:1px solid rgba(82,183,136,.35);color:#52b788;border-radius:10px;padding:10px 20px;cursor:pointer;font-family:inherit;font-weight:700">&#x2795; Create Code</button>
+    </div>
+    <div id="discount-codes-list">Loading...</div>
+  </div>`;
+  loadFlashSalesList();
+  loadDiscountCodesList();
+}
+async function createFlashSale() {
+  const title=(document.getElementById('fs-title')?.value||'').trim();
+  const discount=parseInt(document.getElementById('fs-discount')?.value||0);
+  const end=document.getElementById('fs-end')?.value;
+  if(!title||!discount||!end){showAdminToast('Title, discount and end time required','error');return;}
+  try {
+    await api('POST','/promotions/flash-sale',{title,discount_percent:discount,applies_to:document.getElementById('fs-applies')?.value||'all',starts_at:document.getElementById('fs-start')?.value||null,ends_at:end});
+    showAdminToast('\u26A1 Flash sale launched!'); loadFlashSalesList();
+  } catch(e) { showAdminToast(e.message,'error'); }
+}
+async function loadFlashSalesList() {
+  const wrap=document.getElementById('flash-sales-list'); if(!wrap) return;
+  try {
+    const data=await api('GET','/promotions/flash-sales');
+    const sales=Array.isArray(data)?data:[];
+    if(!sales.length){wrap.innerHTML='<p style="color:rgba(255,255,255,.4)">No flash sales yet.</p>';return;}
+    const now=new Date();
+    wrap.innerHTML='<div style="display:flex;flex-direction:column;gap:10px">'+sales.map(s=>{
+      const active=s.active&&new Date(s.ends_at)>now;
+      return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div style="font-weight:700;color:#e0f0e0">'+s.title+'</div><div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-top:3px">'+s.discount_percent+'% off &bull; '+s.applies_to+' &bull; Ends: '+new Date(s.ends_at).toLocaleString('en-NG')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span class="status-badge '+(active?'status-confirmed':'status-cancelled')+'">'+(active?'&#x26A1; Live':'Ended')+'</span>'+(active?'<button onclick="endFlashSale('+s.id+')" style="background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:#f87171;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:.78rem;font-family:inherit">End Sale</button>':'')+'</div></div>';
+    }).join('')+'</div>';
+  } catch(e) { const w=document.getElementById('flash-sales-list'); if(w) w.innerHTML='<p style="color:#f87171">'+e.message+'</p>'; }
+}
+async function endFlashSale(id) {
+  try { await api('PATCH','/promotions/flash-sale/'+id+'/end'); showAdminToast('Sale ended'); loadFlashSalesList(); }
+  catch(e) { showAdminToast(e.message,'error'); }
+}
+async function createDiscountCode() {
+  const code=(document.getElementById('dc-code')?.value||'').trim().toUpperCase();
+  if(!code){showAdminToast('Code required','error');return;}
+  try {
+    await api('POST','/promotions/codes',{code,type:document.getElementById('dc-type')?.value||'percent',value:parseFloat(document.getElementById('dc-value')?.value||10),max_uses:parseInt(document.getElementById('dc-uses')?.value||100),expires_at:document.getElementById('dc-expires')?.value||null});
+    showAdminToast('\u2705 Code created: '+code); loadDiscountCodesList();
+  } catch(e) { showAdminToast(e.message,'error'); }
+}
+async function loadDiscountCodesList() {
+  const wrap=document.getElementById('discount-codes-list'); if(!wrap) return;
+  try {
+    const data=await api('GET','/promotions/codes');
+    const codes=Array.isArray(data)?data:[];
+    if(!codes.length){wrap.innerHTML='<p style="color:rgba(255,255,255,.4)">No discount codes yet.</p>';return;}
+    wrap.innerHTML='<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used</th><th>Max</th><th>Expires</th><th>Status</th><th></th></tr></thead><tbody>'
+      +codes.map(c=>'<tr><td style="font-family:monospace;font-weight:700;color:#fbbf24">'+c.code+'</td><td>'+c.type+'</td><td>'+(c.type==='percent'?c.value+'%':'\u20a6'+c.value)+'</td><td>'+c.uses_count+'</td><td>'+c.max_uses+'</td><td>'+(c.expires_at||'Never')+'</td><td><span class="status-badge '+(c.active?'status-confirmed':'status-cancelled')+'">'+(c.active?'Active':'Inactive')+'</span></td><td><button onclick="toggleCode('+c.id+','+(!c.active)+')" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:.75rem">'+(c.active?'Disable':'Enable')+'</button></td></tr>').join('')
+      +'</tbody></table></div>';
+  } catch(e) { const w=document.getElementById('discount-codes-list'); if(w) w.innerHTML='<p style="color:#f87171">'+e.message+'</p>'; }
+}
+async function toggleCode(id, active) {
+  try { await api('PATCH','/promotions/codes/'+id,{active}); loadDiscountCodesList(); }
+  catch(e) { showAdminToast(e.message,'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WHATSAPP TEMPLATES — Admin Tab
+// ═══════════════════════════════════════════════════════════════
+function loadWhatsAppTemplates() {
+  const el = document.getElementById('wa-templates-content');
+  if (!el) return;
+  const templates = [
+    { id:'confirm', label:'Order Confirmation', msg:'Hello {name}! \u2705 Your Pinnacles Farm order #{id} has been received.\n\nWe will confirm shortly. Thank you! \u{1F33F}' },
+    { id:'ready', label:'Ready for Delivery', msg:'Great news {name}! \u{1F69A} Your Pinnacles Farm order #{id} is ready and on its way! \u{1F331}' },
+    { id:'payment', label:'Payment Reminder', msg:'Hello {name}, just a reminder that payment for order #{id} (\u20a6{total}) is pending. Kindly make payment to proceed. Thank you!' },
+    { id:'thankyou', label:'Thank You', msg:'Thank you {name} for shopping with Pinnacles Resource Centre Farm! \u{1F331} Hope you enjoy your fresh produce. See you again!' },
+    { id:'newstock', label:'New Stock Alert', msg:'\u{1F6A8} Fresh {product} just harvested at Pinnacles Farm! \u{1F33F} Available now — farm.pinnaclescentre.ng | +2349037505632' },
+    { id:'flashsale', label:'Flash Sale Alert', msg:'\u26A1 FLASH SALE at Pinnacles Farm! {discount}% OFF for the next {hours} hours only! Shop now: farm.pinnaclescentre.ng \u{1F525}' },
+  ];
+  const saved = JSON.parse(localStorage.getItem('pinnacles_wa_templates') || '{}');
+  let html = '<div class="admin-section"><h2>&#x1F4AC; WhatsApp Message Templates</h2><p style="color:rgba(255,255,255,.4);font-size:.85rem;margin-bottom:20px">Edit and send directly. Use {name}, {id}, {total}, {product} as placeholders.</p><div style="display:flex;flex-direction:column;gap:18px">';
+  templates.forEach(function(t) {
+    const msg = (saved[t.id] || t.msg).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    html += '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:18px">'
+      + '<div style="font-weight:700;color:#a3d9b8;margin-bottom:10px">'+t.label+'</div>'
+      + '<textarea id="tmpl-'+t.id+'" rows="4" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px;color:rgba(255,255,255,.7);font-family:inherit;font-size:.83rem;resize:vertical;margin-bottom:10px">'+msg+'</textarea>'
+      + '<div style="display:flex;gap:10px;flex-wrap:wrap">'
+      + '<input id="phone-'+t.id+'" type="tel" placeholder="Customer phone (08XXXXXXXXX)" style="flex:1;min-width:180px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;color:#fff;font-family:inherit;font-size:.83rem"/>'
+      + '<button data-tmpl-save="'+t.id+'" style="background:rgba(82,183,136,.15);border:1px solid rgba(82,183,136,.35);color:#52b788;border-radius:8px;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:.8rem">&#x1F4BE; Save</button>'
+      + '<button data-tmpl-send="'+t.id+'" style="background:#25D366;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:700;border:none">&#x1F4F1; Send</button>'
+      + '</div></div>';
+  });
+  html += '</div></div>';
+  el.innerHTML = html;
+  // Attach event listeners after rendering
+  el.querySelectorAll('[data-tmpl-save]').forEach(function(btn) {
+    btn.addEventListener('click', function() { saveTemplate(this.getAttribute('data-tmpl-save')); });
+  });
+  el.querySelectorAll('[data-tmpl-send]').forEach(function(btn) {
+    btn.addEventListener('click', function() { sendWATemplate(this.getAttribute('data-tmpl-send')); });
+  });
+}
+function saveTemplate(id) {
+  const saved=JSON.parse(localStorage.getItem('pinnacles_wa_templates')||'{}');
+  saved[id]=(document.getElementById('tmpl-'+id)?.value||'');
+  localStorage.setItem('pinnacles_wa_templates',JSON.stringify(saved));
+  showAdminToast('\u2705 Template saved!');
+}
+function sendWATemplate(id) {
+  const msg=(document.getElementById('tmpl-'+id)?.value||'').trim();
+  const phone=(document.getElementById('phone-'+id)?.value||'').replace(/\D/g,'');
+  if(!msg){showAdminToast('Message is empty','error');return;}
+  const number=phone||'2349037505632';
+  window.open('https://wa.me/'+number+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIVITY LOG — Admin Tab
+// ═══════════════════════════════════════════════════════════════
+async function loadActivityLog() {
+  const el = document.getElementById('activity-content');
+  if (!el) return;
+  el.innerHTML = '<div class="admin-section"><h2>&#x1F4CB; Admin Activity Log</h2><div id="activity-log-list">Loading...</div></div>';
+  try {
+    const data = await api('GET', '/activity/logs');
+    const logs = Array.isArray(data) ? data : (data.logs || []);
+    const wrap = document.getElementById('activity-log-list');
+    if (!logs.length) { wrap.innerHTML='<p style="color:rgba(255,255,255,.4)">No activity recorded yet.</p>'; return; }
+    const actionColor={'login':'#52b788','logout':'rgba(255,255,255,.4)','DELETE':'#f87171','PATCH':'#fbbf24','POST':'#60a5fa','GET':'rgba(255,255,255,.3)'};
+    wrap.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Time</th><th>Admin</th><th>Action</th><th>Details</th></tr></thead><tbody>'
+      + logs.map(l => {
+        const color=actionColor[l.action]||actionColor[(l.method||'GET')]||'rgba(255,255,255,.5)';
+        return '<tr><td style="font-size:.78rem;white-space:nowrap">'+new Date(l.created_at).toLocaleString('en-NG')+'</td><td style="font-weight:600">'+(l.admin_name||l.admin_email||'System')+'</td><td><span style="background:rgba(255,255,255,.05);color:'+color+';border:1px solid '+color+';border-radius:6px;padding:2px 8px;font-size:.75rem;font-family:monospace">'+(l.action||'')+'</span></td><td style="font-size:.78rem;color:rgba(255,255,255,.5)">'+(l.details||'').slice(0,80)+'</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  } catch(e) { const w=document.getElementById('activity-log-list'); if(w) w.innerHTML='<p style="color:#f87171">'+e.message+'</p>'; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN USERS — Admin Tab
+// ═══════════════════════════════════════════════════════════════
+async function loadAdminUsersTab() {
+  const el = document.getElementById('admin-users-tab-content');
+  if (!el) return;
+  el.innerHTML = '<div class="admin-section"><h2>&#x1F465; Admin Users</h2><div id="admin-users-list-wrap">Loading...</div><hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:24px 0"><h3 style="font-size:1rem;color:#a3d9b8;margin-bottom:14px">&#x2795; Invite New Admin</h3><div class="receipt-verify-form"><div class="form-grid-2"><div class="form-group"><label>Full Name *</label><input id="new-admin-name" type="text" placeholder="Admin name" /></div><div class="form-group"><label>Username *</label><input id="new-admin-user" type="text" placeholder="username" /></div></div><div class="form-grid-2"><div class="form-group"><label>Password *</label><input id="new-admin-pass" type="password" placeholder="Minimum 8 chars" /></div><div class="form-group"><label>Role *</label><select id="new-admin-role" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px;color:#fff;font-family:inherit"><option value="ecomm_admin">&#x1F6D2; E-commerce Admin</option><option value="manager">&#x1F527; Manager</option><option value="accountant">&#x1F4B0; Accountant</option><option value="farm_admin">&#x1F33E; Farm Admin</option><option value="owner">&#x1F451; Owner</option></select></div></div><button onclick="createAdminUser()" class="btn-primary" style="width:100%">&#x2795; Create Admin Account</button></div></div>';
+  try {
+    const data = await api('GET', '/admin-users');
+    const admins = Array.isArray(data) ? data : (data.admins || []);
+    const wrap = document.getElementById('admin-users-list-wrap');
+    const roleColors={'owner':'#fbbf24','manager':'#60a5fa','accountant':'#52b788','ecomm_admin':'#a78bfa','farm_admin':'#86efac'};
+    const roleLabels={'owner':'&#x1F451; Owner','manager':'&#x1F527; Manager','accountant':'&#x1F4B0; Accountant','ecomm_admin':'&#x1F6D2; E-commerce','farm_admin':'&#x1F33E; Farm Admin'};
+    wrap.innerHTML = admins.length ? '<div style="display:flex;flex-direction:column;gap:10px">'+admins.map(a=>'<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div style="font-weight:700;color:#e0f0e0">'+(a.name||a.username||a.email||'Admin')+'</div><div style="font-size:.78rem;color:rgba(255,255,255,.4)">'+(a.email||a.username||'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span style="background:rgba(255,255,255,.07);color:'+(roleColors[a.role||'ecomm_admin']||'#fff')+';border:1px solid '+(roleColors[a.role||'ecomm_admin']||'rgba(255,255,255,.2)')+';border-radius:20px;padding:3px 10px;font-size:.75rem;font-weight:700">'+(roleLabels[a.role||'ecomm_admin']||a.role||'admin')+'</span></div></div>').join('')+'</div>' : '<p style="color:rgba(255,255,255,.4)">No admin users found.</p>';
+  } catch(e) { const w=document.getElementById('admin-users-list-wrap'); if(w) w.innerHTML='<p style="color:#f87171">'+e.message+'</p>'; }
+}
+async function createAdminUser() {
+  const name=(document.getElementById('new-admin-name')?.value||'').trim();
+  const username=(document.getElementById('new-admin-user')?.value||'').trim();
+  const password=document.getElementById('new-admin-pass')?.value||'';
+  const role=document.getElementById('new-admin-role')?.value||'ecomm_admin';
+  if(!name||!username||password.length<8){showAdminToast('Name, username, and password (min 8 chars) required','error');return;}
+  try {
+    await api('POST','/admin-users',{name,username,password,role});
+    showAdminToast('\u2705 Admin created: '+username);
+    ['new-admin-name','new-admin-user','new-admin-pass'].forEach(id=>{var el=document.getElementById(id);if(el)el.value='';});
+    loadAdminUsersTab();
+  } catch(e) { showAdminToast(e.message,'error'); }
 }

@@ -333,3 +333,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);heig
   color: #fbbf24;
   min-height: 20px;
 }
+
+
+/* ── New Admin Tab Styles ──────────────────────────────────── */
+.form-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px; }
+@media(max-width:640px) { .form-grid-2 { grid-template-columns:1fr; } }

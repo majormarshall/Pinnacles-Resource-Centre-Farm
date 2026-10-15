@@ -62,6 +62,11 @@ app.use('/api/customers',   require('./routes/customers').router);
 app.use('/api/worker-register', require('./routes/worker-register'));
 app.use('/api/setup',       require('./routes/setup'));
 app.use('/api/settings',    require('./routes/settings'));
+app.use('/api/activity',    require('./routes/activity'));
+app.use('/api/backup',      require('./routes/backup'));
+app.use('/api/reviews',     require('./routes/reviews'));
+app.use('/api/expenses',    require('./routes/expenses'));
+app.use('/api/promotions',  require('./routes/promotions'));
 
 // Serve worker portal
 app.use('/worker', express.static(path.join(__dirname, '..', 'worker')));

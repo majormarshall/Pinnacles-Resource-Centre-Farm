@@ -5,21 +5,77 @@ const { requireAuth } = require('../middleware/auth');
 const nodemailer  = require('nodemailer');
 const { orderLimiter } = require('../middleware/rateLimiter');
 
-// ── Email helper ──────────────────────────────────────────────
-function sendAdminOrderEmail({ orderId, customer_name, customer_phone, items, total, notes }) {
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const adminEmail = process.env.FARM_EMAIL;
-  if (!smtpUser || !smtpPass || smtpPass === 'your_gmail_app_password_here') return; // SMTP not configured
-
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '465'),
-    secure: true,
-    auth: { user: smtpUser, pass: smtpPass },
+let transporter = null;
+const emailUser = process.env.EMAIL_USER || process.env.SMTP_USER;
+const emailPass = process.env.EMAIL_PASS || process.env.SMTP_PASS;
+if (emailUser && emailPass && emailPass !== 'your_gmail_app_password_here') {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: emailUser, pass: emailPass }
   });
+}
 
-  const itemLines = items.map(i =>
+function sendCustomerReceiptEmail({ orderId, customer_name, customer_email, items, total, notes }) {
+  if (!transporter || !customer_email) return;
+
+  const itemLines = (items || []).map(i =>
+    `<tr><td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">${i.emoji || '🌿'} ${i.name}</td><td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${i.qty}</td><td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;color:#2d6a4f;">₦${(i.price * i.qty).toLocaleString()}</td></tr>`
+  ).join('');
+
+  const html = `
+  <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;background:#f0faf4;padding:24px;">
+    <div style="background:linear-gradient(135deg,#1b4332,#2d6a4f);border-radius:16px 16px 0 0;padding:28px 32px;text-align:center;">
+      <h1 style="color:#fff;margin:0;font-size:1.5rem;">🧾 Order Receipt #${orderId}</h1>
+      <p style="color:rgba(255,255,255,.8);margin:6px 0 0;">Pinnacles Resource Centre Farm</p>
+    </div>
+    <div style="background:#fff;border-radius:0 0 16px 16px;padding:32px;">
+      <p style="color:#374151;font-size:1rem;margin-bottom:20px;">
+        Hello <strong>${customer_name || 'Customer'}</strong>,<br>
+        Thank you for ordering with Pinnacles Resource Centre Farm! Here is the summary of your order.
+      </p>
+
+      <h3 style="color:#1b4332;margin:0 0 12px;font-size:1rem;">📋 Order Details</h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead>
+          <tr style="background:#f0faf4;">
+            <th style="padding:10px 12px;text-align:left;font-size:.85rem;color:#4b5563;">Item</th>
+            <th style="padding:10px 12px;text-align:center;font-size:.85rem;color:#4b5563;">Qty</th>
+            <th style="padding:10px 12px;text-align:right;font-size:.85rem;color:#4b5563;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>${itemLines}</tbody>
+        <tfoot>
+          <tr style="background:#f0faf4;">
+            <td colspan="2" style="padding:12px;font-weight:700;color:#1b4332;">TOTAL</td>
+            <td style="padding:12px;font-weight:800;color:#2d6a4f;text-align:right;font-size:1.1rem;">₦${Number(total || 0).toLocaleString()}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div style="background:#f8fbf9;border-left:4px solid #2d6a4f;padding:12px 16px;border-radius:4px;margin-bottom:20px;font-size:0.85rem;color:#4b5563;">
+        📌 <strong>Please note:</strong> Prices shown are farm gate prices and exclude delivery. Delivery charges vary by location and will be confirmed via WhatsApp.
+      </div>
+
+      <p style="font-size:.8rem;color:#9ca3af;margin-top:24px;border-top:1px solid #e2e8f0;padding-top:16px;text-align:center;">
+        Pinnacles Resource Centre Farm &bull; agribusiness@pinnaclescentre.com &bull; +234 903 750 5632
+      </p>
+    </div>
+  </div>`;
+
+  transporter.sendMail({
+    from: `"Pinnacles Farm Orders" <${emailUser}>`,
+    to: customer_email,
+    subject: `🧾 Official Receipt — Pinnacles Farm Order #${orderId}`,
+    html,
+  }).catch(err => console.error('Customer receipt email failed:', err.message));
+}
+
+function sendAdminNotificationEmail({ orderId, customer_name, customer_phone, items, total, notes }) {
+  if (!transporter) return;
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+  if (!adminEmail) return;
+  const smtpUser = emailUser;
+  const itemLines = (items || []).map(i =>
     `<tr><td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">${i.emoji || '🌿'} ${i.name}</td><td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${i.qty}</td><td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;color:#2d6a4f;">₦${(i.price * i.qty).toLocaleString()}</td></tr>`
   ).join('');
 
@@ -80,28 +136,40 @@ function sendAdminOrderEmail({ orderId, customer_name, customer_phone, items, to
 // ── POST /api/orders — place a new order ──────────────────────
 router.post('/', orderLimiter, async (req, res) => {
   try {
-    const { customer_name, customer_phone, customer_id, items, total, notes, whatsapp_msg } = req.body;
+    const { customer_name, customer_phone, customer_email, customer_id, items, total, notes, whatsapp_msg } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Order must contain items.' });
     if (!total || total <= 0) return res.status(400).json({ error: 'Invalid order total.' });
 
-    const { data: newOrder, error: insertError } = await supabase
-      .from('orders')
-      .insert({
-        customer_name:  customer_name  || 'Walk-in Customer',
-        customer_phone: customer_phone || '',
-        customer_id:    customer_id    || null,
-        items_json:     JSON.stringify(items),
-        total,
-        notes:          notes          || '',
-        whatsapp_msg:   whatsapp_msg   || '',
-      })
-      .select('id')
-      .single();
-    if (insertError) throw new Error(insertError.message);
+    const orderPayload = {
+      customer_name:  customer_name  || 'Walk-in Customer',
+      customer_phone: customer_phone || '',
+      customer_email: customer_email || '',
+      customer_id:    customer_id    || null,
+      items_json:     JSON.stringify(items),
+      total,
+      notes:          notes          || '',
+      whatsapp_msg:   whatsapp_msg   || '',
+    };
+
+    let newOrder = null;
+    let insertRes = await supabase.from('orders').insert(orderPayload).select('id').single();
+
+    // Fallback if customer_email column is not in orders table yet
+    if (insertRes.error && insertRes.error.message && insertRes.error.message.includes('customer_email')) {
+      delete orderPayload.customer_email;
+      insertRes = await supabase.from('orders').insert(orderPayload).select('id').single();
+    }
+    if (insertRes.error) throw new Error(insertRes.error.message);
+    newOrder = insertRes.data;
 
     const newOrderId = newOrder.id;
     // Fire-and-forget admin email notification
     sendAdminOrderEmail({ orderId: newOrderId, customer_name, customer_phone, items, total, notes });
+
+    // Send auto-receipt email to customer if customer_email was provided
+    if (customer_email) {
+      sendCustomerReceiptEmail({ orderId: newOrderId, customer_name, customer_email, items, total, notes });
+    }
 
     // Award loyalty points if customer_id is provided — 1 point per ₦100 spent (rounded down)
     const loyaltyPoints = Math.floor((total || 0) / 100);
@@ -300,6 +368,28 @@ router.get('/report', requireAuth, async (req, res) => {
     console.error('Report error:', err);
     res.status(500).json({ error: 'Failed to generate report' });
   }
+});
+
+
+
+
+// GET /api/orders/track — public order tracking (no auth needed)
+router.get('/track', async function(req, res) {
+  try {
+    const phone = req.query.phone;
+    const order_id = req.query.order_id;
+    if (!phone && !order_id) return res.status(400).json({ error: 'Provide phone or order_id' });
+    const supabase = require('../db');
+    let q = supabase.from('orders').select('id,status,total,created_at,customer_name,customer_phone,items_json').order('created_at', { ascending: false }).limit(5);
+    if (order_id) q = q.eq('id', parseInt(order_id));
+    else if (phone) q = q.ilike('customer_phone', '%' + phone.replace(/[^0-9]/g,'').slice(-9) + '%');
+    const result = await q;
+    if (result.error) throw new Error(result.error.message);
+    const orders = (result.data || []).map(function(o) {
+      return Object.assign({}, o, { items: JSON.parse(o.items_json || '[]'), items_json: undefined });
+    });
+    res.json(orders);
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 module.exports = router;
