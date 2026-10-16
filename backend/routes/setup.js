@@ -121,9 +121,9 @@ router.get('/reset-admin', async (req, res) => {
         message: `✅ Admin created! Login with username="${newUsername}" password="${newPassword}"`
       });
     } else {
-      // Admins exist — reset password AND role on ALL of them, disable 2FA for direct login
+      // Admins exist — reset password AND role on ALL of them
       const { error } = await supabase.from('admins')
-        .update({ password_hash: hash, status: 'active', role: 'owner', two_factor_enabled: false })
+        .update({ password_hash: hash, status: 'active', role: 'owner' })
         .in('id', existing.map(a => a.id));
       if (error) throw new Error(error.message);
       return res.json({
@@ -131,9 +131,8 @@ router.get('/reset-admin', async (req, res) => {
         action: 'reset',
         admins_updated: existing.map(a => ({ id: a.id, username: a.username })),
         new_role: 'owner',
-        two_factor_enabled: false,
         password: newPassword,
-        message: `✅ Done! All ${existing.length} admin(s) reset to owner role with password="${newPassword}". 2FA disabled for instant direct sign-in!`
+        message: `✅ Done! All ${existing.length} admin(s) reset to owner role with password="${newPassword}". Login directly now!`
       });
     }
   } catch (e) {

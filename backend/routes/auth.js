@@ -119,7 +119,7 @@ router.post('/login', async (req, res) => {
     const assignedRole = cleanRole(admin.role);
 
     // ── 2FA Check ──
-    const is2FAEnabled = admin.two_factor_enabled !== false;
+    const is2FAEnabled = admin.two_factor_enabled === true;
     if (is2FAEnabled) {
       // Generate 6-digit numeric OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
