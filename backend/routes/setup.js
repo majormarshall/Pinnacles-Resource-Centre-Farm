@@ -98,16 +98,15 @@ router.get('/reset-admin', async (req, res) => {
   }
   try {
     const newPassword = req.query.password || 'Pinnacles2026!';
-    const newUsername = req.query.username || 'pinnacles_admin';
     const hash = bcrypt.hashSync(newPassword, 10);
 
     // Check existing admins
     const { data: existing } = await supabase.from('admins').select('id, username, role').limit(5);
 
     if (!existing || existing.length === 0) {
-      // Create fresh admin
+      // No admins at all — create one
       const { data, error } = await supabase.from('admins').insert({
-        username: newUsername,
+        username: 'pinnacles_admin',
         email: process.env.FARM_EMAIL || 'agribusiness@pinnaclescentre.com',
         password_hash: hash,
         role: 'owner',
@@ -122,19 +121,17 @@ router.get('/reset-admin', async (req, res) => {
         message: `✅ Admin created! Login with username="${newUsername}" password="${newPassword}"`
       });
     } else {
-      // Update the first (primary) admin
-      const primary = existing[0];
+      // Admins exist — reset password on ALL of them (don't change username, avoids duplicate key)
       const { error } = await supabase.from('admins')
-        .update({ password_hash: hash, status: 'active', username: newUsername })
-        .eq('id', primary.id);
+        .update({ password_hash: hash, status: 'active' })
+        .in('id', existing.map(a => a.id));
       if (error) throw new Error(error.message);
       return res.json({
         ok: true,
         action: 'reset',
-        username: newUsername,
+        admins_updated: existing.map(a => ({ id: a.id, username: a.username, role: a.role })),
         password: newPassword,
-        admins_found: existing.map(a => ({ id: a.id, username: a.username, role: a.role })),
-        message: `✅ Password reset! Login with username="${newUsername}" password="${newPassword}"`
+        message: `✅ Password reset on all ${existing.length} admin(s)! Login with your username and password="${newPassword}"`
       });
     }
   } catch (e) {
