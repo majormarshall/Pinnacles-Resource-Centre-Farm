@@ -43,11 +43,13 @@ function parseToken(token) {
 }
 
 // \u2500\u2500 Login \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+let pending2FAToken = null;
+
 async function handleLogin(e) {
   e.preventDefault();
   const btn = document.getElementById('login-btn');
   const errEl = document.getElementById('login-error');
-  btn.textContent = 'Signing in\u2026';
+  btn.textContent = 'Signing in…';
   btn.disabled = true;
   errEl.style.display = 'none';
   try {
@@ -55,6 +57,23 @@ async function handleLogin(e) {
       username: document.getElementById('login-username').value,
       password: document.getElementById('login-password').value
     }, false);
+
+    if (res.requires2FA) {
+      pending2FAToken = res.tempToken;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('otp-screen').style.display = 'flex';
+      const otpSub = document.getElementById('otp-sub-text');
+      if (otpSub) {
+        if (res.debug_otp) {
+          otpSub.innerHTML = `Your verification code is: <strong style="color:#fbbf24;font-size:1.1rem;letter-spacing:.1em">${res.debug_otp}</strong>`;
+        } else {
+          otpSub.textContent = res.message || 'Enter the 6-digit verification code sent to you.';
+        }
+      }
+      setTimeout(() => document.getElementById('login-otp')?.focus(), 100);
+      return;
+    }
+
     if (res.token) {
       authToken = res.token;
       localStorage.setItem('pinnacles_admin_token', authToken);
@@ -69,6 +88,43 @@ async function handleLogin(e) {
     btn.textContent = 'Sign In';
     btn.disabled = false;
   }
+}
+
+async function handleVerifyOtp(e) {
+  e.preventDefault();
+  const otpInput = document.getElementById('login-otp');
+  const errEl = document.getElementById('otp-error');
+  const btn = document.getElementById('otp-btn');
+  btn.textContent = 'Verifying…';
+  btn.disabled = true;
+  errEl.style.display = 'none';
+  try {
+    const res = await api('POST', '/auth/verify-otp', {
+      tempToken: pending2FAToken,
+      otp: otpInput.value.trim()
+    }, false);
+
+    if (res.token) {
+      authToken = res.token;
+      localStorage.setItem('pinnacles_admin_token', authToken);
+      document.getElementById('otp-screen').style.display = 'none';
+      showDashboard();
+    } else {
+      throw new Error(res.error || 'Verification failed');
+    }
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Verify & Sign In';
+    btn.disabled = false;
+  }
+}
+
+function cancel2FA() {
+  pending2FAToken = null;
+  document.getElementById('otp-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
 }
 
 function logout() {
