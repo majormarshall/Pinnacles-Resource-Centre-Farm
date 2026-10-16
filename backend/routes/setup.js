@@ -121,17 +121,18 @@ router.get('/reset-admin', async (req, res) => {
         message: `✅ Admin created! Login with username="${newUsername}" password="${newPassword}"`
       });
     } else {
-      // Admins exist — reset password on ALL of them (don't change username, avoids duplicate key)
+      // Admins exist — reset password AND role on ALL of them
       const { error } = await supabase.from('admins')
-        .update({ password_hash: hash, status: 'active' })
+        .update({ password_hash: hash, status: 'active', role: 'owner' })
         .in('id', existing.map(a => a.id));
       if (error) throw new Error(error.message);
       return res.json({
         ok: true,
         action: 'reset',
-        admins_updated: existing.map(a => ({ id: a.id, username: a.username, role: a.role })),
+        admins_updated: existing.map(a => ({ id: a.id, username: a.username })),
+        new_role: 'owner',
         password: newPassword,
-        message: `✅ Password reset on all ${existing.length} admin(s)! Login with your username and password="${newPassword}"`
+        message: `✅ Done! All ${existing.length} admin(s) reset to owner role with password="${newPassword}". Login now!`
       });
     }
   } catch (e) {
