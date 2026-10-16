@@ -89,4 +89,57 @@ router.get('/status', async (req, res) => {
   }
 });
 
+// GET /api/setup/reset-admin?secret=pinnacles-reset-2026
+// Resets or creates the admin account — remove from code after first use
+router.get('/reset-admin', async (req, res) => {
+  const secret = req.query.secret || req.headers['x-setup-secret'];
+  if (secret !== 'pinnacles-reset-2026') {
+    return res.status(403).json({ error: 'Invalid secret. Add ?secret=pinnacles-reset-2026 to the URL.' });
+  }
+  try {
+    const newPassword = req.query.password || 'Pinnacles2026!';
+    const newUsername = req.query.username || 'pinnacles_admin';
+    const hash = bcrypt.hashSync(newPassword, 10);
+
+    // Check existing admins
+    const { data: existing } = await supabase.from('admins').select('id, username, role').limit(5);
+
+    if (!existing || existing.length === 0) {
+      // Create fresh admin
+      const { data, error } = await supabase.from('admins').insert({
+        username: newUsername,
+        email: process.env.FARM_EMAIL || 'agribusiness@pinnaclescentre.com',
+        password_hash: hash,
+        role: 'owner',
+        status: 'active',
+      }).select('id, username').single();
+      if (error) throw new Error(error.message);
+      return res.json({
+        ok: true,
+        action: 'created',
+        username: newUsername,
+        password: newPassword,
+        message: `✅ Admin created! Login with username="${newUsername}" password="${newPassword}"`
+      });
+    } else {
+      // Update the first (primary) admin
+      const primary = existing[0];
+      const { error } = await supabase.from('admins')
+        .update({ password_hash: hash, status: 'active', username: newUsername })
+        .eq('id', primary.id);
+      if (error) throw new Error(error.message);
+      return res.json({
+        ok: true,
+        action: 'reset',
+        username: newUsername,
+        password: newPassword,
+        admins_found: existing.map(a => ({ id: a.id, username: a.username, role: a.role })),
+        message: `✅ Password reset! Login with username="${newUsername}" password="${newPassword}"`
+      });
+    }
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 module.exports = router;
