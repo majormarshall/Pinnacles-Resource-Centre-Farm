@@ -32,9 +32,15 @@ router.post('/', async (req, res) => {
 router.get('/', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase.from('product_reviews').select('*').order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42P01' || error.message?.includes('schema cache')) return res.json([]);
+      throw error;
+    }
     res.json(data || []);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    if (e.message?.includes('schema cache') || e.message?.includes('does not exist')) return res.json([]);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // PATCH /api/reviews/:id/approve

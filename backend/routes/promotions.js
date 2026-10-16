@@ -21,9 +21,15 @@ router.get('/active-flash-sale', async (req, res) => {
 router.get('/flash-sales', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase.from('flash_sales').select('*').order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42P01' || error.message?.includes('schema cache')) return res.json([]);
+      throw error;
+    }
     res.json(data || []);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    if (e.message?.includes('schema cache') || e.message?.includes('does not exist')) return res.json([]);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // POST /api/promotions/flash-sale — admin create
@@ -67,9 +73,15 @@ router.post('/validate-code', async (req, res) => {
 router.get('/codes', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase.from('discount_codes').select('*').order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42P01' || error.message?.includes('schema cache')) return res.json([]);
+      throw error;
+    }
     res.json(data || []);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    if (e.message?.includes('schema cache') || e.message?.includes('does not exist')) return res.json([]);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // POST /api/promotions/codes — admin create

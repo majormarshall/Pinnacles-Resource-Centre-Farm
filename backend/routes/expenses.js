@@ -11,9 +11,15 @@ router.get('/', requireAuth, async (req, res) => {
     let q = supabase.from('farm_expenses').select('*').order('expense_date', { ascending: false });
     if (category) q = q.eq('category', category);
     const { data, error } = await q.limit(200);
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42P01' || error.message?.includes('schema cache')) return res.json([]);
+      throw error;
+    }
     res.json(data || []);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    if (e.message?.includes('schema cache') || e.message?.includes('does not exist')) return res.json([]);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // GET /api/expenses/summary
@@ -23,7 +29,12 @@ router.get('/summary', requireAuth, async (req, res) => {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
     const yearStart  = new Date(now.getFullYear(), 0, 1).toISOString().slice(0, 10);
     const { data, error } = await supabase.from('farm_expenses').select('*');
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42P01' || error.message?.includes('schema cache')) {
+        return res.json({ total_month: 0, total_year: 0, total_all: 0, by_category: {}, count: 0 });
+      }
+      throw error;
+    }
     const all = data || [];
     const thisMonth = all.filter(e => e.expense_date >= monthStart);
     const thisYear  = all.filter(e => e.expense_date >= yearStart);
@@ -36,7 +47,12 @@ router.get('/summary', requireAuth, async (req, res) => {
       by_category: byCategory,
       count: all.length,
     });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    if (e.message?.includes('schema cache') || e.message?.includes('does not exist')) {
+      return res.json({ total_month: 0, total_year: 0, total_all: 0, by_category: {}, count: 0 });
+    }
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // POST /api/expenses
