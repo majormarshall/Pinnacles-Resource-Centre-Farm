@@ -12,6 +12,47 @@
 </head>
 <body>
 
+  
+  <!-- FORGOT PASSWORD PANEL -->
+  <div id="forgot-screen" class="login-screen" style="display:none">
+    <div class="login-card">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:2.5rem">🔐</div>
+        <h2 style="font-size:1.3rem;font-weight:800;color:#e0f0e0;margin:8px 0 4px">Reset Password</h2>
+        <p style="font-size:.83rem;color:rgba(255,255,255,.4);margin:0">Enter your username to get a reset code</p>
+      </div>
+      <!-- Step 1: Enter username -->
+      <div id="forgot-step1">
+        <div class="form-group">
+          <label>Username or Email</label>
+          <input type="text" id="forgot-username" placeholder="pinnacles_admin" autocomplete="username" />
+        </div>
+        <div id="forgot-msg" style="display:none;margin-bottom:14px;padding:12px 14px;border-radius:10px;font-size:.84rem"></div>
+        <button onclick="requestResetCode()" class="btn-primary full-width" id="forgot-btn">📨 Send Reset Code</button>
+        <button onclick="showLogin()" style="width:100%;background:none;border:none;color:rgba(255,255,255,.4);margin-top:12px;cursor:pointer;font-family:inherit;font-size:.83rem">← Back to Login</button>
+      </div>
+      <!-- Step 2: Enter OTP + new password -->
+      <div id="forgot-step2" style="display:none">
+        <div style="background:rgba(82,183,136,.1);border:1px solid rgba(82,183,136,.3);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:.83rem;color:#a3d9b8" id="forgot-step2-msg"></div>
+        <div class="form-group">
+          <label>Reset Code</label>
+          <input type="text" id="reset-otp" placeholder="6-digit code" maxlength="6" style="letter-spacing:.2em;font-size:1.1rem;text-align:center;font-weight:700" />
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="reset-new-pass" placeholder="Min 8 characters" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="reset-confirm-pass" placeholder="Repeat new password" autocomplete="new-password" />
+        </div>
+        <div id="reset-msg" style="display:none;margin-bottom:14px;padding:12px 14px;border-radius:10px;font-size:.84rem"></div>
+        <button onclick="submitPasswordReset()" class="btn-primary full-width" id="reset-btn">🔐 Reset Password</button>
+        <button onclick="document.getElementById('forgot-step2').style.display='none';document.getElementById('forgot-step1').style.display='block'" style="width:100%;background:none;border:none;color:rgba(255,255,255,.4);margin-top:12px;cursor:pointer;font-family:inherit;font-size:.83rem">← Try different username</button>
+      </div>
+    </div>
+  </div>
+
   <!-- LOGIN SCREEN -->
   <div id="login-screen" class="login-screen">
     <div class="login-card">
@@ -29,6 +70,7 @@
         </div>
         <div id="login-error" class="error-msg" style="display:none"></div>
         <button type="submit" class="btn-primary full-width" id="login-btn">Sign In</button>
+        <button type="button" id="forgot-link" onclick="showForgotPassword()" style="width:100%;background:none;border:none;color:rgba(255,255,255,.35);margin-top:10px;cursor:pointer;font-family:inherit;font-size:.8rem;text-decoration:underline;text-underline-offset:3px">Forgot password?</button>
       </form>
     </div>
   </div>

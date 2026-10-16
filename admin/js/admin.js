@@ -2965,3 +2965,174 @@ async function createAdminUser() {
     loadAdminUsersTab();
   } catch(e) { showAdminToast(e.message,'error'); }
 }
+
+
+// ═══════════════════════════════════════════════════════════════
+// FORGOT PASSWORD FLOW
+// ═══════════════════════════════════════════════════════════════
+function showForgotPassword() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('forgot-screen').style.display = 'flex';
+  setTimeout(() => document.getElementById('forgot-username')?.focus(), 100);
+}
+
+function showLogin() {
+  document.getElementById('forgot-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  // Reset forgot form
+  const s1 = document.getElementById('forgot-step1');
+  const s2 = document.getElementById('forgot-step2');
+  if (s1) s1.style.display = 'block';
+  if (s2) s2.style.display = 'none';
+  const msg = document.getElementById('forgot-msg');
+  if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+}
+
+async function requestResetCode() {
+  const username = (document.getElementById('forgot-username')?.value || '').trim();
+  if (!username) { showForgotMsg('Please enter your username or email', 'error'); return; }
+
+  const btn = document.getElementById('forgot-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sending...'; }
+
+  try {
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+
+    // Move to step 2
+    const step1 = document.getElementById('forgot-step1');
+    const step2 = document.getElementById('forgot-step2');
+    if (step1) step1.style.display = 'none';
+    if (step2) step2.style.display = 'block';
+
+    // Show reset token and instructions
+    const msgEl = document.getElementById('forgot-step2-msg');
+    if (msgEl) {
+      if (data.reset_token) {
+        msgEl.innerHTML = (data.email_sent
+          ? `✅ Code sent to <strong>${data.email_to || 'your email'}</strong>.<br>`
+          : `📋 Your reset code is: <br>`)
+          + `<div style="font-size:1.6rem;font-weight:800;letter-spacing:.2em;color:#fbbf24;margin:8px 0">${data.reset_token}</div>`
+          + `<span style="font-size:.78rem;color:rgba(255,255,255,.5)">Expires in 15 minutes. Enter it below.</span>`;
+      } else {
+        msgEl.textContent = data.message || 'Check your email for the reset code.';
+      }
+    }
+    // Store username for step 2
+    window._resetUsername = username;
+    document.getElementById('reset-otp')?.focus();
+  } catch (e) {
+    showForgotMsg(e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📨 Send Reset Code'; }
+  }
+}
+
+function showForgotMsg(msg, type) {
+  const el = document.getElementById('forgot-msg');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.background = type === 'error' ? 'rgba(248,113,113,.15)' : 'rgba(82,183,136,.15)';
+  el.style.border = '1px solid ' + (type === 'error' ? 'rgba(248,113,113,.3)' : 'rgba(82,183,136,.3)');
+  el.style.color = type === 'error' ? '#f87171' : '#a3d9b8';
+  el.textContent = msg;
+}
+
+async function submitPasswordReset() {
+  const otp          = (document.getElementById('reset-otp')?.value || '').trim();
+  const newPass      = document.getElementById('reset-new-pass')?.value || '';
+  const confirmPass  = document.getElementById('reset-confirm-pass')?.value || '';
+  const username     = window._resetUsername || '';
+
+  if (!otp)         { showResetMsg('Please enter the reset code', 'error'); return; }
+  if (!newPass)     { showResetMsg('Please enter a new password', 'error'); return; }
+  if (newPass.length < 8) { showResetMsg('Password must be at least 8 characters', 'error'); return; }
+  if (newPass !== confirmPass) { showResetMsg('Passwords do not match', 'error'); return; }
+
+  const btn = document.getElementById('reset-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Resetting...'; }
+
+  try {
+    const res = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, otp, new_password: newPass })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Reset failed');
+
+    showResetMsg('✅ Password reset successfully! Redirecting to login...', 'success');
+    setTimeout(() => {
+      showLogin();
+      // Pre-fill username
+      const unEl = document.getElementById('login-username');
+      if (unEl) unEl.value = username;
+      const pwEl = document.getElementById('login-password');
+      if (pwEl) { pwEl.value = ''; pwEl.focus(); }
+    }, 2000);
+  } catch (e) {
+    showResetMsg(e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔐 Reset Password'; }
+  }
+}
+
+function showResetMsg(msg, type) {
+  const el = document.getElementById('reset-msg');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.background = type === 'error' ? 'rgba(248,113,113,.15)' : 'rgba(82,183,136,.15)';
+  el.style.border = '1px solid ' + (type === 'error' ? 'rgba(248,113,113,.3)' : 'rgba(82,183,136,.3)');
+  el.style.color = type === 'error' ? '#f87171' : '#a3d9b8';
+  el.textContent = msg;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHANGE PASSWORD (logged-in admin — inside Settings tab)
+// ═══════════════════════════════════════════════════════════════
+function renderChangePasswordForm() {
+  return `
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;margin-top:24px">
+      <h3 style="font-size:1rem;font-weight:700;color:#a3d9b8;margin-bottom:18px">🔐 Change Password</h3>
+      <div class="form-group"><label>Current Password</label><input type="password" id="cp-current" placeholder="Your current password" autocomplete="current-password" /></div>
+      <div class="form-group"><label>New Password</label><input type="password" id="cp-new" placeholder="Min 8 characters" autocomplete="new-password" /></div>
+      <div class="form-group"><label>Confirm New Password</label><input type="password" id="cp-confirm" placeholder="Repeat new password" autocomplete="new-password" /></div>
+      <div id="cp-msg" style="display:none;padding:10px 14px;border-radius:8px;font-size:.84rem;margin-bottom:14px"></div>
+      <button onclick="submitChangePassword()" style="background:linear-gradient(135deg,#1b4332,#52b788);color:#fff;border:none;border-radius:10px;padding:11px 24px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem">🔐 Update Password</button>
+    </div>`;
+}
+
+async function submitChangePassword() {
+  const current = document.getElementById('cp-current')?.value || '';
+  const newPass  = document.getElementById('cp-new')?.value || '';
+  const confirm  = document.getElementById('cp-confirm')?.value || '';
+
+  if (!current) { showCpMsg('Enter your current password', 'error'); return; }
+  if (!newPass || newPass.length < 8) { showCpMsg('New password must be at least 8 characters', 'error'); return; }
+  if (newPass !== confirm) { showCpMsg('Passwords do not match', 'error'); return; }
+
+  try {
+    const data = await api('POST', '/auth/change-password', { current_password: current, new_password: newPass });
+    showCpMsg('✅ Password changed successfully!', 'success');
+    document.getElementById('cp-current').value = '';
+    document.getElementById('cp-new').value = '';
+    document.getElementById('cp-confirm').value = '';
+  } catch (e) {
+    showCpMsg(e.message, 'error');
+  }
+}
+
+function showCpMsg(msg, type) {
+  const el = document.getElementById('cp-msg');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.background = type === 'error' ? 'rgba(248,113,113,.15)' : 'rgba(82,183,136,.15)';
+  el.style.border = '1px solid ' + (type === 'error' ? 'rgba(248,113,113,.3)' : 'rgba(82,183,136,.3)');
+  el.style.color = type === 'error' ? '#f87171' : '#a3d9b8';
+  el.textContent = msg;
+}

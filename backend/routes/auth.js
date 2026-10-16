@@ -501,4 +501,170 @@ router.delete('/admins/:id', requireAuth, requireOwner, async (req, res) => {
   }
 });
 
+
+// ──────────────────────────────────────────────────────────────
+// FORGOT PASSWORD — POST /api/auth/forgot-password
+// Generates a 6-digit OTP, stores it, sends via email if configured
+// Also returns a reset token in the response (for WhatsApp delivery)
+// ──────────────────────────────────────────────────────────────
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { username } = req.body;
+    if (!username) return res.status(400).json({ error: 'Username or email required' });
+
+    // Find admin
+    const { data: admins } = await supabase.from('admins').select('id,username,email,role')
+      .or(`username.ilike.${username},email.ilike.${username}`).limit(1);
+    
+    if (!admins || admins.length === 0) {
+      // Security: don't reveal if account exists — still return ok
+      return res.json({ ok: true, message: 'If that account exists, a reset code has been sent.' });
+    }
+
+    const admin = admins[0];
+
+    // Generate 6-digit OTP
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 min
+
+    // Store OTP in memory (and try Supabase if table exists)
+    memoryOtps.set(`reset_${admin.id}`, { otp, expiresAt, adminId: admin.id });
+    await supabase.from('admin_otp').upsert({
+      admin_id: admin.id, otp_code: otp, expires_at: expiresAt, used: false
+    }, { onConflict: 'admin_id' }).catch(() => {});
+
+    // Try send email if SMTP configured
+    const emailUser = process.env.EMAIL_USER || process.env.SMTP_USER;
+    const emailPass = process.env.EMAIL_PASS || process.env.SMTP_PASS;
+    let emailSent = false;
+    if (emailUser && emailPass && emailPass !== 'your_gmail_app_password_here' && admin.email) {
+      try {
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: emailUser, pass: emailPass } });
+        await transporter.sendMail({
+          from: `"Pinnacles Farm" <${emailUser}>`,
+          to: admin.email,
+          subject: '🔐 Your Pinnacles Admin Reset Code',
+          html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">
+            <h2 style="color:#1b4332">🌾 Pinnacles Farm — Password Reset</h2>
+            <p>Hello <strong>${admin.username}</strong>,</p>
+            <p>Your one-time reset code is:</p>
+            <div style="background:#f0faf4;border:2px solid #52b788;border-radius:12px;padding:20px;text-align:center;margin:20px 0">
+              <span style="font-size:2.5rem;font-weight:800;letter-spacing:.2em;color:#1b4332">${otp}</span>
+            </div>
+            <p style="color:#6b7280;font-size:.85rem">This code expires in <strong>15 minutes</strong>. Do not share it with anyone.</p>
+            <p style="color:#6b7280;font-size:.8rem">— Pinnacles Resource Centre Farm Admin System</p>
+          </div>`
+        });
+        emailSent = true;
+      } catch (emailErr) {
+        console.error('Reset email failed:', emailErr.message);
+      }
+    }
+
+    res.json({
+      ok: true,
+      reset_token: otp, // Show token so it can be delivered via WhatsApp if email fails
+      email_sent: emailSent,
+      email_to: admin.email ? admin.email.replace(/(.{2})(.*)(@.*)/, '$1***$3') : null,
+      message: emailSent
+        ? `Reset code sent to ${admin.email.replace(/(.{2})(.*)(@.*)/, '$1***$3')}. Expires in 15 minutes.`
+        : `Your reset code is: ${otp}. Use it within 15 minutes.`,
+      expires_in_minutes: 15
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ──────────────────────────────────────────────────────────────
+// RESET PASSWORD — POST /api/auth/reset-password
+// Verifies OTP then sets new password
+// ──────────────────────────────────────────────────────────────
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { username, otp, new_password } = req.body;
+    if (!username || !otp || !new_password) {
+      return res.status(400).json({ error: 'username, otp, and new_password are required' });
+    }
+    if (new_password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+
+    // Find admin
+    const { data: admins } = await supabase.from('admins').select('id,username,email,role')
+      .or(`username.ilike.${username},email.ilike.${username}`).limit(1);
+    if (!admins || admins.length === 0) return res.status(404).json({ error: 'Account not found' });
+    const admin = admins[0];
+
+    // Check OTP — memory first, then Supabase
+    let otpValid = false;
+    const memOtp = memoryOtps.get(`reset_${admin.id}`);
+    if (memOtp && memOtp.otp === String(otp).trim() && new Date(memOtp.expiresAt) > new Date()) {
+      otpValid = true;
+      memoryOtps.delete(`reset_${admin.id}`);
+    } else {
+      // Try Supabase
+      const { data: dbOtp } = await supabase.from('admin_otp')
+        .select('*').eq('admin_id', admin.id).eq('otp_code', String(otp).trim())
+        .eq('used', false).gte('expires_at', new Date().toISOString()).maybeSingle();
+      if (dbOtp) {
+        otpValid = true;
+        await supabase.from('admin_otp').update({ used: true }).eq('admin_id', admin.id).catch(() => {});
+      }
+    }
+
+    if (!otpValid) return res.status(400).json({ error: 'Invalid or expired reset code. Request a new one.' });
+
+    // Set new password
+    const hash = bcrypt.hashSync(new_password, 10);
+    const { error: updateErr } = await supabase.from('admins')
+      .update({ password_hash: hash, status: 'active' }).eq('id', admin.id);
+    if (updateErr) throw new Error(updateErr.message);
+
+    logActivity({ admin_name: admin.username, admin_email: admin.email || '', action: 'password_reset', details: 'Password reset via forgot-password flow' }).catch(() => {});
+
+    res.json({ ok: true, message: '✅ Password updated successfully! You can now log in.' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ──────────────────────────────────────────────────────────────
+// CHANGE PASSWORD — POST /api/auth/change-password  (requires login)
+// ──────────────────────────────────────────────────────────────
+router.post('/change-password', requireAuth, async (req, res) => {
+  try {
+    const { current_password, new_password } = req.body;
+    if (!current_password || !new_password) {
+      return res.status(400).json({ error: 'current_password and new_password required' });
+    }
+    if (new_password.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+
+    const { data: admin } = await supabase.from('admins')
+      .select('id,username,email,password_hash').eq('id', req.user.id).single();
+    if (!admin) return res.status(404).json({ error: 'Account not found' });
+
+    if (!bcrypt.compareSync(String(current_password), admin.password_hash)) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+    if (current_password === new_password) {
+      return res.status(400).json({ error: 'New password must be different from current password' });
+    }
+
+    const hash = bcrypt.hashSync(new_password, 10);
+    const { error } = await supabase.from('admins').update({ password_hash: hash }).eq('id', admin.id);
+    if (error) throw new Error(error.message);
+
+    logActivity({ admin_name: admin.username, admin_email: admin.email || '', action: 'password_changed', details: 'Admin changed their own password' }).catch(() => {});
+
+    res.json({ ok: true, message: '✅ Password changed successfully!' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
 module.exports = router;

@@ -338,3 +338,22 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);heig
 /* ── New Admin Tab Styles ──────────────────────────────────── */
 .form-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px; }
 @media(max-width:640px) { .form-grid-2 { grid-template-columns:1fr; } }
+
+/* ── Forgot Password Screen ──────────────────────────────── */
+#forgot-screen .login-card {
+  animation: fadeSlideUp .35s ease;
+}
+#forgot-step2-msg strong { color: #fbbf24; }
+#reset-otp {
+  background: rgba(255,255,255,.07);
+  border: 2px solid rgba(82,183,136,.4);
+  border-radius: 10px;
+  padding: 12px;
+  color: #fff;
+  font-family: 'Outfit', monospace;
+  font-size: 1.3rem;
+  letter-spacing: .25em;
+  text-align: center;
+  width: 100%;
+}
+#reset-otp:focus { border-color: #52b788; outline: none; }
