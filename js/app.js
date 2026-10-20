@@ -231,6 +231,9 @@ function openModal(id) {
   `;
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('product-modal').classList.add('open');
+  if (window.PixelEngine && typeof window.PixelEngine.trackViewContent === 'function') {
+    window.PixelEngine.trackViewContent(p);
+  }
 }
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
@@ -248,6 +251,9 @@ function addToCart(id) {
   updateCartBadge();
   renderCartItems();
   showCartToast(p.name);
+  if (window.PixelEngine && typeof window.PixelEngine.trackAddToCart === 'function') {
+    window.PixelEngine.trackAddToCart(p, 1);
+  }
 }
 
 function removeFromCart(id) {
@@ -330,6 +336,9 @@ function sendOrderToWhatsApp() {
 
 function showOrderModal() {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  if (window.PixelEngine && typeof window.PixelEngine.trackInitiateCheckout === 'function') {
+    window.PixelEngine.trackInitiateCheckout(cart, total);
+  }
   const itemsSummary = cart.map(i => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:12px;">
       <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
@@ -625,10 +634,18 @@ async function submitOrder() {
     } catch { /* backend offline \u2014 still open WhatsApp */ }
   }
 
-  // 3 \u00E2\u201D\u2500 Show success with two send buttons
+  // 3 ── Show success with two send buttons
   showOrderSuccess(name, msg);
 
-  // 4 \u00E2\u201D\u2500 Clear cart
+  // Track Purchase in Pixel Engine
+  if (window.PixelEngine && typeof window.PixelEngine.trackPurchase === 'function') {
+    window.PixelEngine.trackPurchase({
+      total: total,
+      items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty }))
+    });
+  }
+
+  // 4 ── Clear cart
   cart = [];
   updateCartBadge();
   renderCartItems();

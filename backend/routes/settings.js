@@ -41,7 +41,6 @@ function saveSettings(data) {
   } catch (_) {}
   return memorySettings;
 }
-
 // GET /api/settings/hero - Public
 router.get('/hero', (req, res) => {
   res.json(readSettings());
@@ -57,6 +56,53 @@ router.post('/hero', requireAuth, (req, res) => {
   });
   res.json({ ok: true, settings: updated });
 });
+
+const PIXEL_FILE = path.join(os.tmpdir(), 'pinnacles_pixel_settings.json');
+
+const DEFAULT_PIXELS = {
+  meta_pixel_id: process.env.META_PIXEL_ID || '',
+  tiktok_pixel_id: process.env.TIKTOK_PIXEL_ID || '',
+  google_tag_id: process.env.GOOGLE_TAG_ID || ''
+};
+
+let memoryPixels = { ...DEFAULT_PIXELS };
+
+function readPixels() {
+  if (memoryPixels && memoryPixels.updated_at) return memoryPixels;
+  try {
+    if (fs.existsSync(PIXEL_FILE)) {
+      const data = JSON.parse(fs.readFileSync(PIXEL_FILE, 'utf8'));
+      memoryPixels = data;
+      return data;
+    }
+  } catch (_) {}
+  return memoryPixels || DEFAULT_PIXELS;
+}
+
+function savePixels(data) {
+  memoryPixels = { ...readPixels(), ...data, updated_at: new Date().toISOString() };
+  try {
+    fs.writeFileSync(PIXEL_FILE, JSON.stringify(memoryPixels), 'utf8');
+  } catch (_) {}
+  return memoryPixels;
+}
+
+// GET /api/settings/pixels - Public
+router.get('/pixels', (req, res) => {
+  res.json(readPixels());
+});
+
+// POST /api/settings/pixels - Admin
+router.post('/pixels', requireAuth, (req, res) => {
+  const { meta_pixel_id, tiktok_pixel_id, google_tag_id } = req.body || {};
+  const updated = savePixels({
+    meta_pixel_id: (meta_pixel_id || '').trim(),
+    tiktok_pixel_id: (tiktok_pixel_id || '').trim(),
+    google_tag_id: (google_tag_id || '').trim()
+  });
+  res.json({ ok: true, pixels: updated });
+});
+
 
 // GET /api/settings/email-status - Check email configuration status
 router.get('/email-status', requireAuth, (req, res) => {

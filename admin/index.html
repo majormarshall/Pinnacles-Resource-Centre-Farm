@@ -348,6 +348,29 @@
             <button class="btn-primary" onclick="generateAdvert()">&#x1F4E2; Generate Advert</button>
             <div id="advert-output" class="advert-box" style="display:none"></div>
           </div>
+          <div class="card">
+            <div class="card-header"><h3>📢 Tracking Pixels & Ads</h3></div>
+            <p class="card-desc">Configure Meta (Facebook), TikTok, and Google tracking IDs.</p>
+            <form onsubmit="savePixelSettings(event)">
+              <div class="form-group">
+                <label>Meta / Facebook Pixel ID</label>
+                <input type="text" id="setting-meta-pixel" placeholder="e.g. 1234567890123456" />
+                <small style="color:var(--text-muted);font-size:.75rem">Found in Meta Events Manager</small>
+              </div>
+              <div class="form-group">
+                <label>TikTok Pixel ID</label>
+                <input type="text" id="setting-tiktok-pixel" placeholder="e.g. C1234567890ABCDEFG" />
+                <small style="color:var(--text-muted);font-size:.75rem">Found in TikTok Ads Manager</small>
+              </div>
+              <div class="form-group">
+                <label>Google Tag ID (GA4 / Ads)</label>
+                <input type="text" id="setting-google-tag" placeholder="e.g. G-XXXXXXXXXX or AW-XXXXXXXXX" />
+                <small style="color:var(--text-muted);font-size:.75rem">Found in Google Analytics / Ads</small>
+              </div>
+              <div id="pixel-msg" class="success-msg" style="display:none"></div>
+              <button type="submit" class="btn-primary" id="save-pixel-btn">💾 Save Pixel Settings</button>
+            </form>
+          </div>
         </div>
       </section>
 

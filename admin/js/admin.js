@@ -187,6 +187,7 @@ function showTab(tab, el) {
     case 'wa-templates': loadWhatsAppTemplates(); break;
     case 'activity': loadActivityLog(); break;
     case 'admin-users-tab': loadAdminUsersTab(); break;
+    case 'settings': loadPixelSettings(); break;
   }
 }
 
@@ -3192,3 +3193,59 @@ function showCpMsg(msg, type) {
   el.style.color = type === 'error' ? '#f87171' : '#a3d9b8';
   el.textContent = msg;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// TRACKING PIXELS & ADS SETTINGS
+// ═══════════════════════════════════════════════════════════════
+async function loadPixelSettings() {
+  try {
+    const data = await api('GET', '/settings/pixels');
+    if (!data) return;
+    const metaEl = document.getElementById('setting-meta-pixel');
+    const ttEl = document.getElementById('setting-tiktok-pixel');
+    const gaEl = document.getElementById('setting-google-tag');
+    if (metaEl && data.meta_pixel_id) metaEl.value = data.meta_pixel_id;
+    if (ttEl && data.tiktok_pixel_id) ttEl.value = data.tiktok_pixel_id;
+    if (gaEl && data.google_tag_id) gaEl.value = data.google_tag_id;
+  } catch (_) {}
+}
+
+async function savePixelSettings(e) {
+  if (e) e.preventDefault();
+  const btn = document.getElementById('save-pixel-btn');
+  const msg = document.getElementById('pixel-msg');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  if (msg) msg.style.display = 'none';
+
+  const meta_pixel_id = (document.getElementById('setting-meta-pixel')?.value || '').trim();
+  const tiktok_pixel_id = (document.getElementById('setting-tiktok-pixel')?.value || '').trim();
+  const google_tag_id = (document.getElementById('setting-google-tag')?.value || '').trim();
+
+  try {
+    const res = await api('POST', '/settings/pixels', {
+      meta_pixel_id,
+      tiktok_pixel_id,
+      google_tag_id
+    });
+    if (res && res.ok) {
+      if (msg) {
+        msg.className = 'success-msg';
+        msg.textContent = '✅ Tracking pixels updated successfully!';
+        msg.style.display = 'block';
+      }
+      showAdminToast('✅ Pixel IDs saved!');
+    } else {
+      throw new Error(res?.error || 'Failed to save pixel settings');
+    }
+  } catch (err) {
+    if (msg) {
+      msg.className = 'error-msg';
+      msg.textContent = '❌ ' + err.message;
+      msg.style.display = 'block';
+    }
+    showAdminToast(err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save Pixel Settings'; }
+  }
+}
+
