@@ -281,6 +281,7 @@
             </select>
           </div>
           <button class="btn-primary" onclick="loadOrders()">&#x1F504; Refresh</button>
+          <button class="btn-success" onclick="openCreateInvoiceModal()" style="background:linear-gradient(135deg,#1b4332,#2d6a4f);border:1px solid #52b788">🧾 Create &amp; Print Invoice</button>
           <button class="btn-success" onclick="openWalkinModal()">&#x2795; Add Walk-in Order</button>
           <button class="btn-outline" onclick="openReportModal()">&#x1F4CA; Monthly Report</button>
         </div>
@@ -596,6 +597,99 @@
           &#x1F517; Copy Receipt Link (share with customer)
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- INVOICE MODAL -->
+  <div class="modal-overlay" id="invoice-modal-overlay" onclick="closeInvoiceModal()"></div>
+  <div class="modal" id="invoice-modal" style="max-width:550px;">
+    <div class="modal-header">
+      <h3>🧾 Customer Invoice</h3>
+      <button onclick="closeInvoiceModal()" class="modal-close">&#x2715;</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <div id="invoice-order-summary" style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:20px;font-size:.88rem;"></div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a id="invoice-print-btn" href="#" target="_blank"
+           style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;padding:13px 20px;border-radius:50px;font-weight:700;font-size:.92rem;text-decoration:none;text-align:center;">
+          🖨️ View &amp; Print Official Invoice
+        </a>
+        <button id="invoice-wa-btn" onclick="sendInvoiceWhatsApp()"
+           style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.4);color:#25D366;padding:13px 20px;border-radius:50px;font-weight:700;font-size:.92rem;cursor:pointer;width:100%;">
+          💬 Send Invoice via WhatsApp
+        </button>
+        <button onclick="copyInvoiceLink()"
+          style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:10px 20px;border-radius:50px;font-size:.82rem;cursor:pointer;font-family:inherit;">
+          🔗 Copy Direct Invoice Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE NEW CUSTOM INVOICE MODAL -->
+  <div class="modal-overlay" id="create-invoice-modal-overlay" onclick="closeCreateInvoiceModal()"></div>
+  <div class="modal" id="create-invoice-modal" style="max-width:580px;">
+    <div class="modal-header">
+      <h3>🧾 Generate New Invoice for Customer</h3>
+      <button onclick="closeCreateInvoiceModal()" class="modal-close">&#x2715;</button>
+    </div>
+    <div style="padding:20px 24px;max-height:80vh;overflow-y:auto;">
+      <form onsubmit="handleCreateCustomInvoice(event)">
+        <div class="form-group">
+          <label>Customer Name *</label>
+          <input type="text" id="ci-name" class="form-input" placeholder="e.g. Alh. Ibrahim / Bolaji Supermarket" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Phone / WhatsApp Number</label>
+            <input type="tel" id="ci-phone" class="form-input" placeholder="08012345678" />
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Customer Email (optional)</label>
+            <input type="email" id="ci-email" class="form-input" placeholder="customer@gmail.com" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Invoice Items</label>
+          <div style="display:flex;gap:6px;margin-bottom:6px;padding:0 2px">
+            <span style="flex:2;font-size:.72rem;color:#8b949e;font-weight:600;text-transform:uppercase">Produce</span>
+            <span style="width:65px;font-size:.72rem;color:#8b949e;font-weight:600;text-transform:uppercase">Qty</span>
+            <span style="width:95px;font-size:.72rem;color:#8b949e;font-weight:600;text-transform:uppercase">Price(₦)</span>
+            <span style="width:85px;font-size:.72rem;color:#52b788;font-weight:600;text-transform:uppercase;text-align:right">Subtotal</span>
+            <span style="width:32px"></span>
+          </div>
+          <div id="ci-items-list"></div>
+          <button type="button" class="btn-outline" style="margin-top:8px;width:100%" onclick="addCustomInvoiceItem()">+ Add Item Row</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Delivery Fee (₦)</label>
+            <input type="number" id="ci-delivery" class="form-input" value="0" min="0" oninput="calcCustomInvoiceTotal()" />
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Discount (₦)</label>
+            <input type="number" id="ci-discount" class="form-input" value="0" min="0" oninput="calcCustomInvoiceTotal()" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Invoice Notes / Terms (optional)</label>
+          <textarea id="ci-notes" class="form-input" rows="2" placeholder="e.g. Payment due within 7 days. Delivery to Offa market store #4."></textarea>
+        </div>
+
+        <div style="background:#f0faf4;padding:14px 18px;border-radius:12px;margin:16px 0;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.9rem;color:#1b4332;font-weight:600">Total Invoice Amount:</span>
+          <strong style="color:#1b4332;font-size:1.25rem;">₦<span id="ci-total-display">0</span></strong>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="btn-secondary" onclick="closeCreateInvoiceModal()">Cancel</button>
+          <button type="submit" class="btn-primary" id="ci-submit-btn">🧾 Save &amp; Open Printable Invoice</button>
+        </div>
+      </form>
     </div>
   </div>
 

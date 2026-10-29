@@ -563,6 +563,7 @@ async function loadOrders() {
               </select>
               <button class="btn-outline btn-sm" onclick="openOrderModal(${o.id})">View</button>
               <button class="btn-outline btn-sm" onclick="waOrderReply(${o.id})">\u{1F4AC} WhatsApp</button>
+              <button class="btn-outline btn-sm" onclick="openInvoiceModal(${o.id})">🧾 Invoice</button>
               <button class="btn-outline btn-sm" onclick="openReceiptModal(${o.id})">\u{1F4C4} Receipt</button>
               <button class="btn-outline btn-sm" onclick="openAttachReceiptModal(${o.id}, '${(o.customer_name||'').replace(/'/g,'')}', ${Number(o.total||0)})" style="border-color:rgba(82,183,136,.4);color:#52b788">&#x1F4F7; ${txnId ? 'Update Receipt' : 'Attach Receipt'}</button>
               <button class="btn-outline btn-sm btn-danger" onclick="deleteOrder(${o.id})">Delete</button>
@@ -1207,6 +1208,243 @@ async function sendReceiptWhatsApp() {
 function copyReceiptLink() {
   if (!currentReceiptUrl) { showToast('Receipt link not ready yet.'); return; }
   navigator.clipboard.writeText(currentReceiptUrl).then(() => showToast('\u{1F517} Receipt link copied!'));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INVOICE SYSTEM — Generate, Print & WhatsApp
+// ═══════════════════════════════════════════════════════════════
+let currentInvoiceOrderId = null;
+let currentInvoiceUrl     = null;
+let currentInvoiceOrder   = null;
+
+async function openInvoiceModal(orderId) {
+  currentInvoiceOrderId = orderId;
+  currentInvoiceUrl     = null;
+  currentInvoiceOrder   = null;
+
+  const printBtn = document.getElementById('invoice-print-btn');
+  const summaryEl = document.getElementById('invoice-order-summary');
+  if (printBtn) printBtn.href = '#';
+  if (summaryEl) summaryEl.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;">Generating invoice…</div>';
+
+  document.getElementById('invoice-modal-overlay').classList.add('open');
+  document.getElementById('invoice-modal').classList.add('open');
+
+  try {
+    const data = await api('GET', '/orders');
+    const order = (data.orders || []).find(o => o.id === orderId);
+    if (order) {
+      currentInvoiceOrder = order;
+      const itemsHtml = (order.items || []).map(i =>
+        '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.85rem;">' +
+        '<span>' + (i.emoji || '🌿') + ' ' + i.name + ' ×' + i.qty + '</span>' +
+        '<span style="font-weight:700;">₦' + Number(i.price * i.qty).toLocaleString() + '</span></div>'
+      ).join('');
+
+      summaryEl.innerHTML =
+        '<div style="font-weight:700;font-size:1rem;margin-bottom:8px;color:#a3d9b8;">🧾 Invoice for Order #' + order.id + '</div>' +
+        '<div style="color:var(--text-light);font-size:.88rem;margin-bottom:4px;"><strong>Customer:</strong> ' + (order.customer_name || 'Customer') + '</div>' +
+        '<div style="color:var(--text-muted);font-size:.82rem;margin-bottom:10px;">📱 ' + (order.customer_phone || 'No phone') + '</div>' +
+        itemsHtml +
+        '<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-weight:800;font-size:1.05rem;color:var(--green-light);">' +
+        '<span>Total Due</span><span>₦' + Number(order.total).toLocaleString() + '</span></div>';
+    }
+
+    const tokenData = await api('GET', '/orders/' + orderId + '/invoice-token');
+    if (tokenData && tokenData.invoiceUrl) {
+      currentInvoiceUrl = tokenData.invoiceUrl;
+      if (printBtn) printBtn.href = tokenData.invoiceUrl;
+    }
+  } catch (err) {
+    if (summaryEl) summaryEl.innerHTML = '<div style="color:var(--red);">Error: ' + err.message + '</div>';
+  }
+}
+
+function closeInvoiceModal() {
+  document.getElementById('invoice-modal-overlay').classList.remove('open');
+  document.getElementById('invoice-modal').classList.remove('open');
+}
+
+function sendInvoiceWhatsApp() {
+  if (!currentInvoiceOrder) return;
+  const o = currentInvoiceOrder;
+  const link = currentInvoiceUrl || (window.location.origin + '/api/invoice/' + o.id + '?format=html');
+  const msg = 'Hello ' + (o.customer_name || 'Customer') + '! 🌾\n\n' +
+    'Here is your official invoice from *Pinnacles Resource Centre Farm*:\n' +
+    'Order Ref: #' + o.id + '\n' +
+    'Total Due: ₦' + Number(o.total).toLocaleString('en-NG') + '\n\n' +
+    'View & Print Full Invoice:\n' + link + '\n\n' +
+    'Thank you for your business!';
+
+  const phone = (o.customer_phone || '').replace(/\D/g, '');
+  const url = phone
+    ? 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg)
+    : 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+function copyInvoiceLink() {
+  if (!currentInvoiceUrl) { showToast('Invoice link not ready yet.'); return; }
+  navigator.clipboard.writeText(currentInvoiceUrl).then(() => showToast('🔗 Invoice link copied!'));
+}
+
+// ── CUSTOM INVOICE CREATION MODAL ──────────────────────────────
+function openCreateInvoiceModal() {
+  document.getElementById('ci-name').value = '';
+  document.getElementById('ci-phone').value = '';
+  document.getElementById('ci-email').value = '';
+  document.getElementById('ci-delivery').value = '0';
+  document.getElementById('ci-discount').value = '0';
+  document.getElementById('ci-notes').value = '';
+  document.getElementById('ci-items-list').innerHTML = '';
+  document.getElementById('ci-total-display').textContent = '0';
+
+  addCustomInvoiceItem();
+  document.getElementById('create-invoice-modal-overlay').classList.add('open');
+  document.getElementById('create-invoice-modal').classList.add('open');
+}
+
+function closeCreateInvoiceModal() {
+  document.getElementById('create-invoice-modal-overlay').classList.remove('open');
+  document.getElementById('create-invoice-modal').classList.remove('open');
+}
+
+function addCustomInvoiceItem() {
+  const container = document.getElementById('ci-items-list');
+  if (!container) return;
+  const rowId = 'ci-row-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+
+  // Use cached products if available
+  const prods = (window._inventoryProducts && window._inventoryProducts.length)
+    ? window._inventoryProducts
+    : [];
+
+  const optHtml = prods.map(p =>
+    `<option value="${p.id}" data-name="${p.name}" data-price="${p.price}" data-emoji="${p.emoji||'🌿'}">${p.emoji||''} ${p.name} (₦${Number(p.price).toLocaleString()})</option>`
+  ).join('');
+
+  const row = document.createElement('div');
+  row.id = rowId;
+  row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:8px;';
+  row.innerHTML = `
+    <select class="form-input ci-item-select" style="flex:2;padding:8px 10px;font-size:.85rem;" onchange="onCustomInvoiceProductChange('${rowId}', this)">
+      <option value="">-- Choose produce --</option>
+      ${optHtml}
+      <option value="custom">✍️ Custom item name</option>
+    </select>
+    <input type="text" class="form-input ci-custom-name" style="flex:2;display:none;padding:8px 10px;font-size:.85rem;" placeholder="Produce name" />
+    <input type="number" class="form-input ci-item-qty" style="width:65px;padding:8px 6px;text-align:center;font-size:.85rem;" value="1" min="1" oninput="calcCustomInvoiceTotal()" />
+    <input type="number" class="form-input ci-item-price" style="width:95px;padding:8px 8px;font-size:.85rem;" placeholder="Price" min="0" oninput="calcCustomInvoiceTotal()" />
+    <span class="ci-row-subtotal" style="width:85px;text-align:right;font-weight:700;color:#52b788;font-size:.85rem;">₦0</span>
+    <button type="button" onclick="document.getElementById('${rowId}').remove(); calcCustomInvoiceTotal();" style="width:32px;height:32px;border:none;background:rgba(231,111,81,.15);color:#f87171;border-radius:8px;cursor:pointer;font-size:1rem;">×</button>
+  `;
+  container.appendChild(row);
+  calcCustomInvoiceTotal();
+}
+
+function onCustomInvoiceProductChange(rowId, selectEl) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  const customInput = row.querySelector('.ci-custom-name');
+  const priceInput = row.querySelector('.ci-item-price');
+  const selectedOpt = selectEl.options[selectEl.selectedIndex];
+
+  if (selectEl.value === 'custom') {
+    selectEl.style.display = 'none';
+    customInput.style.display = 'block';
+    customInput.focus();
+    priceInput.value = '';
+  } else if (selectedOpt && selectedOpt.dataset.price) {
+    priceInput.value = selectedOpt.dataset.price;
+  }
+  calcCustomInvoiceTotal();
+}
+
+function calcCustomInvoiceTotal() {
+  let subtotal = 0;
+  const rows = document.querySelectorAll('#ci-items-list > div');
+  rows.forEach(r => {
+    const qty = Number(r.querySelector('.ci-item-qty')?.value || 0);
+    const price = Number(r.querySelector('.ci-item-price')?.value || 0);
+    const line = qty * price;
+    subtotal += line;
+    const subEl = r.querySelector('.ci-row-subtotal');
+    if (subEl) subEl.textContent = '₦' + line.toLocaleString();
+  });
+
+  const delivery = Number(document.getElementById('ci-delivery')?.value || 0);
+  const discount = Number(document.getElementById('ci-discount')?.value || 0);
+  const grand = Math.max(0, subtotal + delivery - discount);
+
+  const display = document.getElementById('ci-total-display');
+  if (display) display.textContent = grand.toLocaleString();
+  return grand;
+}
+
+async function handleCreateCustomInvoice(e) {
+  e.preventDefault();
+  const btn = document.getElementById('ci-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Generating Invoice…';
+
+  const customer_name = document.getElementById('ci-name').value.trim();
+  const customer_phone = document.getElementById('ci-phone').value.trim();
+  const customer_email = document.getElementById('ci-email').value.trim();
+  const delivery_fee = Number(document.getElementById('ci-delivery').value || 0);
+  const discount = Number(document.getElementById('ci-discount').value || 0);
+  const notes = document.getElementById('ci-notes').value.trim();
+
+  const items = [];
+  document.querySelectorAll('#ci-items-list > div').forEach(r => {
+    const select = r.querySelector('.ci-item-select');
+    const custom = r.querySelector('.ci-custom-name');
+    let name = '';
+    let emoji = '🌿';
+    if (select.value === 'custom' || custom.style.display !== 'none') {
+      name = custom.value.trim() || 'Custom Item';
+    } else if (select.selectedIndex > 0) {
+      name = select.options[select.selectedIndex].dataset.name || select.options[select.selectedIndex].text;
+      emoji = select.options[select.selectedIndex].dataset.emoji || '🌿';
+    }
+    const qty = Number(r.querySelector('.ci-item-qty')?.value || 1);
+    const price = Number(r.querySelector('.ci-item-price')?.value || 0);
+    if (name) {
+      items.push({ name, emoji, qty, price });
+    }
+  });
+
+  if (!items.length) {
+    showToast('Please add at least 1 produce item to the invoice.', 'error');
+    btn.disabled = false;
+    btn.textContent = '🧾 Save & Open Printable Invoice';
+    return;
+  }
+
+  try {
+    const res = await api('POST', '/invoice/custom', {
+      customer_name,
+      customer_phone,
+      customer_email,
+      delivery_fee,
+      discount,
+      notes,
+      items
+    });
+
+    if (res && res.invoiceUrl) {
+      showToast('✅ Invoice created successfully!');
+      closeCreateInvoiceModal();
+      loadOrders();
+      window.open(res.invoiceUrl, '_blank');
+    } else {
+      throw new Error(res?.error || 'Failed to generate invoice');
+    }
+  } catch (err) {
+    showToast('❌ ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🧾 Save & Open Printable Invoice';
+  }
 }
 
 

@@ -72,9 +72,31 @@ app.use('/api/promotions',  require('./routes/promotions'));
 app.use('/worker', express.static(path.join(__dirname, '..', 'worker')));
 
 
-// â”€â”€ Receipt Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Receipt Routes ────────────────────────────────────────────
 const { router: receiptRouter, buildReceiptHtml, verifyToken, streamReceiptPdf } = require('./routes/receipt');
 app.use('/api/orders', receiptRouter); // adds /:id/receipt-token and /:id/receipt/email
+
+// ── Invoice Routes ────────────────────────────────────────────
+const { router: invoiceRouter, buildInvoiceHtml, verifyInvoiceToken } = require('./routes/invoice');
+app.use('/api/orders', invoiceRouter); // adds /:id/invoice-token
+app.use('/api/invoice', invoiceRouter); // adds /custom and /:orderId
+
+// ── Public invoice page (/invoice/:id/:token) ────────────────
+app.get('/invoice/:id/:token', async (req, res) => {
+  const { id, token } = req.params;
+  if (!verifyInvoiceToken(id, token)) {
+    return res.status(403).send('<h2 style="font-family:sans-serif;padding:40px;">Invalid or expired invoice link.</h2>');
+  }
+  try {
+    const supabase = require('./db');
+    const { data: order } = await supabase.from('orders').select('*').eq('id', id).single();
+    if (!order) return res.status(404).send('<h2 style="font-family:sans-serif;padding:40px;">Order not found.</h2>');
+    order.items = JSON.parse(order.items_json || '[]');
+    return res.send(buildInvoiceHtml(order, req.query));
+  } catch (e) {
+    return res.status(500).send('<h2 style="font-family:sans-serif;padding:40px;">Error: ' + e.message + '</h2>');
+  }
+});
 
 // â”€â”€ Public receipt page (/receipt/:id/:token) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/receipt/:id/:token', async (req, res) => {
